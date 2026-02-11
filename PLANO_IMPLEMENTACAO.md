@@ -572,8 +572,19 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 - [x] Product model atualizado com novos campos no fillable e casts
 - [x] StockItem model: hook `booted()` para auto-cálculo de validade
 
-**Próximos passos:**
-- 15b: Interface de cadastro (select de produtos), alertas dashboard, relatório validades
+---
+
+## Passo 15b — Monitoramento de Material de Uso Duradouro ✅
+
+- [x] Rota `/durables` para página de monitoramento de produtos duráveis
+- [x] Método `durables()` no StockController com agregações por produto
+- [x] View `stock/durables.blade.php` com design SAGA (emerald/glassmorphism)
+- [x] Dashboard de produtos duráveis com estatísticas (total, disponível, emprestado, danificado)
+- [x] Alertas de validade: itens vencidos (vermelho) e vencendo em 30 dias (amarelo)
+- [x] Detalhamento collapsible de cada produto com tabela de itens
+- [x] Link no menu de navegação principal entre "Estoque" e "Cautelas" (desktop + mobile)
+- [x] Quick stats globais: total de itens, disponíveis, emprestados, danificados, vencendo, vencidos
+- [x] Ordenação por nome, total, disponíveis, emprestados ou validade
 
 ---
 
@@ -649,4 +660,4 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-*Última atualização: 11/02/2026 — Passo 15a (Estrutura Produtos com Validade SISCOFIS) concluído ✅*
+*Última atualização: 11/02/2026 — Passo 15b (Monitoramento Material Uso Duradouro) concluído ✅*

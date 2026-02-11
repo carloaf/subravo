@@ -246,4 +246,71 @@ class StockController extends Controller
 
         return view('stock.label', compact('items', 'qrCodes', 'stockItem', 'multipleItems'));
     }
+
+    /**
+     * Listagem de produtos de uso duradouro (is_durable = true).
+     */
+    public function durables(Request $request)
+    {
+        // Produtos duráveis
+        $durableProducts = Product::where('is_durable', true)
+            ->with('category')
+            ->orderBy('name')
+            ->get();
+
+        // Itens de estoque por produto durável com agregações
+        $durableItems = collect();
+
+        foreach ($durableProducts as $product) {
+            $stockItems = StockItem::where('product_id', $product->id)
+                ->with('product.category')
+                ->get();
+
+            if ($stockItems->isEmpty()) {
+                continue;
+            }
+
+            $totalQuantity = $stockItems->sum('quantity');
+            $availableQty  = $stockItems->where('status', 'available')->sum('quantity');
+            $loanedQty     = $stockItems->where('status', 'loaned')->sum('quantity');
+            $damagedQty    = $stockItems->where('status', 'damaged')->sum('quantity');
+
+            // Itens próximos do vencimento (30 dias)
+            $expiringSoon = $stockItems->filter(function ($item) {
+                return $item->expiration_date && $item->expiration_date->lte(now()->addDays(30)) && $item->expiration_date->gt(now()) && $item->status === 'available';
+            })->count();
+
+            // Itens vencidos
+            $expired = $stockItems->filter(function ($item) {
+                return $item->expiration_date && $item->expiration_date->lt(now()) && $item->status === 'available';
+            })->count();
+
+            $durableItems->push((object) [
+                'product'       => $product,
+                'total'         => $totalQuantity,
+                'available'     => $availableQty,
+                'loaned'        => $loanedQty,
+                'damaged'       => $damagedQty,
+                'expiring_soon' => $expiringSoon,
+                'expired'       => $expired,
+                'items'         => $stockItems,
+            ]);
+        }
+
+        // Ordenação
+        $sortBy = $request->get('sort', 'name');
+        $sortDir = $request->get('dir', 'asc');
+
+        $durableItems = $durableItems->sortBy(function ($item) use ($sortBy) {
+            switch ($sortBy) {
+                case 'total': return $item->total;
+                case 'available': return $item->available;
+                case 'loaned': return $item->loaned;
+                case 'expiring': return $item->expiring_soon + $item->expired;
+                default: return $item->product->name;
+            }
+        }, SORT_REGULAR, $sortDir === 'desc');
+
+        return view('stock.durables', compact('durableItems', 'durableProducts'));
+    }
 }

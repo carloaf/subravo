@@ -49,6 +49,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/stock/{stockItem}/label', [StockController::class, 'label'])->name('stock.label');
     Route::post('/stock/labels-batch', [StockController::class, 'labelsBatch'])->name('stock.labelsBatch');
 
+    // ── Uso Duradouro ─────────────────────────────────────────
+    Route::get('/durables', [StockController::class, 'durables'])->name('durables.index');
+
     // ── Empréstimos (Cautelas) ────────────────────────────────
     Route::get('/loans', [LoanController::class, 'index'])->name('loans.index');
     Route::get('/loans/create', [LoanController::class, 'create'])->name('loans.create');
