@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'category_id',
+        'unit',
+        'minimum_stock',
+        'is_serialized',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_serialized' => 'boolean',
+            'minimum_stock' => 'integer',
+        ];
+    }
+
+    // ─── Relationships ───────────────────────────────────────────
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function stockItems()
+    {
+        return $this->hasMany(StockItem::class);
+    }
+
+    // ─── Scopes ──────────────────────────────────────────────────
+
+    public function scopeByCategory($query, int $categoryId)
+    {
+        return $query->where('category_id', $categoryId);
+    }
+
+    public function scopeSerialized($query)
+    {
+        return $query->where('is_serialized', true);
+    }
+
+    // ─── Stock helpers ───────────────────────────────────────────
+
+    /**
+     * Quantidade total disponível em estoque.
+     */
+    public function getAvailableStock(): int
+    {
+        return $this->stockItems()
+            ->where('status', 'available')
+            ->sum('quantity');
+    }
+
+    /**
+     * Quantidade total em empréstimo.
+     */
+    public function getLoanedStock(): int
+    {
+        return $this->stockItems()
+            ->where('status', 'loaned')
+            ->sum('quantity');
+    }
+
+    /**
+     * Verifica se o estoque está abaixo do mínimo.
+     */
+    public function isBelowMinimum(): bool
+    {
+        return $this->getAvailableStock() < $this->minimum_stock;
+    }
+}

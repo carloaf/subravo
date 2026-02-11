@@ -1,0 +1,56 @@
+# =============================================================================
+# .dockerignore — SUBRAVO
+# =============================================================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE / Editor
+.idea/
+.vscode/
+.fleet/
+*.swp
+*.swo
+
+# Node modules (rebuilt in frontend stage)
+node_modules/
+
+# Vendor (rebuilt in composer stage)
+vendor/
+
+# Build artifacts (rebuilt in frontend stage)
+public/build/
+public/hot
+
+# Environment
+.env
+.env.backup
+.env.production
+
+# Storage (runtime data)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Tests / CI
+tests/
+phpunit.xml
+.phpunit.cache/
+.phpunit.result.cache
+
+# Docker itself
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile
+
+# Docs
+README.md
+PLANO_IMPLEMENTACAO.md
+.github/
+
+# OS
+.DS_Store
+Thumbs.db

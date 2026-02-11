@@ -1,0 +1,121 @@
+# =============================================================================
+# Docker Compose - SUBRAVO Development Environment
+# =============================================================================
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: runtime
+            args:
+                BUILDPLATFORM: ${BUILDPLATFORM:-}
+                TARGETPLATFORM: ${TARGETPLATFORM:-}
+        image: subravo/app:dev
+        container_name: subravo_app
+        restart: unless-stopped
+        working_dir: /var/www/html
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - subravo_network
+        depends_on:
+            database:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        ports:
+            - "${APP_PORT:-8000}:80"
+        env_file: .env
+        environment:
+            - CONTAINER_ROLE=app
+
+    scheduler:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: runtime
+        image: subravo/app:dev
+        container_name: subravo_scheduler
+        restart: unless-stopped
+        working_dir: /var/www/html
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - subravo_network
+        depends_on:
+            database:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        env_file: .env
+        entrypoint: []
+        command: ["bash", "-c", "echo '→ SUBRAVO Scheduler iniciado' && while true; do php /var/www/html/artisan schedule:run --no-interaction >> /dev/null 2>&1; sleep 60; done"]
+        healthcheck:
+            disable: true
+
+    database:
+        image: postgres:16-alpine
+        container_name: subravo_db
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:-subravo}
+            POSTGRES_USER: ${DB_USERNAME:-subravo_user}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-subravo_password}
+            PGDATA: /var/lib/postgresql/data/pgdata
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - subravo_network
+        ports:
+            - "${DB_EXTERNAL_PORT:-5434}:5432"
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-subravo_user} -d ${DB_DATABASE:-subravo}"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 10s
+
+    redis:
+        image: redis:7-alpine
+        container_name: subravo_redis
+        restart: unless-stopped
+        command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+        volumes:
+            - redis_data:/data
+        networks:
+            - subravo_network
+        ports:
+            - "${REDIS_EXTERNAL_PORT:-6380}:6379"
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+
+    mailpit:
+        image: axllent/mailpit
+        container_name: subravo_mailpit
+        restart: unless-stopped
+        networks:
+            - subravo_network
+        ports:
+            - "${MAILPIT_SMTP_PORT:-1025}:1025"
+            - "${MAILPIT_UI_PORT:-8025}:8025"
+        environment:
+            MP_MAX_MESSAGES: 5000
+            MP_DATABASE: /data/mailpit.db
+            MP_SMTP_AUTH_ACCEPT_ANY: 1
+            MP_SMTP_AUTH_ALLOW_INSECURE: 1
+        volumes:
+            - mailpit_data:/data
+
+networks:
+    subravo_network:
+        driver: bridge
+
+volumes:
+    postgres_data:
+    redis_data:
+    mailpit_data:

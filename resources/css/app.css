@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    /* Linha de tabela com hover */
+    .table-row-hover {
+        @apply hover:bg-gray-50 transition-colors;
+    }
+
+    /* Link de ação em tabela */
+    .table-action {
+        @apply text-sm text-emerald-600 hover:text-emerald-800 font-medium transition;
+    }
+
+    /* Container de formulário */
+    .form-section {
+        @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+    }
+
+    /* Divisor de seções */
+    .section-divider {
+        @apply border-t border-gray-100 my-6;
+    }
+}
