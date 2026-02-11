@@ -550,14 +550,15 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 14 — Dados de Demonstração ⬜
+## Passo 14 — Dados de Demonstração ✅
 
-- [ ] `DemoSeeder` com ~50 produtos de intendência realistas (barracas, colchonetes, marmitas, talheres, etc.)
-- [ ] ~200 itens de estoque com lotes, validades variadas, localizações
-- [ ] ~30 cautelas (ativas, devolvidas, parciais, vencidas) com itens
-- [ ] ~5 usuários com diferentes perfis (admin, almoxarife, solicitante)
-- [ ] Movimentações históricas realistas (entradas, saídas, devoluções)
-- [ ] Comando `php artisan db:seed --class=DemoSeeder` separado do seed padrão
+- [x] `DemoSeeder` com 40 produtos de intendência realistas (Japonas PP/P/M/G/GG, Toldo, Barracas 2P/4P, Sacos Dormir, Colchonetes, Redes, Mochilas, Capacetes, Panelas, Lanternas, Coturno, Gandola, Cantis, Marmitas, Talheres, Cobertores, Bandejas, Canecas, Pá, Picareta, Facão, Papel, Caneta, Corda, etc.)
+- [x] 192 itens de estoque com lotes, validades variadas, localizações (serializados + bulk)
+- [x] 6 cautelas (ativas, vencidas, devolvidas, parcial) com itens variados
+- [x] 5 usuários demo (2 almoxarifes, 2 solicitantes, 1 auditor) + 1 admin = 6 total
+- [x] 220 movimentações históricas realistas (entradas SISCOFIS, empréstimos, devoluções, ajustes)
+- [x] Comando `php artisan db:seed --class=DemoSeeder` separado do seed padrão
+- [x] Credenciais de teste documentadas (senha: `subravo2026`)
 
 ---
 
@@ -633,4 +634,4 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-*Última atualização: 10/02/2026 — Passo 13 (Layout SAGA) concluído ✅*
+*Última atualização: 10/02/2026 — Passo 14 (Dados de Demonstração) concluído ✅*
