@@ -11,18 +11,23 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'siscofis_code',
         'description',
         'category_id',
         'unit',
         'minimum_stock',
         'is_serialized',
+        'is_durable',
+        'shelf_life_months',
     ];
 
     protected function casts(): array
     {
         return [
             'is_serialized' => 'boolean',
+            'is_durable' => 'boolean',
             'minimum_stock' => 'integer',
+            'shelf_life_months' => 'integer',
         ];
     }
 

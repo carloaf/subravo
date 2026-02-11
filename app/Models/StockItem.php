@@ -16,6 +16,15 @@ class StockItem extends Model
             if ($item->quantity < 0) {
                 throw new \DomainException("Quantidade do item de estoque não pode ser negativa.");
             }
+
+            // Auto-calcular expiration_date se tiver siscofis_entry_date e produto com shelf_life_months
+            if ($item->siscofis_entry_date && !$item->expiration_date && $item->product_id) {
+                $product = $item->product ?? Product::find($item->product_id);
+                
+                if ($product && $product->shelf_life_months) {
+                    $item->expiration_date = $item->siscofis_entry_date->copy()->addMonths($product->shelf_life_months);
+                }
+            }
         });
     }
 

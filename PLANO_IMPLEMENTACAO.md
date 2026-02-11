@@ -562,7 +562,22 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 15 — PHPUnit / Feature Tests ⬜
+## Passo 15a — Estrutura de Produtos com Validade SISCOFIS ✅
+
+- [x] Migration para adicionar `siscofis_code`, `shelf_life_months` e `is_durable` em `products`
+- [x] Arquivo mestre `database/data/military_products.php` com 40 produtos padronizados
+- [x] Cada produto tem: nome, categoria, unidade, código SISCOFIS, validade em meses, flags serializado/durável, estoque mínimo
+- [x] Campo `is_durable` (Uso Duradouro): true para itens metálicos/ferramentas (12 produtos), false para tecidos/consumíveis (28 produtos)
+- [x] Lógica automática: ao criar `StockItem` com `siscofis_entry_date`, calcula `expiration_date` = data entrada + validade do produto
+- [x] Product model atualizado com novos campos no fillable e casts
+- [x] StockItem model: hook `booted()` para auto-cálculo de validade
+
+**Próximos passos:**
+- 15b: Interface de cadastro (select de produtos), alertas dashboard, relatório validades
+
+---
+
+## Passo 16 — PHPUnit / Feature Tests ⬜
 
 - [ ] Testes de autenticação (login válido, inválido, logout, middleware)
 - [ ] Testes CRUD de produtos e categorias
@@ -576,7 +591,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 16 — Backup Automático ⬜
+## Passo 17 — Backup Automático ⬜
 
 - [ ] Script `backup-db.sh` com `pg_dump` compactado
 - [ ] Container sidecar ou cron para backup diário
@@ -586,7 +601,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 17 — Roles e Permissões Completos ⬜
+## Passo 18 — Roles e Permissões Completos ⬜
 
 - [ ] Ativar perfis: `almoxarife` (estoque+cautelas), `solicitante` (visualização), `auditor` (relatórios)
 - [ ] Middleware `role:` expandido com permissões granulares
@@ -596,7 +611,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 18 — Notificações ⬜
+## Passo 19 — Notificações ⬜
 
 - [ ] Alertas por email para cautelas vencidas (Mailpit → SMTP real)
 - [ ] Notificação de estoque crítico para admin/almoxarife
@@ -605,7 +620,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 19 — Importação SISCOFIS ⬜
+## Passo 20 — Importação SISCOFIS ⬜
 
 - [ ] Upload de planilha Excel/CSV para carga em massa do estoque
 - [ ] Tela de mapeamento de colunas
@@ -615,7 +630,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 20 — Auditoria Completa ⬜
+## Passo 21 — Auditoria Completa ⬜
 
 - [ ] Log de todas as ações do usuário (login, CRUD, exports) com IP e timestamp
 - [ ] Tabela `audit_logs` com user_id, action, model, changes, ip, user_agent
@@ -625,7 +640,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 21 — PWA / Modo Offline ⬜
+## Passo 22 — PWA / Modo Offline ⬜
 
 - [ ] Service worker para cache de assets e páginas estáticas
 - [ ] Manifest completo com ícones
@@ -634,4 +649,4 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-*Última atualização: 10/02/2026 — Passo 14 (Dados de Demonstração) concluído ✅*
+*Última atualização: 11/02/2026 — Passo 15a (Estrutura Produtos com Validade SISCOFIS) concluído ✅*
