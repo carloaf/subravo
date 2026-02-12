@@ -46,6 +46,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/stock/{stockItem}', [StockController::class, 'show'])->name('stock.show');
     Route::get('/stock/{stockItem}/adjust', [StockController::class, 'adjust'])->name('stock.adjust');
     Route::post('/stock/{stockItem}/adjust', [StockController::class, 'storeAdjust'])->name('stock.storeAdjust');
+    Route::put('/stock/{stockItem}', [StockController::class, 'updateItem'])->name('stock.updateItem');
     Route::get('/stock/{stockItem}/label', [StockController::class, 'label'])->name('stock.label');
     Route::post('/stock/labels-batch', [StockController::class, 'labelsBatch'])->name('stock.labelsBatch');
 

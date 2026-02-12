@@ -106,6 +106,9 @@ class ProductController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $units      = ['UN', 'CX', 'PCT', 'KG', 'L', 'M', 'PAR', 'JG', 'RL', 'FL'];
+        
+        // Carregar itens de estoque do produto
+        $product->load('stockItems');
 
         return view('products.edit', compact('product', 'categories', 'units'));
     }

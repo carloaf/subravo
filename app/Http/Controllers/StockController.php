@@ -173,6 +173,39 @@ class StockController extends Controller
     }
 
     /**
+     * Atualiza dados de um item de estoque específico.
+     */
+    public function updateItem(Request $request, StockItem $stockItem)
+    {
+        $validated = $request->validate([
+            'batch'              => 'nullable|string|max:100',
+            'serial_number'      => 'nullable|string|max:100|unique:stock_items,serial_number,' . $stockItem->id,
+            'siscofis_entry_date' => 'nullable|date',
+            'location'           => 'nullable|string|max:255',
+            'notes'              => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $stockItem->update($validated);
+
+            // Recalcular expiration_date se necessário (via model event)
+            if (isset($validated['siscofis_entry_date'])) {
+                $stockItem->save(); // Trigger events
+            }
+
+            return redirect()
+                ->back()
+                ->with('success', 'Item de estoque atualizado com sucesso!');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Erro ao atualizar item: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Listagem de movimentações do estoque.
      */
     public function movements(Request $request)
