@@ -19,7 +19,6 @@ class Product extends Model
         'is_serialized',
         'is_durable',
         'shelf_life_months',
-        'reference_entry_date',
     ];
 
     protected function casts(): array
@@ -29,7 +28,6 @@ class Product extends Model
             'is_durable' => 'boolean',
             'minimum_stock' => 'integer',
             'shelf_life_months' => 'integer',
-            'reference_entry_date' => 'date',
         ];
     }
 
@@ -46,26 +44,7 @@ class Product extends Model
     }
 
     // ─── Scopes ──────────────────────────────────────────────────
-    /**
-     * Calcula a data de descarregamento baseado na data de entrada de referência + validade
-     */
-    public function getDischargeDate(): ?\Carbon\Carbon
-    {
-        if (!$this->reference_entry_date || !$this->shelf_life_months) {
-            return null;
-        }
 
-        return $this->reference_entry_date->copy()->addMonths($this->shelf_life_months);
-    }
-
-    /**
-     * Retorna a data de descarregamento formatada
-     */
-    public function getDischargeDateFormatted(): string
-    {
-        $date = $this->getDischargeDate();
-        return $date ? $date->format('d/m/Y') : '—';
-    }
     public function scopeByCategory($query, int $categoryId)
     {
         return $query->where('category_id', $categoryId);
