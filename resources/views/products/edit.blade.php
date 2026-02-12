@@ -68,13 +68,14 @@
 
             {{-- Ações --}}
             <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <form method="POST" action="{{ route('products.destroy', $product) }}"
-                      onsubmit="return confirm('Tem certeza que deseja excluir este produto?')">
-                    @csrf
-                    @method('DELETE')
-                    <x-btn variant="danger" type="submit" size="sm"
-                           icon="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">Excluir</x-btn>
-                </form>
+                <button type="button"
+                        onclick="if(confirm('Tem certeza que deseja excluir este produto?')) { document.getElementById('delete-form').submit(); }"
+                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Excluir
+                </button>
                 <div class="flex items-center space-x-3">
                     <x-btn variant="secondary" href="{{ route('products.show', $product) }}">Cancelar</x-btn>
                     <x-btn variant="primary" type="submit" icon="M5 13l4 4L19 7">Salvar</x-btn>
@@ -82,6 +83,12 @@
             </div>
         </form>
     </x-card>
+
+    {{-- Form de exclusão separado (submetido via JavaScript) --}}
+    <form id="delete-form" method="POST" action="{{ route('products.destroy', $product) }}" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
 </div>
 
 @endsection
