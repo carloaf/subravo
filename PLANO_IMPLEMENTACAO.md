@@ -585,6 +585,11 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 - [x] Link no menu de navegação principal entre "Estoque" e "Cautelas" (desktop + mobile)
 - [x] Quick stats globais: total de itens, disponíveis, emprestados, danificados, vencendo, vencidos
 - [x] Ordenação por nome, total, disponíveis, emprestados ou validade
+- [x] Formulários de produto (create/edit) com campos SISCOFIS
+- [x] Campo Código SISCOFIS (opcional)
+- [x] Campo Validade em meses (opcional)
+- [x] Checkbox "Uso Duradouro" com descrição
+- [x] Validação no ProductController para novos campos
 
 ---
 
