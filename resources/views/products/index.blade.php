@@ -53,7 +53,7 @@
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Categoria</th>
                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Unidade</th>
                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Disponível</th>
-                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Mínimo</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Descarregar em</th>
                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Status</th>
                     <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Ações</th>
                 </tr>
@@ -83,7 +83,21 @@
                             {{ $available }}
                         </span>
                     </td>
-                    <td class="px-4 py-3 text-sm text-gray-500 text-center">{{ $product->minimum_stock }}</td>
+                    <td class="px-4 py-3 text-sm text-center">
+                        @php
+                            $dischargeDate = $product->getDischargeDate();
+                        @endphp
+                        @if($dischargeDate)
+                            <span class="text-gray-900">{{ $dischargeDate->format('d/m/Y') }}</span>
+                            @if($dischargeDate->isPast())
+                                <span class="ml-1 text-xs px-1.5 py-0.5 bg-red-100 text-red-700 rounded">Vencido</span>
+                            @elseif($dischargeDate->diffInDays() <= 90)
+                                <span class="ml-1 text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">{{ $dischargeDate->diffInDays() }}d</span>
+                            @endif
+                        @else
+                            <span class="text-gray-400">—</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-center">
                         @if($belowMin)
                             <x-badge color="red">Baixo</x-badge>

@@ -44,7 +44,7 @@
             <div class="border-t border-gray-200 pt-5 mt-2">
                 <h3 class="text-sm font-semibold text-gray-700 mb-4">Dados SISCOFIS e Validade</h3>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <x-input name="siscofis_code" label="Código SISCOFIS" placeholder="Ex: 123456-7"
                              :value="$product->siscofis_code"
                              hint="Código/ficha do SISCOFIS (opcional)" />
@@ -52,6 +52,10 @@
                     <x-input name="shelf_life_months" label="Validade (meses)" type="number" placeholder="Ex: 12"
                              :value="$product->shelf_life_months"
                              hint="Prazo de validade em meses (opcional)" />
+
+                    <x-input name="reference_entry_date" label="Data Entrada SISCOFIS" type="date"
+                             :value="$product->reference_entry_date?->format('Y-m-d')"
+                             hint="Data de entrada de referência (opcional)" />
                 </div>
 
                 <div class="mt-4">
