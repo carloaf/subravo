@@ -37,6 +37,31 @@
                     <p class="text-xs text-gray-400 font-medium uppercase">Serializado</p>
                     <p class="text-sm font-semibold text-gray-900 mt-0.5">{{ $product->is_serialized ? 'Sim' : 'Não' }}</p>
                 </div>
+                {{-- Dados SISCOFIS --}}
+                <div>
+                    <p class="text-xs text-gray-400 font-medium uppercase">Código SISCOFIS</p>
+                    <p class="text-sm font-semibold text-gray-900 mt-0.5">{{ $product->siscofis_code ?? '—' }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 font-medium uppercase">Validade</p>
+                    <p class="text-sm font-semibold text-gray-900 mt-0.5">
+                        @if($product->shelf_life_months)
+                            {{ $product->shelf_life_months }} meses
+                        @else
+                            —
+                        @endif
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 font-medium uppercase">Tipo de Material</p>
+                    <p class="text-sm font-semibold text-gray-900 mt-0.5">
+                        @if($product->is_durable)
+                            <x-badge color="emerald">Uso Duradouro</x-badge>
+                        @else
+                            <x-badge color="gray">Consumível</x-badge>
+                        @endif
+                    </p>
+                </div>
                 @if($product->description)
                     <div class="sm:col-span-2">
                         <p class="text-xs text-gray-400 font-medium uppercase">Descrição</p>
@@ -86,6 +111,7 @@
                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Qtd</th>
                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Status</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Localização</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Entrada SISCOFIS</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Validade</th>
                     <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Ações</th>
                 </tr>
@@ -113,6 +139,13 @@
                         <x-badge :color="$statusColor">{{ $item->getStatusLabel() }}</x-badge>
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-600">{{ $item->location ?? '—' }}</td>
+                    <td class="px-4 py-3">
+                        @if($item->siscofis_entry_date)
+                            <span class="text-sm text-gray-700">{{ \Carbon\Carbon::parse($item->siscofis_entry_date)->format('d/m/Y') }}</span>
+                        @else
+                            <span class="text-xs text-gray-400">—</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3">
                         @if($item->expiration_date)
                             <x-badge color="{{ $item->isExpired() ? 'red' : ($item->isExpiringSoon() ? 'amber' : 'gray') }}">

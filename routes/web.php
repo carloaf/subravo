@@ -52,6 +52,11 @@ Route::middleware(['auth', 'active'])->group(function () {
     // ── Uso Duradouro ─────────────────────────────────────────
     Route::get('/durables', [StockController::class, 'durables'])->name('durables.index');
 
+    // ── Debug (temporário) ────────────────────────────────────
+    Route::get('/debug/forms', function () {
+        return view('debug.form-test');
+    })->name('debug.forms');
+
     // ── Empréstimos (Cautelas) ────────────────────────────────
     Route::get('/loans', [LoanController::class, 'index'])->name('loans.index');
     Route::get('/loans/create', [LoanController::class, 'create'])->name('loans.create');
