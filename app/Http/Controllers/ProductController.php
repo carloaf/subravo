@@ -66,9 +66,13 @@ class ProductController extends Controller
             'unit'          => 'required|string|max:20',
             'minimum_stock' => 'required|integer|min:0',
             'is_serialized' => 'boolean',
+            'siscofis_code' => 'nullable|string|max:50',
+            'shelf_life_months' => 'nullable|integer|min:1',
+            'is_durable'    => 'boolean',
         ]);
 
         $validated['is_serialized'] = $request->boolean('is_serialized');
+        $validated['is_durable'] = $request->boolean('is_durable');
 
         try {
             $product = Product::create($validated);
@@ -118,9 +122,13 @@ class ProductController extends Controller
             'unit'          => 'required|string|max:20',
             'minimum_stock' => 'required|integer|min:0',
             'is_serialized' => 'boolean',
+            'siscofis_code' => 'nullable|string|max:50',
+            'shelf_life_months' => 'nullable|integer|min:1',
+            'is_durable'    => 'boolean',
         ]);
 
         $validated['is_serialized'] = $request->boolean('is_serialized');
+        $validated['is_durable'] = $request->boolean('is_durable');
 
         try {
             $product->update($validated);
