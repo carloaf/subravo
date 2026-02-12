@@ -33,14 +33,15 @@
             <div x-show="borrowerType === 'individual'" x-transition class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {{-- Busca por identidade militar --}}
                 <div x-data="borrowerSearch()" class="relative">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Mutuário <span class="text-red-500">*</span>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Mutuário <span class="text-red-500 ml-1">*</span>
                     </label>
                     <input type="text" x-model="search" @input.debounce.300ms="fetchResults()"
                            @focus="open = results.length > 0"
                            @click.away="open = false"
                            placeholder="Digite a identidade ou nome de guerra..."
-                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                           style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                           class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
                            autocomplete="off">
                     <input type="hidden" name="borrower_user_id" :value="selectedId">
 

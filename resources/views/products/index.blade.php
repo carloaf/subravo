@@ -16,12 +16,14 @@
         <div class="flex-1">
             <input type="text" name="search" value="{{ request('search') }}"
                    placeholder="Buscar por nome ou descrição..."
-                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                   style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                   class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
         </div>
         <div class="w-full sm:w-48">
             <select name="category_id"
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                <option value="">Todas as categorias</option>
+                    style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                    class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900">
+                <option value="" class="text-gray-400">Todas as categorias</option>
                 @foreach($categories as $cat)
                     <option value="{{ $cat->id }}" @selected(request('category_id') == $cat->id)>{{ $cat->name }}</option>
                 @endforeach

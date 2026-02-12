@@ -60,14 +60,18 @@
 <x-card class="mb-6">
     <form method="GET" class="flex flex-wrap gap-3 items-center">
         <div class="flex gap-2">
-            <select name="sort" class="rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+            <select name="sort"
+                    style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                    class="px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900">
                 <option value="name" @selected(request('sort', 'name') === 'name')>Nome</option>
                 <option value="total" @selected(request('sort') === 'total')>Total</option>
                 <option value="available" @selected(request('sort') === 'available')>Disponíveis</option>
                 <option value="loaned" @selected(request('sort') === 'loaned')>Emprestados</option>
                 <option value="expiring" @selected(request('sort') === 'expiring')>Validade</option>
             </select>
-            <select name="dir" class="rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+            <select name="dir"
+                    style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                    class="px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900">
                 <option value="asc" @selected(request('dir', 'asc') === 'asc')>⬆ Crescente</option>
                 <option value="desc" @selected(request('dir') === 'desc')>⬇ Decrescente</option>
             </select>

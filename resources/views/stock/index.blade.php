@@ -16,12 +16,14 @@
         <div class="flex-1">
             <input type="text" name="search" value="{{ request('search') }}"
                    placeholder="Buscar por produto, lote, série ou localização..."
-                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
+                   style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                   class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
         </div>
         <div class="w-full sm:w-48">
             <select name="product_id"
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                <option value="">Todos os produtos</option>
+                    style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                    class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900">
+                <option value="" class="text-gray-400">Todos os produtos</option>
                 @foreach($products as $p)
                     <option value="{{ $p->id }}" @selected(request('product_id') == $p->id)>{{ $p->name }}</option>
                 @endforeach
@@ -29,8 +31,9 @@
         </div>
         <div class="w-full sm:w-40">
             <select name="status"
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                <option value="">Todos os status</option>
+                    style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                    class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900">
+                <option value="" class="text-gray-400">Todos os status</option>
                 @foreach($statuses as $val => $label)
                     <option value="{{ $val }}" @selected(request('status') == $val)>{{ $label }}</option>
                 @endforeach
