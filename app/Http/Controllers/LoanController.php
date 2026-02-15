@@ -121,7 +121,7 @@ class LoanController extends Controller
                     'borrower_user_id'         => $validated['borrower_user_id'] ?? null,
                     'borrower_section'         => $validated['borrower_section'] ?? null,
                     'borrower_organization_id' => $validated['borrower_organization_id'] ?? null,
-                    'loaned_by'                => Auth::id(),
+                    'loaned_by'                => Auth::user()->id,
                     'loan_date'                => now(),
                     'expected_return_date'     => $validated['expected_return_date'] ?? null,
                     'status'                   => 'active',
@@ -163,7 +163,7 @@ class LoanController extends Controller
                         stockItemId: $stockItem->id,
                         type: 'loan',
                         quantity: -$itemData['quantity'],
-                        performedBy: Auth::id(),
+                        performedBy: Auth::user()->id,
                         referenceType: 'loan',
                         referenceId: $loan->id,
                         notes: "Empréstimo {$loan->loan_number}",
@@ -287,7 +287,7 @@ class LoanController extends Controller
                         stockItemId: $stockItem->id,
                         type: 'return',
                         quantity: $returnData['quantity'],
-                        performedBy: Auth::id(),
+                        performedBy: Auth::user()->id,
                         referenceType: 'loan',
                         referenceId: $loan->id,
                         notes: "Devolução da cautela {$loan->loan_number}",
@@ -306,7 +306,7 @@ class LoanController extends Controller
                 $loan->update([
                     'status'             => $fullyReturned ? 'returned' : 'partial',
                     'actual_return_date' => $fullyReturned ? now() : null,
-                    'received_by'        => Auth::id(),
+                    'received_by'        => Auth::user()->id,
                     'notes'              => $loan->notes
                         ? $loan->notes . "\n[Devolução] " . ($validated['notes'] ?? '')
                         : ($validated['notes'] ?? null),

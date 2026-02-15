@@ -593,17 +593,129 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-## Passo 16 — PHPUnit / Feature Tests ⬜
+## Passo 16 — PHPUnit / Feature Tests ✅
 
-- [ ] Testes de autenticação (login válido, inválido, logout, middleware)
-- [ ] Testes CRUD de produtos e categorias
-- [ ] Testes de entrada/ajuste de estoque com movimentação
-- [ ] Testes de empréstimo (criação, devolução parcial, total)
-- [ ] Testes de geração PDF (cautela, recibo, relatórios)
-- [ ] Testes de exportação Excel
-- [ ] Testes de regras de negócio (estoque negativo, item vencido, duplicidade)
-- [ ] Configurar `phpunit.xml` para PostgreSQL de teste
-- [ ] CI pipeline sugerido (GitHub Actions)
+### Configuração do Ambiente de Testes
+- [x] `phpunit.xml` configurado para PostgreSQL de teste (`subravo_test`)
+- [x] `config/database.php` com conexão `pgsql_testing`
+- [x] `TestCase` base com trait `RefreshDatabase` e seed automático
+- [x] `.env.example` atualizado com `DB_TEST_DATABASE`
+
+### Traits de Teste (helpers)
+- [x] `CreatesUsers` trait — helpers para criar usuários (admin, almoxarife, solicitante, auditor)
+- [x] `CreatesStock` trait — helpers para criar categorias, produtos, items de estoque (serializados e bulk)
+- [x] `CreatesLoans` trait — helpers para criar empréstimos individuais e por seção, adicionar itens
+
+### Suítes de Testes Feature (8 arquivos, 70+ testes)
+
+#### AuthenticationTest (13 testes)
+- [x] Exibição da página de login
+- [x] Autenticação com credenciais válidas
+- [x] Bloqueio com senha inválida
+- [x] Bloqueio com identidade inexistente
+- [x] Bloqueio de usuários inativos no login
+- [x] Logout de usuários autenticados
+- [x] Redirecionamento de unauthenticated para login
+- [x] Logout automático de usuários desativados (middleware `active`)
+- [x] Validação de campos obrigatórios (identity_number, password)
+
+#### AuthorizationTest (8 testes)
+- [x] Admin pode acessar rotas `/admin/*`
+- [x] Não-admin recebe HTTP 403 em rotas admin
+- [x] Admin pode acessar relatórios
+- [x] Usuários autenticados acessam dashboard, products, stock, loans
+
+#### ProductTest (14 testes)
+- [x] CRUD completo de produtos (list, show, create, update, delete)
+- [x] Impedir exclusão de produto com estoque
+- [x] Validações (nome, categoria, unidade obrigatórios)
+- [x] Produtos serializados e duráveis
+- [x] Auto-cálculo de validade baseado em `shelf_life_months`
+
+#### CategoryTest (7 testes)
+- [x] CRUD completo de categorias (list, create, update, delete)
+- [x] Impedir exclusão de categoria com produtos
+- [x] Validação de nome obrigatório e único
+
+#### StockTest (13 testes)
+- [x] Visualização de estoque e detalhes de itens
+- [x] Entrada de estoque com registro de movimento
+- [x] Ajuste de quantidade com log de movimento
+- [x] Validações (produto, quantidade obrigatórios)
+- [x] Proteção contra quantidade negativa
+- [x] Produtos serializados: serial_number obrigatório e único
+- [x] Auto-cálculo de validade na entrada
+- [x] Filtros por status (available, loaned)
+- [x] Histórico de movimentações
+- [x] Identificação de itens vencidos e vencendo
+
+#### LoanTest (15 testes)
+- [x] Visualização de cautelas e detalhes
+- [x] Criação de empréstimo individual e por seção
+- [x] Geração automática de número de cautela (CAUTELA-{ANO}-{SEQ})
+- [x] Validações (mutuário, itens obrigatórios)
+- [x] Impedir empréstimo acima do estoque disponível
+- [x] Impedir empréstimo de itens vencidos
+- [x] Devolução total (status → returned, estoque restaurado)
+- [x] Devolução parcial (status → partial, quantidade pendente)
+- [x] Impedir devolução acima do emprestado
+- [x] Impedir devolução duplicada
+- [x] Detecção de empréstimos vencidos (scope `overdue`)
+- [x] Registro de movimentações (loan, return)
+
+#### BusinessRulesTest (17 testes)
+- [x] Estoque não pode ficar negativo (DomainException)
+- [x] Produto abaixo do mínimo (isBelowMinimum)
+- [x] Status do item muda para `loaned` quando totalmente emprestado
+- [x] Status permanece `available` quando parcialmente emprestado
+- [x] Status da cautela: `active` → `partial` → `returned`
+- [x] Restauração de estoque após devolução
+- [x] Auto-cálculo de validade com shelf_life_months
+- [x] Produtos serializados e duráveis identificados corretamente
+- [x] Padrão de número de cautela validado
+- [x] Números de cautela sequenciais
+- [x] Cálculo correto de quantidade pendente (getPendingQuantity)
+- [x] Estoque disponível exclui itens emprestados
+- [x] Estoque emprestado conta apenas itens `loaned`
+
+#### ReportExportTest (13 testes)
+- [x] Geração de cautela PDF
+- [x] Geração de comprovante de devolução PDF
+- [x] Relatórios PDF: stock_summary, loans_active, movements, low_stock, expiring
+- [x] Relatórios Excel: stock_summary
+- [x] Relatórios com filtro de período (date_range)
+- [x] Bloqueio de não-admin
+- [x] Validações (type, format obrigatórios)
+- [x] PDFs contêm metadados válidos (%PDF)
+- [x] Excel contém dados exportados
+
+### Estatísticas
+- **8 arquivos de teste**
+- **70+ casos de teste**
+- **Cobertura**: Autenticação, Autorização, CRUD, Estoque, Empréstimos, Regras de Negócio, Exports
+- **Traits reutilizáveis**: 3 (CreatesUsers, CreatesStock, CreatesLoans)
+- **Mock/Seed**: Seeders básicos (Ranks, Organizations, Categories) em `setUp()`
+
+### Execução
+```bash
+# Rodar todos os testes
+docker compose exec app php artisan test
+
+# Rodar suite específica
+docker compose exec app php artisan test --testsuite=Feature
+
+# Rodar arquivo específico
+docker compose exec app php artisan test tests/Feature/AuthenticationTest.php
+
+# Com cobertura (requer Xdebug)
+docker compose exec app php artisan test --coverage
+```
+
+### Próximos Passos (Opcional)
+- [ ] CI pipeline (GitHub Actions) — `.github/workflows/tests.yml`
+- [ ] Code coverage report (Xdebug + PHPUnit)
+- [ ] Testes Unit para Models (relacionamentos, scopes, helpers)
+- [ ] Paralelização (ParaTest)
 
 ---
 
@@ -619,7 +731,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ## Passo 18 — Roles e Permissões Completos ⬜
 
-- [ ] Ativar perfis: `almoxarife` (estoque+cautelas), `solicitante` (visualização), `auditor` (relatórios)
+- [ ] Temos perfis: `admin` (gerencia usuarios), `user` (menos gerenciar usuarios),
 - [ ] Middleware `role:` expandido com permissões granulares
 - [ ] Sidebar/nav condicional por perfil completo
 - [ ] Páginas de acesso negado (403) customizadas
@@ -665,4 +777,4 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ---
 
-*Última atualização: 11/02/2026 — Passo 15b (Monitoramento Material Uso Duradouro) concluído ✅*
+*Última atualização: 14/02/2026 — Passo 16 (PHPUnit / Feature Tests) concluído ✅ — 70+ testes implementados*

@@ -107,7 +107,7 @@ class StockController extends Controller
                     stockItemId: $stockItem->id,
                     type: 'entry',
                     quantity: $validated['quantity'],
-                    performedBy: Auth::id(),
+                    performedBy: Auth::user()->id,
                     notes: $validated['notes'] ?? 'Entrada de material no estoque',
                 );
             });
@@ -157,7 +157,7 @@ class StockController extends Controller
                     stockItemId: $stockItem->id,
                     type: 'adjustment',
                     quantity: $diff,
-                    performedBy: Auth::id(),
+                    performedBy: Auth::user()->id,
                     notes: "Ajuste: {$validated['reason']} (de {$oldQuantity} para {$validated['new_quantity']})",
                 );
             });

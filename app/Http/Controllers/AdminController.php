@@ -173,7 +173,7 @@ class AdminController extends Controller
         }
 
         // Não pode desativar a si mesmo
-        if ($user->id === Auth::id()) {
+        if ($user->id === Auth::user()->id) {
             return back()->with('error', 'Não é possível desativar sua própria conta.');
         }
 

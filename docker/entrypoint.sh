@@ -41,10 +41,17 @@ if [ "$APP_ENV" != "production" ] && [ -f /var/www/html/composer.json ]; then
 fi
 
 # ── Gerar APP_KEY se ausente ─────────────────────────────────────
-if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
+# env_file: .env injeta variáveis no momento da CRIAÇÃO do container.
+# Se APP_KEY foi gerado depois, o env var ainda está vazio.
+# Solução: ler sempre do .env file e exportar para o processo.
+ENV_KEY=$(grep -E '^APP_KEY=' /var/www/html/.env 2>/dev/null | cut -d= -f2-)
+if [ -z "$ENV_KEY" ] || [ "$ENV_KEY" = "base64:" ]; then
     echo "→ Gerando APP_KEY..."
     php artisan key:generate --force --no-interaction
+    ENV_KEY=$(grep -E '^APP_KEY=' /var/www/html/.env | cut -d= -f2-)
 fi
+export APP_KEY="$ENV_KEY"
+echo "✓ APP_KEY configurado"
 
 # ── Migrations ───────────────────────────────────────────────────
 echo "→ Executando migrations..."
