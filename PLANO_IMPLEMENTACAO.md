@@ -719,6 +719,158 @@ docker compose exec app php artisan test --coverage
 
 ---
 
+## Passo 16b — Inventário SISCOFIS (Carga de PDF) ✅
+
+Implementação do módulo de importação de Relação de Material Carga do SISCOFIS em PDF, com extração automática de dados e armazenamento no banco.
+
+### Dependência adicionada
+- [x] `smalot/pdfparser` ^2.12 — biblioteca PHP para extração de texto de PDFs
+
+### Banco de Dados
+
+#### Tabela `inventory_uploads` — PDFs carregados
+| Coluna         | Tipo                                          |
+| -------------- | --------------------------------------------- |
+| id             | bigint PK                                     |
+| filename       | string — nome original do arquivo             |
+| stored_path    | string — caminho em storage/app/inventario    |
+| dependency     | string nullable — ex: "11º D Sup"             |
+| unit           | string nullable — ex: "1ª CIA SUP"            |
+| unit_code      | string nullable — ex: "37"                    |
+| uploaded_by    | FK → users                                    |
+| status         | enum (pending, processing, completed, error)  |
+| total_items    | integer default 0                             |
+| total_value    | decimal(15,2) default 0                       |
+| error_message  | text nullable                                 |
+| processed_at   | timestamp nullable                            |
+| timestamps     |                                               |
+
+#### Tabela `inventory_items` — Itens extraídos do PDF
+| Coluna              | Tipo                                     |
+| ------------------- | ---------------------------------------- |
+| id                  | bigint PK                                |
+| inventory_upload_id | FK → inventory_uploads (cascade delete)  |
+| material_type       | string nullable — "MATERIAL PERMANENTE"  |
+| material_name       | string — nome do material                |
+| ficha_number        | string nullable — Nr Ficha               |
+| material_code       | string nullable — Cód Mat                |
+| accounting_account  | string nullable — Conta Contábil         |
+| acervo              | string nullable — N ou S                 |
+| quantity            | integer default 1                        |
+| unit_value          | decimal(15,2) default 0                  |
+| total_value         | decimal(15,2) default 0                  |
+| patrimony_numbers   | JSON nullable — array de nrs patrimoniais|
+| raw_text            | text nullable — texto bruto (debug)      |
+| timestamps          |                                          |
+
+### Models (`app/Models/`)
+- [x] `InventoryUpload` — belongsTo User (uploader), hasMany InventoryItem, STATUSES const, scopes completed/recent, helpers statusLabel/statusColor/headerDisplay/isCompleted/hasError
+- [x] `InventoryItem` — belongsTo InventoryUpload, cast patrimony_numbers JSON, helpers hasPatrimonyNumbers/patrimonyCount/formattedUnitValue/formattedTotalValue
+
+### Service
+- [x] `app/Services/InventoryPdfParser.php` — parser de PDF SISCOFIS com:
+  - Extração de cabeçalho (dependência, unidade, código)
+  - Detecção de seções (MATERIAL PERMANENTE, USO DURADOURO, etc.)
+  - Parsing de itens: Nr Ficha, Cód Mat, Conta Contábil, Qtd, Valor Unit, Valor Total, Acervo, Nome
+  - Extração de números patrimoniais (separados por vírgula)
+  - Conversão de valores decimais BR (1.356,16 → 1356.16)
+
+### Controller (`app/Http/Controllers/InventoryController.php`)
+- [x] `index` — listagem com busca, filtro por status, estatísticas globais, paginação
+- [x] `create` — formulário de upload com drag-and-drop (Alpine.js)
+- [x] `store` — upload do PDF, parsing automático, salvamento transacional no banco
+- [x] `show` — detalhes do upload com itens agrupados por tipo, patrimônios expansíveis
+- [x] `reprocess` — re-parsear PDF (admin only), substitui itens existentes
+- [x] `destroy` — exclui upload + PDF do storage (admin only)
+- [x] `download` — download do PDF original
+
+### Views (`resources/views/inventory/`)
+- [x] `index.blade.php` — 4 stat cards, filtros, tabela de uploads com status, ações (ver/baixar/excluir)
+- [x] `upload.blade.php` — formulário drag-and-drop com instruções, accept PDF, max 20MB
+- [x] `show.blade.php` — header gradient, stats, itens agrupados por tipo com patrimônios collapsible, totais
+
+### Rotas adicionadas (7 rotas)
+```
+GET    /inventory                          → inventory.index
+GET    /inventory/upload                   → inventory.create
+POST   /inventory                          → inventory.store
+GET    /inventory/{inventoryUpload}         → inventory.show
+POST   /inventory/{inventoryUpload}/reprocess → inventory.reprocess
+DELETE /inventory/{inventoryUpload}         → inventory.destroy
+GET    /inventory/{inventoryUpload}/download → inventory.download
+```
+
+### Menu de Navegação
+- [x] Item "Inventário" adicionado ao menu principal (desktop + mobile + sidebar)
+- [x] Visível para todos os usuários autenticados (não restrito a admin)
+- [x] Posicionado após "Cautelas" e antes de "Usuários/Relatórios"
+
+### Armazenamento
+- [x] PDFs salvos em `storage/app/inventario/` com prefixo timestamp
+- [x] Nome do arquivo: `{YYYYMMDD_HHmmss}_{nome_original_sanitizado}.pdf`
+
+### Validação com PDF real
+- [x] Parser testado com `1 cia sup.pdf` — 6 itens extraídos corretamente
+- [x] Header: 11º D Sup / 1ª COMPANHIA DE SUPRIMENTO - 1ª CIA SUP - 37
+- [x] Total: R$ 5.570,04 (confere com total do PDF)
+- [x] Patrimônios: 22 números extraídos (14 colchões + 4 beliches + 4 outros)
+- [x] Migration executada sem erros
+- [x] Views compilam sem erros (`view:cache`)
+
+---
+
+## Passo 16c — Comparação de Inventários ✅
+
+Funcionalidade de comparação temporal de inventários e cruzamento com dados de Uso Duradouro do sistema.
+
+### Finalidade
+O módulo de inventário é **independente** do restante do sistema. Serve para:
+1. **Comparar inventários ao longo do tempo** — detectar entradas, saídas e alterações em quantidades, valores e patrimônios entre dois PDFs carregados
+2. **Cruzar com Uso Duradouro** — confrontar "Material de Uso Duradouro" do PDF com os produtos duráveis cadastrados no sistema
+
+### Controller — Novos métodos
+- [x] `compareForm` — formulário para selecionar dois inventários concluídos para comparação
+- [x] `compareResults` — processa a comparação temporal entre dois uploads:
+  - Indexa itens por `material_code`
+  - Classifica em: **Entradas** (novos), **Saídas** (removidos), **Alterados** (diferenças em qtd/valor/patrimônios), **Sem alteração**
+  - Detecta patrimônios adicionados e removidos em itens alterados
+  - Calcula resumo: saldo de quantidade e valor
+- [x] `compareDurables` — compara itens "DURADOURO" de um upload com o estoque de produtos duráveis:
+  - Cruza por `material_code` ↔ `Product.siscofis_code`
+  - Classifica em: **Correspondentes** (com detalhes de disponível/cautelado/danificado), **Só no inventário PDF**, **Só no sistema**
+
+### Views (`resources/views/inventory/`)
+- [x] `compare.blade.php` — formulário de seleção de dois inventários com dropdowns e cards de referência
+- [x] `compare-results.blade.php` — resultado da comparação temporal:
+  - Header com os dois inventários lado a lado (A=anterior, B=recente)
+  - 4 stat cards (entradas/saídas/alterados/sem alteração)
+  - Barra de resumo com diferença total de quantidade e valor
+  - Seção verde: **Entradas** com quantidades e valores positivos
+  - Seção vermelha: **Saídas** com itens riscados
+  - Seção amarela: **Alterados** com diff de qtd/valor + patrimônios adicionados/removidos (collapsible)
+  - Seção colapsável: **Sem alteração**
+  - Rodapé com resumo geral da comparação
+- [x] `compare-durables.blade.php` — comparação com Uso Duradouro do sistema:
+  - Header gradiente roxo com contexto do inventário
+  - 6 stat cards (correspondentes/só inventário/só sistema/qtd inv/qtd sistema/valor)
+  - Legenda explicativa sobre correspondência por código SISCOFIS
+  - Tabela verde: itens correspondentes com qtd inventário × qtd sistema × diferença × disponível/cautelado/danificado
+  - Tabela amarela: itens apenas no PDF (sem correspondência — dica para cadastrar código SISCOFIS)
+  - Tabela laranja: produtos apenas no sistema (não encontrados no PDF — alerta de possível descarga)
+
+### Rotas adicionadas (3 novas rotas)
+```
+GET    /inventory/compare                     → inventory.compare
+POST   /inventory/compare                     → inventory.compare.results
+GET    /inventory/{inventoryUpload}/compare-durables → inventory.compare.durables
+```
+
+### Integração na interface
+- [x] Botão "Comparar" adicionado ao header da listagem de inventários (`index.blade.php`)
+- [x] Botão "Comparar c/ Duradouro" adicionado ao header de detalhes do inventário (`show.blade.php`)
+
+---
+
 ## Passo 17 — Backup Automático ⬜
 
 - [ ] Script `backup-db.sh` com `pg_dump` compactado
@@ -777,4 +929,4 @@ docker compose exec app php artisan test --coverage
 
 ---
 
-*Última atualização: 14/02/2026 — Passo 16 (PHPUnit / Feature Tests) concluído ✅ — 70+ testes implementados*
+*Última atualização: 16/02/2026 — Passo 16c (Comparação de Inventários) concluído ✅ — Comparação temporal entre inventários e cruzamento com Uso Duradouro*

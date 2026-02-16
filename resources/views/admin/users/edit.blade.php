@@ -54,7 +54,7 @@
                            class="rounded border-gray-300 text-emerald-600 shadow-sm focus:ring-emerald-500">
                     <span class="text-sm text-gray-700">Usuário ativo (pode acessar o sistema)</span>
                 </label>
-                @if($user->id === auth()->id())
+                @if($user->id === auth()->user()->id)
                     <p class="mt-1 text-xs text-amber-600">Você não pode desativar sua própria conta.</p>
                 @endif
             </div>

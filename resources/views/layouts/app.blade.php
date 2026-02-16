@@ -137,6 +137,10 @@
                                class="{{ str_starts_with($currentRoute, 'loans.') ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 Cautelas
                             </a>
+                            <a href="{{ route('inventory.index') }}"
+                               class="{{ str_starts_with($currentRoute, 'inventory.') ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                Inventário
+                            </a>
                             @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.users.index') }}"
                                class="{{ str_starts_with($currentRoute, 'admin.users') ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
@@ -192,6 +196,7 @@
                     <a href="{{ route('stock.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ str_starts_with($currentRoute, 'stock.') ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600 hover:bg-gray-50' }} text-base font-medium">Estoque</a>
                     <a href="{{ route('durables.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ str_starts_with($currentRoute, 'durables.') ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600 hover:bg-gray-50' }} text-base font-medium">Uso Duradouro</a>
                     <a href="{{ route('loans.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ str_starts_with($currentRoute, 'loans.') ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600 hover:bg-gray-50' }} text-base font-medium">Cautelas</a>
+                    <a href="{{ route('inventory.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ str_starts_with($currentRoute, 'inventory.') ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600 hover:bg-gray-50' }} text-base font-medium">Inventário</a>
                     @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.users.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ str_starts_with($currentRoute, 'admin.users') ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600 hover:bg-gray-50' }} text-base font-medium">Usuários</a>
                     <a href="{{ route('admin.reports.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ str_starts_with($currentRoute, 'admin.reports') ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600 hover:bg-gray-50' }} text-base font-medium">Relatórios</a>
