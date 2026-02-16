@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
@@ -68,6 +69,18 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::post('/loans/{loan}/return', [LoanController::class, 'processReturn'])->name('loans.processReturn');
     Route::get('/loans/{loan}/pdf', [LoanController::class, 'cautelaPdf'])->name('loans.pdf');
     Route::get('/loans/{loan}/return-pdf', [LoanController::class, 'returnReceiptPdf'])->name('loans.returnPdf');
+
+    // ── Inventário (PDF SISCOFIS) ────────────────────────────
+    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory/upload', [InventoryController::class, 'create'])->name('inventory.create');
+    Route::get('/inventory/compare', [InventoryController::class, 'compareForm'])->name('inventory.compare');
+    Route::post('/inventory/compare', [InventoryController::class, 'compareResults'])->name('inventory.compare.results');
+    Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+    Route::get('/inventory/{inventoryUpload}', [InventoryController::class, 'show'])->name('inventory.show');
+    Route::get('/inventory/{inventoryUpload}/compare-durables', [InventoryController::class, 'compareDurables'])->name('inventory.compare.durables');
+    Route::post('/inventory/{inventoryUpload}/reprocess', [InventoryController::class, 'reprocess'])->name('inventory.reprocess');
+    Route::delete('/inventory/{inventoryUpload}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+    Route::get('/inventory/{inventoryUpload}/download', [InventoryController::class, 'download'])->name('inventory.download');
 
     // ── Administração (somente admin) ─────────────────────────
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
