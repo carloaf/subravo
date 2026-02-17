@@ -43,20 +43,43 @@ class InventoryPdfParser
             'unit_code'  => null,
         ];
 
-        // Pegar apenas as primeiras 1000 caracteres para evitar captura excessiva
-        $headerBlock = substr($this->text, 0, 1000);
+        // Pegar apenas as primeiras 2000 caracteres para aumentar chances de captura
+        $headerBlock = substr($this->text, 0, 2000);
 
-        // Padrão: RELAÇÃO DE MATERIAL CARGA DA DEPENDÊNCIA {dep} / {unidade} - {cod}
-        // Usar non-greedy (.+?) e limitar com $ para fim de linha
+        // Padrão 1: RELAÇÃO DE MATERIAL CARGA DA DEPENDÊNCIA {dep} / {unidade} - {cod}
         if (preg_match('/RELA[ÇC][ÃA]O DE MATERIAL CARGA DA DEPEND[ÊE]NCIA\s+(.+?)\s*\/\s*(.+?)\s*-\s*(\d+)\s*$/uim', $headerBlock, $m)) {
             $this->header['dependency'] = trim($m[1]);
-
-            // A unidade pode conter abreviação tipo "1ª COMPANHIA DE SUPRIMENTO\n - 1ª CIA SUP"
             $unitRaw = trim($m[2]);
-            // Limpar quebras de linha internas
             $unitRaw = preg_replace('/\s+/', ' ', $unitRaw);
             $this->header['unit']      = trim($unitRaw);
             $this->header['unit_code'] = trim($m[3]);
+            return;
+        }
+
+        // Padrão 2: Tentar extrair sem código (alguns PDFs podem não ter)
+        if (preg_match('/RELA[ÇC][ÃA]O DE MATERIAL CARGA DA DEPEND[ÊE]NCIA\s+(.+?)\s*\/\s*(.+?)\s*$/uim', $headerBlock, $m)) {
+            $this->header['dependency'] = trim($m[1]);
+            $unitRaw = trim($m[2]);
+            $unitRaw = preg_replace('/\s+/', ' ', $unitRaw);
+            // Tentar extrair código do final da unidade se existir
+            if (preg_match('/^(.+?)\s*-\s*(\d+)\s*$/', $unitRaw, $codeMatch)) {
+                $this->header['unit'] = trim($codeMatch[1]);
+                $this->header['unit_code'] = trim($codeMatch[2]);
+            } else {
+                $this->header['unit'] = $unitRaw;
+            }
+            return;
+        }
+
+        // Padrão 3: Buscar "Dependência:" e "Unidade:" em linhas separadas
+        if (preg_match('/Depend[êe]ncia\s*:?\s*(.+?)$/uim', $headerBlock, $depMatch)) {
+            $this->header['dependency'] = trim($depMatch[1]);
+        }
+        if (preg_match('/Unidade\s*:?\s*(.+?)$/uim', $headerBlock, $unitMatch)) {
+            $this->header['unit'] = trim($unitMatch[1]);
+        }
+        if (preg_match('/C[óo]digo\s*:?\s*(\d+)/ui', $headerBlock, $codeMatch)) {
+            $this->header['unit_code'] = trim($codeMatch[1]);
         }
     }
 

@@ -73,10 +73,18 @@ Route::middleware(['auth', 'active'])->group(function () {
     // ── Inventário (PDF SISCOFIS) ────────────────────────────
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/upload', [InventoryController::class, 'create'])->name('inventory.create');
+    Route::get('/inventory/materials', [InventoryController::class, 'searchMaterials'])->name('inventory.materials');
+    Route::post('/inventory/materials/export', [InventoryController::class, 'exportMaterials'])->name('inventory.materials.export');
+    Route::post('/inventory/materials/hide', [InventoryController::class, 'hideItem'])->name('inventory.materials.hide');
+    Route::post('/inventory/materials/reset-hidden', [InventoryController::class, 'resetHidden'])->name('inventory.materials.reset-hidden');
+    Route::get('/inventory/reports', [InventoryController::class, 'reportsIndex'])->name('inventory.reports');
+    Route::post('/inventory/reports/generate', [InventoryController::class, 'generateReport'])->name('inventory.reports.generate');
     Route::get('/inventory/compare', [InventoryController::class, 'compareForm'])->name('inventory.compare');
     Route::post('/inventory/compare', [InventoryController::class, 'compareResults'])->name('inventory.compare.results');
     Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory/{inventoryUpload}', [InventoryController::class, 'show'])->name('inventory.show');
+    Route::get('/inventory/{inventoryUpload}/edit-location', [InventoryController::class, 'editLocation'])->name('inventory.edit-location');
+    Route::patch('/inventory/{inventoryUpload}/update-location', [InventoryController::class, 'updateLocation'])->name('inventory.update-location');
     Route::get('/inventory/{inventoryUpload}/compare-durables', [InventoryController::class, 'compareDurables'])->name('inventory.compare.durables');
     Route::post('/inventory/{inventoryUpload}/reprocess', [InventoryController::class, 'reprocess'])->name('inventory.reprocess');
     Route::delete('/inventory/{inventoryUpload}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
