@@ -5,8 +5,10 @@
 
 @section('header-actions')
     <div class="flex gap-2">
+        <x-btn variant="outline" href="{{ route('inventory.edit-location', $inventory) }}" size="sm"
+               icon="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z">Editar Localização</x-btn>
         <x-btn variant="outline" href="{{ route('inventory.compare.durables', $inventory) }}" size="sm"
-               icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">Comparar c/ Duradouro</x-btn>
+               icon="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 4 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">Comparar c/ Duradouro</x-btn>
         <x-btn variant="outline" href="{{ route('inventory.download', $inventory) }}" size="sm"
                icon="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4">Baixar PDF</x-btn>
         @if(auth()->user()->isAdmin())
@@ -81,6 +83,35 @@
                 <h4 class="text-sm font-semibold text-red-800">Erro no Processamento</h4>
                 <p class="text-sm text-red-700 mt-1">{{ $inventory->error_message }}</p>
             </div>
+        </div>
+    </div>
+@endif
+
+{{-- Alerta: Localização não definida --}}
+@if(!$inventory->dependency && !$inventory->unit)
+    <div class="mb-6 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg p-4">
+        <div class="flex items-start justify-between gap-4">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-.834-1.964-.834-2.732 0L3.082 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div>
+                    <h4 class="text-sm font-semibold text-amber-800">Localização não identificada</h4>
+                    <p class="text-sm text-amber-700 mt-1">
+                        Este inventário não possui informações de dependência e unidade. 
+                        A extração automática falhou ou o PDF não segue o formato padrão do SISCOFIS.
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('inventory.edit-location', $inventory) }}" 
+               class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Definir Agora
+            </a>
         </div>
     </div>
 @endif
