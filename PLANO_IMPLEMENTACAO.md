@@ -375,15 +375,70 @@ Autenticado (middleware 'auth'):
 - [x] **Cautela / Termo de Responsabilidade** — `loans/pdf/cautela.blade.php` (Passo 8) + `LoanController@cautelaPdf`
 - [x] **Comprovante de Devolução** — `loans/pdf/return-receipt.blade.php` (Passo 8) + `LoanController@returnReceiptPdf`
 - [x] **Layout PDF para relatórios** — `layouts/pdf.blade.php` — layout standalone com CSS embarcado, cabeçalho militar, badges, tabelas formatadas
-- [x] **6 templates PDF de relatórios** — `admin/reports/pdf/{stock_summary,loans_active,loans_history,movements,low_stock,expiring}.blade.php`
+- [x] **6 templates PDF de relatórios administrativos** — `admin/reports/pdf/{stock_summary,loans_active,loans_history,movements,low_stock,expiring}.blade.php` — todos convertidos para usar @extends('layouts.pdf')
+- [x] **3 templates PDF do módulo de inventário** — `inventory/{materials-pdf,reports/pdf,reports/monthly-consolidated-pdf}.blade.php` — todos convertidos para usar @extends('layouts.pdf')
 - [x] **ReportController** — detecta formato e usa views PDF separadas para DomPDF (landscape A4)
+
+### Design Profissional de Relatórios ✅
+- [x] **Layout PDF redesenhado com estilo institucional profissional**:
+  - Margens adequadas (30mm laterais, 25mm topo/fundo) configuradas via @page
+  - Cabeçalho institucional completo com 3 camadas (brasão + info + sistema)
+  - Gradiente verde militar profissional (065f46 → 047857 → 059669)
+  - Brasão circular com bandeira do Brasil 🇧🇷
+  - Badge SUBRAVO em destaque com gradiente dourado
+  - Informação organizacional completa (Ministério da Defesa, 11º D Sup, etc.)
+- [x] **Título de relatório impactante**:
+  - Ícones decorativos laterais (📊)
+  - Bordas grossas (6px) em verde militar
+  - Lettering grande (16px) com espaçamento (2px)
+  - Gradiente sutil de fundo (f9fafb → ffffff)
+- [x] **Área de metadados redesenhada**:
+  - Fundo gradiente verde claro (ecfdf5 → d1fae5)
+  - Bordas arredondadas (10px) com borda verde (2px)
+  - Informações organizadas em duas colunas
+  - Tipografia melhorada com uppercase em strong
+- [x] **Tabelas profissionais**:
+  - Cabeçalho com gradiente triplo (065f46 → 047857 → 059669)
+  - Bordas arredondadas (10px) com shadow (0 4px 10px)
+  - Zebra striping sutil (#ffffff / #f9fafb)
+  - Footer com gradiente verde claro
+  - Padding aumentado (12px cabeçalho, 10px células)
+- [x] **Cards de resumo melhorados**:
+  - Barra superior verde decorativa (4px)
+  - Gradiente sutil de fundo
+  - Sombras mais pronunciadas
+  - Valores gigantes (26px) com font-weight 900
+  - Espaçamento entre cards (12px)
+- [x] **Badges modernos**:
+  - Bordas mais grossas (1.5px)
+  - Box-shadow para profundidade
+  - Font-weight 700
+  - Padding aumentado (4px 12px)
+- [x] **Section titles destacados**:
+  - Borda esquerda grossa (6px)
+  - Bordas superior/inferior (2px)
+  - Gradiente de fundo (ecfdf5 → d1fae5 → ecfdf5)
+  - Font-size maior (12px) e font-weight 800
+- [x] **Alertas profissionais**:
+  - Gradientes sutis nos fundos
+  - Bordas laterais grossas (5px) + bordas topo/fundo (2px)
+  - Padding aumentado (15px 20px)
+  - Box-shadow para destaque
+- [x] **Footer institucional completo**:
+  - Borda superior dupla (3px double)
+  - Informações de validação jurídica
+  - Classificação e uso (OSTENSIVO - INTERNO)
+  - Timestamp com timezone
 
 ### Excel (maatwebsite/excel)
 - [x] `app/Exports/StockReportExport.php` — estoque atual com produto, categoria, disponível, emprestado, mínimo, status
 - [x] `app/Exports/MovementReportExport.php` — movimentações por período com tipo, quantidade ±, responsável
 - [x] `app/Exports/LoanReportExport.php` — cautelas ativas ou histórico com mutuário, datas, status (scope parametrizável)
 - [x] `app/Exports/ExpirationAlertExport.php` — itens próximos da validade (60 dias) com dias restantes
-- [x] Todos os exports: header estilizado (fundo olive #4a5d23), auto-size colunas, título de aba
+- [x] Todos os exports: header estilizado (fundo emerald #059669, substituiu olive #4a5d23), auto-size colunas, título de aba
+- [x] Formatação condicional aplicada (estoque baixo vermelho, vencidos vermelho, atrasadas vermelho)
+- [x] Freeze panes, zebra striping (verde-50), bordas cinza-300
+- [x] Alinhamento centralizado em colunas numéricas
 
 ### Etiquetas / QR Code (simplesoftwareio/simple-qrcode)
 - [x] QR Code aponta para `/stock/{id}` — formato SVG 200px, error correction M
@@ -929,4 +984,4 @@ GET    /inventory/{inventoryUpload}/compare-durables → inventory.compare.durab
 
 ---
 
-*Última atualização: 16/02/2026 — Passo 16c (Comparação de Inventários) concluído ✅ — Comparação temporal entre inventários e cruzamento com Uso Duradouro*
+*Última atualização: 16/02/2026 — Passo 9 (Design Profissional de Relatórios) completamente concluído ✅ — Todos os 9 templates PDF (6 admin + 3 inventário) convertidos para usar o layout institucional com cabeçalho militar triplo, margens adequadas e design profissional. 4 exports Excel aprimorados com formatação emerald e condicional*

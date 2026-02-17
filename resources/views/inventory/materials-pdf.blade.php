@@ -1,219 +1,109 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Busca de Materiais - SUBRAVO</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'DejaVu Sans', sans-serif;
-            font-size: 9pt;
-            color: #1f2937;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            color: white;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
-        
-        .header h1 {
-            font-size: 18pt;
-            margin-bottom: 5px;
-        }
-        
-        .header p {
-            font-size: 9pt;
-            opacity: 0.9;
-        }
-        
-        .stats {
-            display: table;
-            width: 100%;
-            margin-bottom: 15px;
-            border-collapse: collapse;
-        }
-        
-        .stats .stat-item {
-            display: table-cell;
-            width: 25%;
-            padding: 10px;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            text-align: center;
-        }
-        
-        .stats .stat-label {
-            font-size: 8pt;
-            color: #6b7280;
-            text-transform: uppercase;
-            margin-bottom: 3px;
-        }
-        
-        .stats .stat-value {
-            font-size: 14pt;
-            font-weight: bold;
-            color: #059669;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-        }
-        
-        th {
-            background-color: #059669;
-            color: white;
-            padding: 8px 5px;
-            text-align: left;
-            font-size: 8pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            border: 1px solid #047857;
-        }
-        
-        td {
-            padding: 6px 5px;
-            border: 1px solid #e5e7eb;
-            font-size: 8pt;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-        
-        .text-right {
-            text-align: right;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 2px 6px;
-            background: #dbeafe;
-            color: #1e40af;
-            border-radius: 3px;
-            font-size: 7pt;
-            font-weight: bold;
-        }
-        
-        .footer {
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 2px solid #e5e7eb;
-            font-size: 8pt;
-            color: #6b7280;
-            text-align: center;
-        }
-        
-        .search-info {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 8px;
-            margin-bottom: 15px;
-            font-size: 9pt;
-        }
-        
-        .search-info strong {
-            color: #92400e;
-        }
-    </style>
-</head>
-<body>
-    {{-- Header --}}
-    <div class="header">
-        <h1>🔍 Busca de Materiais - SUBRAVO</h1>
-        <p>Sistema de Controle de Estoque de Intendência</p>
-    </div>
+@extends('layouts.pdf')
 
-    {{-- Termo de busca --}}
+@section('title', 'Busca de Materiais — SUBRAVO')
+@section('report-title', '🔍 Busca de Materiais — Inventário SISCOFIS')
+@section('meta-user', auth()->user()->war_name)
+@section('meta-date', $generatedAt)
+@section('meta-right')
     @if($searchTerm)
-        <div class="search-info">
-            <strong>Termo de busca:</strong> {{ $searchTerm }}
-        </div>
-    @endif
-
-    {{-- Estatísticas --}}
-    <div class="stats">
-        <div class="stat-item">
-            <div class="stat-label">Registros</div>
-            <div class="stat-value">{{ number_format($stats['total_items']) }}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Materiais Distintos</div>
-            <div class="stat-value">{{ number_format($stats['unique_materials']) }}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Quantidade Total</div>
-            <div class="stat-value">{{ number_format($stats['total_quantity']) }}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Valor Total</div>
-            <div class="stat-value">R$ {{ number_format($stats['total_value'], 2, ',', '.') }}</div>
-        </div>
-    </div>
-
-    {{-- Tabela de resultados --}}
-    @if($items->isNotEmpty())
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 25%;">Material</th>
-                    <th style="width: 8%;">Código</th>
-                    <th style="width: 8%;">Ficha</th>
-                    <th style="width: 12%;">Tipo</th>
-                    <th style="width: 12%;">Dependência</th>
-                    <th style="width: 12%;">Unidade</th>
-                    <th style="width: 6%;" class="text-center">Qtd</th>
-                    <th style="width: 9%;" class="text-right">Vlr Unit.</th>
-                    <th style="width: 9%;" class="text-right">Vlr Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($items as $item)
-                    <tr>
-                        <td>
-                            <strong>{{ $item->material_name }}</strong>
-                            @if($item->hasPatrimonyNumbers())
-                                <br><span class="badge">{{ $item->patrimony_count }} patr.</span>
-                            @endif
-                        </td>
-                        <td>{{ $item->material_code ?? '—' }}</td>
-                        <td>{{ $item->ficha_number ?? '—' }}</td>
-                        <td>{{ $item->material_type ?? '—' }}</td>
-                        <td>{{ $item->upload->dependency ?? '—' }}</td>
-                        <td>{{ $item->upload->unit ?? '—' }}</td>
-                        <td class="text-center"><strong>{{ $item->quantity }}</strong></td>
-                        <td class="text-right">R$ {{ number_format($item->unit_value, 2, ',', '.') }}</td>
-                        <td class="text-right"><strong>R$ {{ number_format($item->total_value, 2, ',', '.') }}</strong></td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <strong>Termo de Busca:</strong> "{{ $searchTerm }}"
     @else
-        <p style="text-align: center; padding: 40px; color: #6b7280;">
-            Nenhum material encontrado.
-        </p>
+        <strong>Filtro:</strong> Todos os materiais
     @endif
+@endsection
 
-    {{-- Footer --}}
-    <div class="footer">
-        <p>
-            <strong>SUBRAVO</strong> — Sistema de Controle de Estoque de Intendência<br>
-            Gerado em {{ $generatedAt }} por {{ auth()->user()->war_name }}
-        </p>
-    </div>
-</body>
-</html>
+@section('content')
+
+{{-- Cards de Resumo --}}
+<table class="summary">
+    <tr>
+        <td style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;">
+            <div class="label">📋 Registros</div>
+            <div class="value text-blue">{{ number_format($stats['total_items'], 0, ',', '.') }}</div>
+        </td>
+        <td style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #2563eb;">
+            <div class="label">🎯 Materiais Distintos</div>
+            <div class="value text-blue">{{ number_format($stats['unique_materials'], 0, ',', '.') }}</div>
+        </td>
+        <td style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 4px solid #10b981;">
+            <div class="label">📦 Quantidade Total</div>
+            <div class="value text-green">{{ number_format($stats['total_quantity'], 0, ',', '.') }}</div>
+        </td>
+        <td style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b;">
+            <div class="label">💰 Valor Total</div>
+            <div class="value text-amber">R$ {{ number_format($stats['total_value'], 2, ',', '.') }}</div>
+        </td>
+    </tr>
+</table>
+
+@if($searchTerm)
+<div class="alert alert-info">
+    <strong>ℹ️ CRITÉRIO DE BUSCA:</strong> Resultados filtrados pelo termo "<strong>{{ $searchTerm }}</strong>". 
+    Busca realizada em {{ number_format($stats['total_items']) }} registro(s) encontrado(s) em todos os inventários carregados no sistema.
+</div>
+@endif
+
+<div class="section-title" style="border-left-color: #3b82f6; background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 50%, #eff6ff 100%); color: #1e40af; border-top: 2px solid #60a5fa; border-bottom: 2px solid #60a5fa;">
+    📊 Resultados da Busca — Detalhamento Completo
+</div>
+
+@if($items->isNotEmpty())
+<table class="data-table">
+    <thead>
+        <tr>
+            <th style="width: 4%;">#</th>
+            <th style="width: 24%;">Material</th>
+            <th style="width: 8%;">Cód. Mat</th>
+            <th style="width: 7%;">Nr Ficha</th>
+            <th style="width: 11%;">Tipo</th>
+            <th style="width: 13%;">Dependência</th>
+            <th style="width: 10%;">Unidade</th>
+            <th style="width: 6%;">Qtd.</th>
+            <th style="width: 8%;">Vlr Unit.</th>
+            <th style="width: 9%;">Vlr Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($items as $i => $item)
+            <tr>
+                <td class="center" style="color: #9ca3af;">{{ $i + 1 }}</td>
+                <td class="left">
+                    <strong>{{ $item->material_name }}</strong>
+                    @if($item->hasPatrimonyNumbers())
+                        <br><span class="badge badge-blue" style="font-size: 7px; margin-top: 3px;">📍 {{ $item->patrimony_count }} patrimônio(s)</span>
+                    @endif
+                </td>
+                <td class="center" style="font-family: 'Courier New'; font-size: 8px;">{{ $item->material_code ?? '—' }}</td>
+                <td class="center" style="font-family: 'Courier New'; font-size: 8px;">{{ $item->ficha_number ?? '—' }}</td>
+                <td class="center" style="font-size: 8px;">
+                    @if($item->material_type)
+                        <span class="badge badge-purple">{{ Str::limit($item->material_type, 15) }}</span>
+                    @else
+                        <span style="color: #9ca3af;">—</span>
+                    @endif
+                </td>
+                <td class="left" style="font-size: 8px; color: #6b7280;">{{ $item->upload->dependency ?? '—' }}</td>
+                <td class="left" style="font-size: 8px; color: #6b7280;">{{ $item->upload->unit ?? '—' }}</td>
+                <td class="center bold text-blue">{{ number_format($item->quantity, 0, ',', '.') }}</td>
+                <td class="right" style="font-size: 8px;">R$ {{ number_format($item->unit_value, 2, ',', '.') }}</td>
+                <td class="right bold" style="color: #065f46; font-size: 9px;">R$ {{ number_format($item->total_value, 2, ',', '.') }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="7" class="right" style="font-size: 10px;">TOTAIS GERAIS:</td>
+            <td class="center bold text-blue" style="font-size: 10px;">{{ number_format($stats['total_quantity'], 0, ',', '.') }}</td>
+            <td colspan="1"></td>
+            <td class="right bold" style="color: #065f46; font-size: 11px;">R$ {{ number_format($stats['total_value'], 2, ',', '.') }}</td>
+        </tr>
+    </tfoot>
+</table>
+@else
+<div class="alert alert-info" style="margin-top: 20px;">
+    <strong>ℹ️ Nenhum Material Encontrado:</strong> Não foram encontrados materiais com os critérios de busca especificados. 
+    Tente refinar sua busca ou verificar se há inventários cadastrados no sistema.
+</div>
+@endif
+
+@endsection
