@@ -1,35 +1,34 @@
-@extends('layouts.pdf')
+@extends('layouts.pdf-inventory')
 
 @section('title', $reportTitle . ' — SUBRAVO')
-@section('report-title', '📊 ' . $reportTitle)
-@section('meta-user', auth()->user()->war_name)
-@section('meta-date', now()->format('d/m/Y H:i'))
-@section('meta-right')
-    <strong>Período:</strong> {{ now()->format('d/m/Y') }}
-@endsection
+@section('location', 'DE INVENTÁRIO GERAL')
+
+@php
+    $period = now()->format('d/m/Y');
+@endphp
 
 @section('content')
 
 {{-- Cards de Resumo --}}
 <table class="summary">
     <tr>
-        <td style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;">
-            <div class="label">📋 Total de Itens</div>
-            <div class="value text-blue">{{ number_format($stats['total_items'], 0, ',', '.') }}</div>
+        <td>
+            <div class="label">Total de Itens</div>
+            <div class="value">{{ number_format($stats['total_items'], 0, ',', '.') }}</div>
         </td>
-        <td style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 4px solid #10b981;">
-            <div class="label">📦 Quantidade Total</div>
-            <div class="value text-green">{{ number_format($stats['total_quantity'], 0, ',', '.') }}</div>
+        <td>
+            <div class="label">Quantidade Total</div>
+            <div class="value">{{ number_format($stats['total_quantity'], 0, ',', '.') }}</div>
         </td>
-        <td style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b;">
-            <div class="label">💰 Valor Total</div>
-            <div class="value text-amber">R$ {{ number_format($stats['total_value'], 2, ',', '.') }}</div>
+        <td>
+            <div class="label">Valor Total</div>
+            <div class="value">R$ {{ number_format($stats['total_value'], 2, ',', '.') }}</div>
         </td>
     </tr>
 </table>
 
-<div class="section-title">
-    📁 Inventário — Detalhamento Completo de Itens
+<div class="section-title material">
+    INVENTÁRIO — DETALHAMENTO COMPLETO DE ITENS
 </div>
 
 <table class="data-table">
@@ -72,7 +71,7 @@
                 </td>
                 <td class="center bold text-blue">{{ number_format($item->quantity, 0, ',', '.') }}</td>
                 <td class="right" style="font-size: 8px;">R$ {{ number_format($item->unit_value, 2, ',', '.') }}</td>
-                <td class="right bold" style="color: #065f46;">R$ {{ number_format($item->total_value, 2, ',', '.') }}</td>
+                <td class="right bold">R$ {{ number_format($item->total_value, 2, ',', '.') }}</td>
                 <td class="center">
                     @if($item->hasPatrimonyNumbers())
                         <span class="badge badge-blue" style="font-size: 7px;">{{ $item->patrimony_count }}</span>
@@ -89,7 +88,7 @@
             <td colspan="3" class="right" style="font-size: 10px;">TOTAIS GERAIS:</td>
             <td class="center bold text-blue" style="font-size: 10px;">{{ number_format($stats['total_quantity'], 0, ',', '.') }}</td>
             <td colspan="1"></td>
-            <td class="right bold" style="color: #065f46; font-size: 11px;">R$ {{ number_format($stats['total_value'], 2, ',', '.') }}</td>
+            <td class="right bold" style="font-size: 11px;">R$ {{ number_format($stats['total_value'], 2, ',', '.') }}</td>
             <td colspan="2"></td>
         </tr>
     </tfoot>
