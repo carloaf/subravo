@@ -55,7 +55,7 @@
 @foreach($itemsByDependency as $dependency => $data)
     <div class="dependency-section">
         
-        <div class="section-title material">
+        <div class="section-title">
             {{ strtoupper($dependency ?? 'SEM DEPENDÊNCIA') }}
             @if($data['upload']->unit)
                 / {{ strtoupper($data['upload']->unit) }}
@@ -101,7 +101,11 @@
                             <td class="center" style="font-family: 'Courier New'; font-size: 7px;">{{ $item->ficha_number ?? '—' }}</td>
                             <td class="center" style="font-size: 7px;">
                                 @if($item->material_type)
-                                    <span class="badge badge-purple">{{ Str::limit($item->material_type, 12) }}</span>
+                                    @php
+                                        $typeText = str_ireplace('Material Permanente', 'Perman', $item->material_type);
+                                        $typeText = Str::limit($typeText, 12);
+                                    @endphp
+                                    <span class="badge badge-green">{{ $typeText }}</span>
                                 @else
                                     <span style="color: #9ca3af;">—</span>
                                 @endif

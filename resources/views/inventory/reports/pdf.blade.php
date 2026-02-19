@@ -27,7 +27,7 @@
     </tr>
 </table>
 
-<div class="section-title material">
+<div class="section-title">
     INVENTÁRIO — DETALHAMENTO COMPLETO DE ITENS
 </div>
 
@@ -58,7 +58,11 @@
                 </td>
                 <td class="center" style="font-size: 8px;">
                     @if($item->material_type)
-                        <span class="badge badge-purple">{{ Str::limit($item->material_type, 12) }}</span>
+                        @php
+                            $typeText = str_ireplace('Material Permanente', 'Perman', $item->material_type);
+                            $typeText = Str::limit($typeText, 12);
+                        @endphp
+                        <span class="badge badge-green">{{ $typeText }}</span>
                     @else
                         <span style="color: #9ca3af;">—</span>
                     @endif

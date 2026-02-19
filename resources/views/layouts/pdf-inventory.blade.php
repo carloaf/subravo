@@ -5,7 +5,7 @@
     <title>@yield('title', 'Relatório de Inventário — SUBRAVO')</title>
     <style>
         @page { 
-            margin: 25mm 20mm 20mm 20mm; 
+            margin: 25mm 0mm 20mm 0mm; 
             size: A4 landscape;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,6 +14,10 @@
             font-size: 9px; 
             color: #000; 
             line-height: 1.4; 
+        }
+        
+        .page {
+            padding: 0 10mm;
         }
 
         /* Cabeçalho Simplificado */
