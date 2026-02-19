@@ -152,121 +152,86 @@
             actionLabel="Voltar"
         />
     @else
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($uploads as $upload)
-                @php
-                    $statusColor = match($upload->status) {
-                        'completed'  => 'green',
-                        'processing' => 'blue',
-                        'pending'    => 'yellow',
-                        'error'      => 'red',
-                        default      => 'gray',
-                    };
-                    $borderColor = match($upload->status) {
-                        'completed'  => 'border-green-200 hover:border-green-400',
-                        'processing' => 'border-blue-200 hover:border-blue-400',
-                        'pending'    => 'border-yellow-200 hover:border-yellow-400',
-                        'error'      => 'border-red-200 hover:border-red-400',
-                        default      => 'border-gray-200 hover:border-gray-400',
-                    };
-                @endphp
-                <a href="{{ route('inventory.show', $upload) }}"
-                   class="group relative block bg-white rounded-xl shadow-sm {{ $borderColor }} border-2 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                    
-                    {{-- Header do Card --}}
-                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex items-center gap-2 flex-1 min-w-0">
-                                <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <x-card>
+            <x-table>
+                <x-slot:header>
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Arquivo</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Dependência / Unidade</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Status</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Itens</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Valor Total</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Uploader</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Data</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase w-32">Ações</th>
+                    </tr>
+                </x-slot:header>
+
+                @foreach($uploads as $upload)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-3">
+                            <a href="{{ route('inventory.show', $upload) }}" class="flex items-center gap-2 text-sm font-medium text-gray-900 hover:text-emerald-600">
+                                <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                 </svg>
-                                <span class="text-sm font-semibold text-gray-900 truncate group-hover:text-emerald-600 transition-colors" title="{{ $upload->filename }}">
-                                    {{ $upload->filename }}
-                                </span>
-                            </div>
-                            <x-badge :color="$statusColor" class="flex-shrink-0">{{ $upload->status_label }}</x-badge>
-                        </div>
-                    </div>
-
-                    {{-- Corpo do Card --}}
-                    <div class="px-4 py-4 space-y-3">
-                        {{-- Dependência / Unidade --}}
-                        @if($upload->dependency || $upload->unit)
-                            <div class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                                <div class="flex-1 min-w-0">
-                                    <div class="text-sm font-medium text-gray-900 truncate">{{ $upload->dependency }}</div>
-                                    <div class="text-xs text-gray-500 truncate">{{ $upload->unit }} {{ $upload->unit_code ? '- ' . $upload->unit_code : '' }}</div>
-                                </div>
-                            </div>
-                        @endif
-
-                        {{-- Estatísticas --}}
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-blue-50 rounded-lg px-3 py-2 border border-blue-100">
-                                <div class="text-xs text-blue-600 font-medium mb-0.5">Itens</div>
-                                <div class="text-lg font-bold text-blue-900">{{ $upload->total_items }}</div>
-                            </div>
-                            <div class="bg-emerald-50 rounded-lg px-3 py-2 border border-emerald-100">
-                                <div class="text-xs text-emerald-600 font-medium mb-0.5">Valor Total</div>
-                                <div class="text-sm font-bold text-emerald-900">R$ {{ number_format($upload->total_value, 2, ',', '.') }}</div>
-                            </div>
-                        </div>
-
-                        {{-- Footer com Metadata --}}
-                        <div class="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-                            <div class="flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                <span>{{ $upload->uploader->war_name ?? '—' }}</span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>{{ $upload->created_at->format('d/m/Y H:i') }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Actions Overlay (visível no hover) --}}
-                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                        <a href="{{ route('inventory.download', $upload) }}"
-                           onclick="event.stopPropagation();"
-                           class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg shadow-lg transition-colors"
-                           title="Baixar PDF">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                        </a>
-                        @if(auth()->user()->isAdmin())
-                        <form method="POST" action="{{ route('inventory.destroy', $upload) }}"
-                              onsubmit="event.stopPropagation(); return confirm('Excluir inventário {{ $upload->filename }}?');"
-                              class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                    class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg shadow-lg transition-colors"
-                                    title="Excluir">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <span class="truncate max-w-xs" title="{{ $upload->filename }}">{{ $upload->filename }}</span>
+                            </a>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="text-sm text-gray-900">{{ $upload->dependency ?? '—' }}</div>
+                            @if($upload->unit)
+                                <div class="text-xs text-gray-500">{{ $upload->unit }} {{ $upload->unit_code ? '- ' . $upload->unit_code : '' }}</div>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            @php
+                                $statusColor = match($upload->status) {
+                                    'completed'  => 'green',
+                                    'processing' => 'blue',
+                                    'pending'    => 'yellow',
+                                    'error'      => 'red',
+                                    default      => 'gray',
+                                };
+                            @endphp
+                            <x-badge :color="$statusColor">{{ $upload->status_label }}</x-badge>
+                        </td>
+                        <td class="px-4 py-3 text-center text-sm font-semibold text-gray-900">{{ $upload->total_items }}</td>
+                        <td class="px-4 py-3 text-right text-sm font-semibold text-gray-900">R$ {{ number_format($upload->total_value, 2, ',', '.') }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ $upload->uploader->war_name ?? '—' }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">{{ $upload->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{{ route('inventory.download', $upload) }}"
+                                   class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-1.5 rounded transition-colors"
+                                   title="Baixar PDF">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
-                                </button>
-                        </form>
-                        @endif
-                    </div>
-                </a>
-            @endforeach
-        </div>
+                                </a>
+                                @if(auth()->user()->isAdmin())
+                                <form method="POST" action="{{ route('inventory.destroy', $upload) }}"
+                                      onsubmit="return confirm('⚠️ ATENÇÃO: Excluir inventário?\n\n📄 Arquivo: {{ $upload->filename }}\n🗃️ Itens: {{ $upload->total_items }}\n\n❌ Esta ação é IRREVERSÍVEL:\n   • Arquivo PDF será deletado\n   • Todos os registros serão removidos do banco\n\nConfirmar exclusão?');"
+                                      class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 rounded transition-colors"
+                                            title="Excluir inventário">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </x-table>
+        </x-card>
     @endif
 @endif
 
