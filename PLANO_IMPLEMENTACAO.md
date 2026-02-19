@@ -464,6 +464,17 @@ Autenticado (middleware 'auth'):
 - [x] Sem gradientes, emojis ou design elaborado — foco em clareza e funcionalidade
 - [x] Formato paisagem (landscape A4) para mais colunas
 
+### Filtros Avançados de Relatórios de Inventário
+- [x] Filtro por Upload Específico (select com filename, dependency e data)
+- [x] Filtro por Tipo de Material (select com todos os tipos cadastrados)
+- [x] Filtro por Dependência (select com todas as dependências)
+- [x] Busca por Nome do Material (input text com ILIKE)
+- [x] Busca por Código do Material (input text com ILIKE específico em `material_code`)
+- [x] Busca por Número de Ficha (input text com ILIKE específico em `ficha_number`)
+- [x] Todos os filtros aplicados com queries PostgreSQL case-insensitive (ILIKE)
+- [x] Combinação de múltiplos filtros simultaneamente
+- [x] Validação no backend via `InventoryController@generateReport`
+
 ### Correções aplicadas
 - [x] `loans/return.blade.php` — campos corrigidos (`items→returns`, `return_quantity→quantity`, `return_notes→notes`) para match com `processReturn` controller
 - [x] `loans/show.blade.php` — route name corrigido (`loans.return.form` → `loans.return`)

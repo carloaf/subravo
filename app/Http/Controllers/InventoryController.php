@@ -701,6 +701,14 @@ class InventoryController extends Controller
             });
         }
 
+        if ($request->filled('material_code')) {
+            $query->where('material_code', 'ilike', "%{$request->material_code}%");
+        }
+
+        if ($request->filled('ficha_number')) {
+            $query->where('ficha_number', 'ilike', "%{$request->ficha_number}%");
+        }
+
         $items = $query->orderBy('material_name')->get();
 
         if ($items->isEmpty()) {

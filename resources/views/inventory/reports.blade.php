@@ -179,7 +179,21 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Buscar Material (Opcional)</label>
                     <input type="text" name="search" 
-                           placeholder="Nome ou código do material..."
+                           placeholder="Nome do material..."
+                           class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Código do Material (Opcional)</label>
+                    <input type="text" name="material_code" 
+                           placeholder="Ex: 123456789"
+                           class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Número de Ficha (Opcional)</label>
+                    <input type="text" name="ficha_number" 
+                           placeholder="Ex: 00123"
                            class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
                 </div>
             </div>
