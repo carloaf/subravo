@@ -24,6 +24,7 @@ O **SUBRAVO** é um sistema web monolítico MVC para controle de estoque de mate
 | Template Engine   | Blade (Laravel built-in)            |
 | Build Tool        | Vite ^5.0                           |
 | PDF               | barryvdh/laravel-dompdf ^2.0        |
+| PDF Parser        | smalot/pdfparser ^2.12              |
 | Excel             | maatwebsite/excel ^3.1              |
 | QR Code           | simplesoftwareio/simple-qrcode      |
 | Containerização   | Docker + Docker Compose             |
@@ -51,6 +52,7 @@ O **SUBRAVO** é um sistema web monolítico MVC para controle de estoque de mate
   - `barryvdh/laravel-dompdf` ^2.0 (v2.2.0)
   - `maatwebsite/excel` ^3.1 (v3.1.67)
   - `simplesoftwareio/simple-qrcode` ^4.2 (v4.2.0)
+  - `smalot/pdfparser` ^2.12 (v2.12.3)
 - [x] Configurar Vite + Tailwind CSS com paleta `subravo` (olive/militar)
 - [x] Configurar `tailwind.config.js` com plugin `@tailwindcss/forms`
 - [x] Configurar `config/database.php` default para `pgsql`
@@ -375,8 +377,9 @@ Autenticado (middleware 'auth'):
 - [x] **Cautela / Termo de Responsabilidade** — `loans/pdf/cautela.blade.php` (Passo 8) + `LoanController@cautelaPdf`
 - [x] **Comprovante de Devolução** — `loans/pdf/return-receipt.blade.php` (Passo 8) + `LoanController@returnReceiptPdf`
 - [x] **Layout PDF para relatórios** — `layouts/pdf.blade.php` — layout standalone com CSS embarcado, cabeçalho militar, badges, tabelas formatadas
+- [x] **Layout PDF simplificado para inventário** — `layouts/pdf-inventory.blade.php` — cabeçalho minimalista com apenas organização, título e metadados
 - [x] **6 templates PDF de relatórios administrativos** — `admin/reports/pdf/{stock_summary,loans_active,loans_history,movements,low_stock,expiring}.blade.php` — todos convertidos para usar @extends('layouts.pdf')
-- [x] **3 templates PDF do módulo de inventário** — `inventory/{materials-pdf,reports/pdf,reports/monthly-consolidated-pdf}.blade.php` — todos convertidos para usar @extends('layouts.pdf')
+- [x] **3 templates PDF do módulo de inventário** — `inventory/{materials-pdf,reports/pdf,reports/monthly-consolidated-pdf}.blade.php` — todos convertidos para usar @extends('layouts.pdf-inventory') com cabeçalho simplificado
 - [x] **ReportController** — detecta formato e usa views PDF separadas para DomPDF (landscape A4)
 
 ### Design Profissional de Relatórios ✅
@@ -451,6 +454,15 @@ Autenticado (middleware 'auth'):
 ### Rotas adicionadas
 - [x] `GET /stock/{id}/label` → `stock.label`
 - [x] `POST /stock/labels-batch` → `stock.labelsBatch`
+
+### Layout PDF de Inventário (Simplificado)
+- [x] Criado layout específico `layouts/pdf-inventory.blade.php` com design minimalista
+- [x] Cabeçalho padronizado: "11º Depósito de Suprimento — Relatório de Material"
+- [x] Título dinâmico: "RELATÓRIO {LOCALIZAÇÃO}" (ex: "RELATÓRIO DE INVENTÁRIO GERAL", "RELATÓRIO CONSOLIDADO MENSAL - FEVEREIRO/2026")
+- [x] Metadados: Data de geração, Gerado por, Período
+- [x] Seções de material: "INVENTÁRIO — DETALHAMENTO COMPLETO DE ITENS" com fundo verde (#d1fae5), borda verde (#10b981) e texto verde escuro (#065f46)
+- [x] Sem gradientes, emojis ou design elaborado — foco em clareza e funcionalidade
+- [x] Formato paisagem (landscape A4) para mais colunas
 
 ### Correções aplicadas
 - [x] `loans/return.blade.php` — campos corrigidos (`items→returns`, `return_quantity→quantity`, `return_notes→notes`) para match com `processReturn` controller
@@ -871,6 +883,11 @@ GET    /inventory/{inventoryUpload}/download → inventory.download
 - [x] Patrimônios: 22 números extraídos (14 colchões + 4 beliches + 4 outros)
 - [x] Migration executada sem erros
 - [x] Views compilam sem erros (`view:cache`)
+- [x] Dependência `smalot/pdfparser` instalada via Composer (v2.12.3)
+- [x] Extensão PostgreSQL `pg_trgm` habilitada para índices de busca full-text
+- [x] Disco `inventario` configurado em `config/filesystems.php` e validado
+- [x] Autoload regenerado (7545 classes), caches limpos (config, routes, optimize)
+- [x] Classe `Smalot\PdfParser\Parser` acessível e validada
 
 ---
 
