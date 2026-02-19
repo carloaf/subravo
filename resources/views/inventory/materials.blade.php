@@ -326,7 +326,7 @@
                 </div>
                 
                 <div class="flex gap-2">
-                    <form method="POST" action="{{ route('inventory.materials.export') }}" class="inline">
+                    <form method="POST" action="{{ route('inventory.materials.export') }}" target="_blank" class="inline">
                         @csrf
                         <input type="hidden" name="format" value="pdf">
                         <input type="hidden" name="search" value="{{ request('search') }}">

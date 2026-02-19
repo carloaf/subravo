@@ -25,7 +25,7 @@
             <p class="text-sm text-gray-600">Selecione os filtros e o formato desejado para gerar o relatório do inventário.</p>
         </div>
 
-        <form method="POST" action="{{ route('inventory.reports.generate') }}" class="space-y-6">
+        <form method="POST" action="{{ route('inventory.reports.generate') }}" target="_blank" class="space-y-6">
             @csrf
 
             {{-- Tipo de Relatório --}}
@@ -177,23 +177,23 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Buscar Material (Opcional)</label>
-                    <input type="text" name="search" 
-                           placeholder="Nome do material..."
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Buscar Material 1 (Opcional)</label>
+                    <input type="text" name="search_1" 
+                           placeholder="Nome, código ou ficha do material..."
                            class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Código do Material (Opcional)</label>
-                    <input type="text" name="material_code" 
-                           placeholder="Ex: 123456789"
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Buscar Material 2 (Opcional)</label>
+                    <input type="text" name="search_2" 
+                           placeholder="Nome, código ou ficha do material..."
                            class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Número de Ficha (Opcional)</label>
-                    <input type="text" name="ficha_number" 
-                           placeholder="Ex: 00123"
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Buscar Material 3 (Opcional)</label>
+                    <input type="text" name="search_3" 
+                           placeholder="Nome, código ou ficha do material..."
                            class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
                 </div>
             </div>
