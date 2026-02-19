@@ -695,11 +695,39 @@ class InventoryController extends Controller
             });
         }
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('material_name', 'ilike', "%{$search}%")
-                  ->orWhere('material_code', 'ilike', "%{$search}%");
+        // Busca ampla: campo 1 OU campo 2 OU campo 3
+        // Cada campo busca em nome, código ou ficha
+        if ($request->filled('search_1') || $request->filled('search_2') || $request->filled('search_3')) {
+            $query->where(function ($q) use ($request) {
+                // Campo 1
+                if ($request->filled('search_1')) {
+                    $search1 = $request->search_1;
+                    $q->orWhere(function ($subQ) use ($search1) {
+                        $subQ->where('material_name', 'ilike', "%{$search1}%")
+                             ->orWhere('material_code', 'ilike', "%{$search1}%")
+                             ->orWhere('ficha_number', 'ilike', "%{$search1}%");
+                    });
+                }
+
+                // Campo 2
+                if ($request->filled('search_2')) {
+                    $search2 = $request->search_2;
+                    $q->orWhere(function ($subQ) use ($search2) {
+                        $subQ->where('material_name', 'ilike', "%{$search2}%")
+                             ->orWhere('material_code', 'ilike', "%{$search2}%")
+                             ->orWhere('ficha_number', 'ilike', "%{$search2}%");
+                    });
+                }
+
+                // Campo 3
+                if ($request->filled('search_3')) {
+                    $search3 = $request->search_3;
+                    $q->orWhere(function ($subQ) use ($search3) {
+                        $subQ->where('material_name', 'ilike', "%{$search3}%")
+                             ->orWhere('material_code', 'ilike', "%{$search3}%")
+                             ->orWhere('ficha_number', 'ilike', "%{$search3}%");
+                    });
+                }
             });
         }
 

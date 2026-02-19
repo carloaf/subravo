@@ -464,6 +464,19 @@ Autenticado (middleware 'auth'):
 - [x] Sem gradientes, emojis ou design elaborado — foco em clareza e funcionalidade
 - [x] Formato paisagem (landscape A4) para mais colunas
 
+### Filtros Avançados de Relatórios de Inventário
+- [x] Filtro por Upload Específico (select com filename, dependency e data)
+- [x] Filtro por Tipo de Material (select com todos os tipos cadastrados)
+- [x] Filtro por Dependência (select com todas as dependências)
+- [x] **3 campos de "Buscar Material" independentes** — cada um busca simultaneamente em nome, código e ficha (ILIKE)
+- [x] Busca ampla: os 3 campos são aplicados com operador **OR** entre si (união de resultados)
+- [x] Busca interna: cada campo busca com OR em `material_name`, `material_code` e `ficha_number`
+- [x] Queries PostgreSQL case-insensitive (ILIKE) em todos os campos de busca
+- [x] Combinação de múltiplos filtros simultaneamente
+- [x] Validação no backend via `InventoryController@generateReport`
+- [x] Exemplo de uso: "beliche" + "mesa" + "armário" retorna todos os beliches **+** todas as mesas **+** todos os armários
+- [x] **Relatórios abrem em nova aba** — `target="_blank"` em formulários de relatórios e links de PDFs
+
 ### Correções aplicadas
 - [x] `loans/return.blade.php` — campos corrigidos (`items→returns`, `return_quantity→quantity`, `return_notes→notes`) para match com `processReturn` controller
 - [x] `loans/show.blade.php` — route name corrigido (`loans.return.form` → `loans.return`)
