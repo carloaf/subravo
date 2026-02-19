@@ -38,7 +38,7 @@
 </div>
 @endif
 
-<div class="section-title material">
+<div class="section-title">
     INVENTÁRIO — DETALHAMENTO COMPLETO DE ITENS
 </div>
 
@@ -72,7 +72,11 @@
                 <td class="center" style="font-family: 'Courier New'; font-size: 8px;">{{ $item->ficha_number ?? '—' }}</td>
                 <td class="center" style="font-size: 8px;">
                     @if($item->material_type)
-                        <span class="badge badge-purple">{{ Str::limit($item->material_type, 15) }}</span>
+                        @php
+                            $typeText = str_ireplace('Material Permanente', 'Perman', $item->material_type);
+                            $typeText = Str::limit($typeText, 15);
+                        @endphp
+                        <span class="badge badge-green">{{ $typeText }}</span>
                     @else
                         <span style="color: #9ca3af;">—</span>
                     @endif
