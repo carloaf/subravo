@@ -21,6 +21,7 @@
 
 {{-- Quick stats --}}
 @php
+    $totalInventorySISCOFIS = $durableItems->sum('inventory_qty');
     $totalItems = $durableItems->sum('total');
     $totalAvailable = $durableItems->sum('available');
     $totalLoaned = $durableItems->sum('loaned');
@@ -29,11 +30,35 @@
     $totalExpired = $durableItems->sum('expired');
 @endphp
 
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-4">
-        <div class="text-2xl font-bold text-gray-900">{{ $totalItems }}</div>
-        <div class="text-xs text-gray-500 uppercase">Total Itens</div>
+<div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- Inventário SISCOFIS --}}
+        <div class="border-r border-gray-200 pr-6">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">📋 Inventário SISCOFIS</h3>
+            <div class="flex items-baseline gap-2">
+                <div class="text-4xl font-bold text-indigo-600">{{ number_format($totalInventorySISCOFIS, 0, ',', '.') }}</div>
+                <div class="text-sm text-gray-500">unidades registradas</div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">
+                Quantidade oficial do último inventário importado do SISCOFIS
+            </p>
+        </div>
+        
+        {{-- Estoque Controlado --}}
+        <div class="pl-6">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">📦 Estoque Controlado</h3>
+            <div class="flex items-baseline gap-2">
+                <div class="text-4xl font-bold text-emerald-600">{{ number_format($totalItems, 0, ',', '.') }}</div>
+                <div class="text-sm text-gray-500">itens individualizados</div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">
+                Itens com controle individual (lote, série, empréstimos)
+            </p>
+        </div>
     </div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-4">
         <div class="text-2xl font-bold text-emerald-600">{{ $totalAvailable }}</div>
         <div class="text-xs text-gray-500 uppercase">Disponíveis</div>
@@ -47,12 +72,8 @@
         <div class="text-xs text-gray-500 uppercase">Danificados</div>
     </div>
     <div class="bg-white rounded-lg shadow p-4">
-        <div class="text-2xl font-bold text-amber-600">{{ $totalExpiring }}</div>
-        <div class="text-xs text-gray-500 uppercase">Vencendo</div>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4">
-        <div class="text-2xl font-bold text-rose-600">{{ $totalExpired }}</div>
-        <div class="text-xs text-gray-500 uppercase">Vencidos</div>
+        <div class="text-2xl font-bold text-amber-600">{{ $totalExpiring + $totalExpired }}</div>
+        <div class="text-xs text-gray-500 uppercase">Vencidos/Vencendo</div>
     </div>
 </div>
 
@@ -122,23 +143,63 @@
                 </div>
 
                 {{-- Estatísticas --}}
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div class="text-center p-3 bg-gray-50 rounded-lg">
-                        <div class="text-2xl font-bold text-gray-900">{{ $item->total }}</div>
-                        <div class="text-xs text-gray-500 uppercase">Total</div>
-                    </div>
-                    <div class="text-center p-3 bg-emerald-50 rounded-lg">
-                        <div class="text-2xl font-bold text-emerald-600">{{ $item->available }}</div>
-                        <div class="text-xs text-emerald-700 uppercase">Disponíveis</div>
-                    </div>
-                    <div class="text-center p-3 bg-blue-50 rounded-lg">
-                        <div class="text-2xl font-bold text-blue-600">{{ $item->loaned }}</div>
-                        <div class="text-xs text-blue-700 uppercase">Emprestados</div>
-                    </div>
-                    <div class="text-center p-3 bg-red-50 rounded-lg">
-                        <div class="text-2xl font-bold text-red-600">{{ $item->damaged }}</div>
-                        <div class="text-xs text-red-700 uppercase">Danificados</div>
-                    </div>
+                <div class="mb-4">
+                    {{-- Inventário SISCOFIS --}}
+                    @if(isset($item->inventory_qty) && $item->inventory_qty > 0)
+                        <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <div>
+                                        <div class="text-xs text-indigo-600 font-semibold uppercase">Inventário SISCOFIS</div>
+                                        <div class="text-2xl font-bold text-indigo-900">{{ number_format($item->inventory_qty, 0, ',', '.') }} <span class="text-sm font-normal text-indigo-600">unidades</span></div>
+                                    </div>
+                                </div>
+                                @if($item->inventory_date)
+                                    <div class="text-right text-xs text-indigo-600">
+                                        <div>Última atualização:</div>
+                                        <div class="font-semibold">{{ $item->inventory_date->format('d/m/Y H:i') }}</div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Estoque Controlado --}}
+                    @if(isset($item->total) && $item->total > 0)
+                        <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                            <div class="text-xs text-gray-500 font-semibold uppercase mb-2">Estoque Controlado (itens individualizados)</div>
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-gray-900">{{ $item->total }}</div>
+                                    <div class="text-xs text-gray-500">Total</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-emerald-600">{{ $item->available }}</div>
+                                    <div class="text-xs text-emerald-700">Disponíveis</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-blue-600">{{ $item->loaned }}</div>
+                                    <div class="text-xs text-blue-700">Emprestados</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-red-600">{{ $item->damaged }}</div>
+                                    <div class="text-xs text-red-700">Danificados</div>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-3">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="text-sm">Nenhum item individualizado no estoque controlado. Use o botão "Criar Item de Estoque" para adicionar.</span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Alertas de validade --}}
