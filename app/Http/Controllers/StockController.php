@@ -299,10 +299,7 @@ class StockController extends Controller
                 ->with('product.category')
                 ->get();
 
-            if ($stockItems->isEmpty()) {
-                continue;
-            }
-
+            // Incluir produto mesmo sem stock_items (produtos cadastrados mas ainda não lançados)
             $totalQuantity = $stockItems->sum('quantity');
             $availableQty  = $stockItems->where('status', 'available')->sum('quantity');
             $loanedQty     = $stockItems->where('status', 'loaned')->sum('quantity');

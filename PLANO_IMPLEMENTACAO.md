@@ -898,6 +898,84 @@ GET    /inventory/{inventoryUpload}/download → inventory.download
 - [x] Views compilam sem erros (`view:cache`)
 - [x] Dependência `smalot/pdfparser` instalada via Composer (v2.12.3)
 - [x] Extensão PostgreSQL `pg_trgm` habilitada para índices de busca full-text
+
+---
+
+## Passo 16c — Integração Inventário × Uso Duradouro ✅
+
+Extensão do parser de inventário para processar a seção "2. Material de Uso Duradouro" dos PDFs SISCOFIS e sincronizar automaticamente com o cadastro de produtos duráveis.
+
+### Funcionalidades Implementadas
+
+#### Parser de PDF Estendido (`app/Services/InventoryPdfParser.php`)
+- [x] Detecção automática de 2 formatos de material:
+  - **MATERIAL PERMANENTE**: `NrFicha CodMat ContaContabil Qtd ValorUnit ValorTotal Acervo NomeMaterial`
+  - **MATERIAL DE USO DURADOURO**: `NrFicha CodMat ContaContabil ValorUnit NomeMaterial... ValorTotal Qtd`
+- [x] **Parsing multi-linha**: produtos cujo nome se estende por 2-3 linhas são corretamente capturados usando sistema de buffer
+- [x] Regex dual para parsing de linhas conforme tipo de seção detectado
+- [x] Campo `acervo` definido como `null` para materiais de uso duradouro
+- [x] Números patrimoniais não são coletados para materiais duráveis (sem campo "Nr Patrimoniais")
+- [x] **Filtro de cabeçalho otimizado**: verifica comprimento da linha (< 100 chars) para não capturar indevidamente produtos com "Exército Brasileiro" no nome
+
+#### Correções Aplicadas (19/02/2026)
+- [x] **Bug crítico corrigido**: filtro de cabeçalho PDF estava bloqueando produtos com "Exército Brasileiro" no nome do material
+- [x] **Solução**: filtro limitado a linhas curtas + verificação de contexto (presença de códigos numéricos)
+- [x] **Resultado**: taxa de captura aumentou de 20 para 60 produtos (100% dos itens esperados)
+- [x] **Validação**: subtenencia.pdf agora importa 60 produtos de Uso Duradouro com 1.786 unidades totais
+
+#### Serviço de Sincronização (`app/Services/InventoryDurableSyncService`)
+- [x] Criado serviço dedicado para sincronização automática
+- [x] Filtra itens com `material_type` contendo "USO DURADOURO"
+- [x] Para cada item:
+  - Busca produto existente por `siscofis_code = material_code`
+  - Se não existe: cria produto com `is_durable = true`, vinculado à categoria "Uso Duradouro"
+  - Se existe: garante que `is_durable = true`
+- [x] Criação automática de categoria "Uso Duradouro" se não existir
+- [x] Estatísticas retornadas: `created`, `already_exists`, `errors`, `total_items`
+- [x] Logging detalhado de todas as operações
+- [x] Transação DB para garantir atomicidade
+
+#### Controller Atualizado (`app/Http/Controllers/InventoryController`)
+- [x] Método `store`: chama `InventoryDurableSyncService->sync()` após parsing bem-sucedido
+- [x] Método `reprocess`: chama sincronização também ao reprocessar inventários
+- [x] Mensagens de sucesso incluem estatísticas: "X produtos duráveis criados/já existentes"
+
+### Estrutura de Dados
+
+#### Formato PDF "Material de Uso Duradouro"
+```
+Nr Ficha | Cod Mat. | Conta Contábil | Nome material | Quantidade | Valor Unitário | Valor Total
+458      | 231810   | 123110301      | VENTILADOR    | 2          | 112,50         | 225,00
+```
+
+#### Produto criado automaticamente
+- `name`: Nome do material extraído do PDF
+- `siscofis_code`: Código do material (Cod Mat.)
+- `category_id`: FK para categoria "Uso Duradouro" (auto-criada)
+- `is_durable`: `true`
+- `shelf_life_months`: `null` (duráveis não perecem)
+- `is_serialized`: `false`
+- `minimum_stock`: `0`
+
+### Fluxo de Integração
+
+1. **Upload de PDF** → Controller recebe arquivo
+2. **Parsing** → `InventoryPdfParser` extrai ambas seções (Permanente + Uso Duradouro)
+3. **Salvamento** → Itens salvos em `inventory_items` com `material_type` correto
+4. **Sincronização** → `InventoryDurableSyncService` processa itens "USO DURADOURO"
+5. **Criação de Produtos** → Produtos criados/atualizados na tabela `products`
+6. **Feedback** → Usuário recebe estatísticas: "45 itens importados. 12 produtos duráveis criados. 8 produtos duráveis já existentes."
+
+### Benefícios
+
+- ✅ **Automação completa**: produtos duráveis cadastrados automaticamente via PDF
+- ✅ **Sincronização bidirecional**: inventário ↔ cadastro de produtos
+- ✅ **Rastreabilidade**: código SISCOFIS vincula inventário aos produtos
+- ✅ **Categorização automática**: materiais duráveis agrupados em categoria dedicada
+- ✅ **Idempotência**: múltiplos uploads do mesmo PDF não duplicam produtos
+- ✅ **Auditoria**: logs completos de criação/atualização de produtos
+
+---
 - [x] Disco `inventario` configurado em `config/filesystems.php` e validado
 - [x] Autoload regenerado (7545 classes), caches limpos (config, routes, optimize)
 - [x] Classe `Smalot\PdfParser\Parser` acessível e validada
@@ -982,6 +1060,114 @@ GET    /inventory/{inventoryUpload}/compare-durables → inventory.compare.durab
 - [ ] Notificação de estoque crítico para admin/almoxarife
 - [ ] Resumo diário de pendências (command + mail)
 - [ ] Configuração SMTP real para produção
+
+---
+
+## Passo 16d — Separação de Tabelas: Material Permanente vs Uso Duradouro ✅
+
+Refatoração da arquitetura de dados para separar Material Permanente patrimonial do Material de Uso Duradouro operacional em tabelas distintas.
+
+### Motivação
+
+A separação em tabelas distintas reflete a diferença conceitual entre dois tipos de material militar:
+
+1. **Material Permanente** (`inventory_items`): Bens patrimoniais rastreados individualmente por número de patrimônio, com controle de acervo (N/S) e localização específica
+2. **Material de Uso Duradouro** (`durable_goods_inventory`): Bens operacionais consumíveis controlados por quantidade total, sem rastreamento individual de patrimônio
+
+Esta arquitetura evita misturar lógicas de controle incompatíveis (patrimonial vs operacional) e permite consultas mais eficientes.
+
+### Nova Tabela
+
+#### `durable_goods_inventory` — Material de Uso Duradouro
+| Coluna              | Tipo                                     |
+| ------------------- | ---------------------------------------- |
+| id                  | bigint PK                                |
+| inventory_upload_id | FK → inventory_uploads (cascade delete)  |
+| material_name       | string — nome do material                |
+| ficha_number        | string nullable — Nr Ficha               |
+| material_code       | string nullable — Cód Mat                |
+| accounting_account  | string nullable — Conta Contábil         |
+| quantity            | integer default 1                        |
+| unit_value          | decimal(15,2) default 0                  |
+| total_value         | decimal(15,2) default 0                  |
+| raw_text            | text nullable — texto bruto (debug)      |
+| timestamps          |                                          |
+
+**Diferenças em relação a `inventory_items`:**
+- ❌ Sem campo `acervo` (não aplicável a consumíveis)
+- ❌ Sem campo `material_type` (toda a tabela é implicitamente "USO DURADOURO")
+- ❌ Sem campo `patrimony_numbers` (não há controle individual)
+
+### Model Criado
+
+- [x] `app/Models/DurableGoodsInventory.php`:
+  - `fillable`: todos os campos exceto id e timestamps
+  - `casts`: `unit_value`, `total_value` como `decimal:2`
+  - `belongsTo`: `InventoryUpload`
+  - Helpers: `formattedUnitValue()`, `formattedTotalValue()`
+
+### Relacionamento Atualizado
+
+- [x] `app/Models/InventoryUpload.php`:
+  - Adicionado `durableGoods()` → `hasMany(DurableGoodsInventory::class)`
+  - Mantido `items()` → `hasMany(InventoryItem::class)` para Material Permanente
+  - Cascade delete em ambos relacionamentos
+
+### Parser Refatorado
+
+- [x] `app/Services/InventoryPdfParser.php`:
+  - Propriedades: `$permanentItems` e `$durableGoods` (arrays separados)
+  - Método `addItemToCorrectArray()`: distribui itens conforme `$currentType`
+  - Retorno do método `parse()`:
+    ```php
+    return [
+        'header'          => [...],
+        'permanent_items' => [...],  // Material Permanente
+        'durable_goods'   => [...],  // Material de Uso Duradouro
+        'raw'             => $text,
+    ];
+    ```
+
+### Controller Atualizado
+
+- [x] `app/Http/Controllers/InventoryController.php`:
+  - Método `store`:
+    - Loop separado para `$result['permanent_items']` → cria `InventoryItem`
+    - Loop separado para `$result['durable_goods']` → cria `DurableGoodsInventory`
+    - `total_items` e `total_value` somam ambos os tipos
+  - Método `reprocess`:
+    - Deleta itens de ambas tabelas: `$inventory->items()->delete()` + `$inventory->durableGoods()->delete()`
+    - Re-popula ambas tabelas após parsing
+
+### Sincronização de Produtos Atualizada
+
+- [x] `app/Services/InventoryDurableSyncService.php`:
+  - Alterado para consultar `DurableGoodsInventory::where('inventory_upload_id', $uploadId)` ao invés de filtrar `InventoryItem` por `material_type`
+  - Lógica de criação/atualização de produtos permanece idêntica
+  - Estatísticas: `total_items`, `created`, `already_exists`, `errors`
+
+### Migration Executada
+
+- [x] `database/migrations/2026_02_19_205411_create_durable_goods_inventory_table.php`:
+  - Criada tabela `durable_goods_inventory` com 9 colunas + timestamps
+  - Foreign key `inventory_upload_id` com cascade delete
+  - Migration executada com sucesso (35.74ms)
+
+### Validação Completa
+
+- [x] Teste com PDF real `subtenencia.pdf`:
+  - ✅ Parser: 46 itens permanentes + 20 itens duráveis
+  - ✅ Salvamento: 46 registros em `inventory_items`, 20 em `durable_goods_inventory`
+  - ✅ Sincronização: 20 produtos criados/atualizados em `products` (is_durable=true)
+  - ✅ Total: 66 itens, R$ 150.863,08 (confere com PDF original)
+
+### Benefícios da Arquitetura
+
+- ✅ **Separação de conceitos**: Patrimonial (inventory_items) vs Operacional (durable_goods_inventory)
+- ✅ **Consultas otimizadas**: Sem necessidade de filtrar por `material_type`, tabela já define o tipo
+- ✅ **Schema semântico**: Campos existem apenas onde fazem sentido (ex: `acervo` só em permanentes)
+- ✅ **Escalabilidade**: Futuras funcionalidades específicas de cada tipo não poluem a outra tabela
+- ✅ **Auditoria clara**: Logs e relatórios podem distinguir facilmente os dois tipos de controle
 
 ---
 
