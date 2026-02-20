@@ -930,15 +930,27 @@ Extensão do parser de inventário para processar a seção "2. Material de Uso 
   - Busca produto existente por `siscofis_code = material_code`
   - Se não existe: cria produto com `is_durable = true`, vinculado à categoria "Uso Duradouro"
   - Se existe: garante que `is_durable = true`
+  - **Criação automática de estoque** (20/02/2026):
+    - Verifica se o produto já possui movimentação no estoque (`stock_movements`)
+    - Se **não houver movimentação prévia** e `quantity > 0`:
+      - Cria registro em `stock_items` com quantidade do inventário
+      - Batch: `INV-{upload_id}`
+      - Location: dependência do upload ou "Inventário SISCOFIS"
+      - Status: `available`
+      - Registra em `stock_movements` como entrada tipo "entry"
+      - Notes: "Entrada inicial automática do inventário SISCOFIS - Upload #X (arquivo.pdf)"
 - [x] Criação automática de categoria "Uso Duradouro" se não existir
-- [x] Estatísticas retornadas: `created`, `already_exists`, `errors`, `total_items`
+- [x] Estatísticas retornadas: `created`, `already_exists`, `stock_created`, `stock_skipped`, `errors`, `total_items`
 - [x] Logging detalhado de todas as operações
 - [x] Transação DB para garantir atomicidade
 
 #### Controller Atualizado (`app/Http/Controllers/InventoryController`)
 - [x] Método `store`: chama `InventoryDurableSyncService->sync()` após parsing bem-sucedido
 - [x] Método `reprocess`: chama sincronização também ao reprocessar inventários
-- [x] Mensagens de sucesso incluem estatísticas: "X produtos duráveis criados/já existentes"
+- [x] Mensagens de sucesso incluem estatísticas detalhadas:
+  - "X produtos duráveis criados"
+  - "X produtos duráveis já existentes"
+  - "X itens adicionados ao estoque automaticamente" (20/02/2026)
 
 ### Estrutura de Dados
 
@@ -961,10 +973,18 @@ Nr Ficha | Cod Mat. | Conta Contábil | Nome material | Quantidade | Valor Unit�
 
 1. **Upload de PDF** → Controller recebe arquivo
 2. **Parsing** → `InventoryPdfParser` extrai ambas seções (Permanente + Uso Duradouro)
-3. **Salvamento** → Itens salvos em `inventory_items` com `material_type` correto
-4. **Sincronização** → `InventoryDurableSyncService` processa itens "USO DURADOURO"
+3. **Salvamento** → Itens salvos em `inventory_items` e `durable_goods_inventory` conforme tipo
+4. **Sincronização de Produtos** → `InventoryDurableSyncService` processa itens "USO DURADOURO"
 5. **Criação de Produtos** → Produtos criados/atualizados na tabela `products`
-6. **Feedback** → Usuário recebe estatísticas: "45 itens importados. 12 produtos duráveis criados. 8 produtos duráveis já existentes."
+6. **Criação Automática de Estoque** (20/02/2026) → Para produtos sem movimentação prévia:
+   - Cria `stock_items` com quantidade do inventário
+   - Registra `stock_movements` como entrada inicial
+   - Permite empréstimo imediato dos materiais
+7. **Feedback** → Usuário recebe estatísticas completas:
+   - "45 itens importados."
+   - "12 produtos duráveis criados."
+   - "8 produtos duráveis já existentes."
+   - "12 itens adicionados ao estoque automaticamente."
 
 ### Benefícios
 
@@ -973,6 +993,8 @@ Nr Ficha | Cod Mat. | Conta Contábil | Nome material | Quantidade | Valor Unit�
 - ✅ **Rastreabilidade**: código SISCOFIS vincula inventário aos produtos
 - ✅ **Categorização automática**: materiais duráveis agrupados em categoria dedicada
 - ✅ **Idempotência**: múltiplos uploads do mesmo PDF não duplicam produtos
+- ✅ **Estoque imediato** (20/02/2026): materiais sem movimentação prévia são automaticamente adicionados ao estoque controlado, permitindo empréstimos imediatos
+- ✅ **Rastreamento completo**: entrada inicial registrada em `stock_movements` com referência ao upload do inventário
 - ✅ **Auditoria**: logs completos de criação/atualização de produtos
 
 ---

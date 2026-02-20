@@ -193,6 +193,9 @@ class InventoryController extends Controller
             if ($syncStats['already_exists'] > 0) {
                 $successMessage .= " {$syncStats['already_exists']} produtos duráveis já existentes.";
             }
+            if ($syncStats['stock_created'] > 0) {
+                $successMessage .= " {$syncStats['stock_created']} itens adicionados ao estoque automaticamente.";
+            }
 
             return redirect()->route('inventory.show', $upload)
                 ->with('success', $successMessage);
@@ -321,6 +324,9 @@ class InventoryController extends Controller
             }
             if ($syncStats['already_exists'] > 0) {
                 $successMessage .= " {$syncStats['already_exists']} produtos duráveis já existentes.";
+            }
+            if ($syncStats['stock_created'] > 0) {
+                $successMessage .= " {$syncStats['stock_created']} itens adicionados ao estoque automaticamente.";
             }
 
             return redirect()->route('inventory.show', $inventory)
