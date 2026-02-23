@@ -1004,6 +1004,73 @@ Nr Ficha | Cod Mat. | Conta Contábil | Nome material | Quantidade | Valor Unit�
 
 ---
 
+## Passo 16d — Reconciliação de Quantidades (Sync Duráveis) ✅
+
+Implementação de sincronização manual de quantidades entre inventário SISCOFIS e estoque controlado, com reconciliação automática de discrepâncias.
+
+### Problema Identificado
+
+Após importação de inventários SISCOFIS, os totais não batiam:
+- **Inventário SISCOFIS**: 1.786 unidades registradas
+- **Estoque Controlado**: 1.482 itens individualizados
+- **Diferença**: 304 unidades faltantes
+
+### Causa Raiz
+
+1. **Duplicação de produtos no PDF**: 8 produtos aparecem em 2 linhas separadas no mesmo PDF (ex: JAPONA M com 19 unidades numa seção e 88 em outra)
+2. **Lógica anterior**: processava linha a linha, comparando cada linha individual contra estoque acumulado
+3. **Resultado**: segunda linha marcada como "surplus" (estoque > inventário), nunca adicionando quantidade correta
+
+### Solução Implementada
+
+#### Serviço de Reconciliação Aprimorado (`app/Services/InventoryDurableSyncService`)
+- [x] **Agrupamento por `material_code`**: antes de reconciliar, agrupa itens por código SISCOFIS e soma quantidades
+- [x] **Reconciliação inteligente**:
+  - Produto não existe → cria produto + estoque inicial
+  - Produto existe, estoque = 0 → adiciona estoque faltante
+  - Produto existe, estoque < inventário → adiciona diferença
+  - Produto existe, estoque > inventário → mantém (pode haver cautelas abertas)
+  - Produto existe, estoque = inventário → ignora (já sincronizado)
+- [x] **Idempotência**: múltiplas execuções não duplicam ou alteram desnecessariamente
+- [x] **Estatísticas detalhadas**:
+  - `total_items`: linhas brutas do PDF (60)
+  - `total_unique`: produtos únicos após agrupamento (52)
+  - `qty_adjusted`: produtos com quantidade ajustada
+  - `qty_added`: unidades totais adicionadas
+  - `in_sync`: produtos já sincronizados
+
+#### Interface de Usuário
+- [x] **Botão "Sync Duráveis"**: adicionado à tela de detalhes do inventário (`inventory/show.blade.php`)
+- [x] **Rota dedicada**: `POST /inventory/{inventoryUpload}/sync-durables` → `inventory.sync-durables`
+- [x] **Mensagens flash aprimoradas**:
+  - `success`: alterações realizadas (produtos criados/ajustados)
+  - `info`: tudo já sincronizado
+  - `warning`: estoque acima do inventário (requer atenção)
+  - `error`: erros durante processamento
+
+#### Controller Atualizado (`app/Http/Controllers/InventoryController`)
+- [x] Método `syncDurables()`: executa reconciliação manual
+- [x] Método `reprocess()`: atualizado para usar novas estatísticas
+- [x] Autorização: apenas administradores podem executar sync
+
+### Resultado Final
+
+Após implementação:
+- **Inventário SISCOFIS**: 1.786 unidades
+- **Estoque Controlado**: 1.786 itens
+- **Diferença**: 0 (totais batem perfeitamente)
+
+### Benefícios
+
+- ✅ **Reconciliação automática**: identifica e corrige discrepâncias de quantidade
+- ✅ **Agrupamento inteligente**: lida com produtos duplicados no PDF
+- ✅ **Idempotência**: execuções repetidas são seguras
+- ✅ **Feedback detalhado**: usuário sabe exatamente o que foi alterado
+- ✅ **Auditoria completa**: todas as adições registradas em `stock_movements`
+- ✅ **Interface intuitiva**: botão dedicado na tela de inventário
+
+---
+
 ## Passo 16c — Comparação de Inventários ✅
 
 Funcionalidade de comparação temporal de inventários e cruzamento com dados de Uso Duradouro do sistema.
@@ -1222,4 +1289,4 @@ Esta arquitetura evita misturar lógicas de controle incompatíveis (patrimonial
 
 ---
 
-*Última atualização: 16/02/2026 — Passo 9 (Design Profissional de Relatórios) completamente concluído ✅ — Todos os 9 templates PDF (6 admin + 3 inventário) convertidos para usar o layout institucional com cabeçalho militar triplo, margens adequadas e design profissional. 4 exports Excel aprimorados com formatação emerald e condicional*
+*Última atualização: 23/02/2026 — Passo 16d (Reconciliação de Quantidades) completamente concluído ✅ — Sync Duráveis implementado com agrupamento por material_code, reconciliação automática de quantidades e interface completa. Totais SISCOFIS e Estoque Controlado agora batem perfeitamente (1.786 = 1.786). Reset de estoque admin adicionado com confirmação Alpine.js.*

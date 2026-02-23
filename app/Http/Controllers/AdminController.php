@@ -7,6 +7,7 @@ use App\Models\Rank;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
@@ -181,5 +182,91 @@ class AdminController extends Controller
         $status = $user->is_active ? 'ativado' : 'desativado';
 
         return back()->with('success', "Usuário \"{$user->getDisplayName()}\" {$status} com sucesso.");
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  Reset de Dados de Estoque
+    // ══════════════════════════════════════════════════════════
+
+    /**
+     * Exibe a tela de confirmação do reset de dados de estoque.
+     */
+    public function resetStockConfirm()
+    {
+        $counts = [
+            'movements'   => DB::table('stock_movements')->count(),
+            'stock_items' => DB::table('stock_items')->count(),
+            'durable'     => DB::table('durable_goods_inventory')->count(),
+            'products'    => DB::table('products')->count(),
+            'loan_items'  => DB::table('loan_items')->count(),
+            'loans'       => DB::table('loans')->count(),
+            'inv_uploads' => DB::table('inventory_uploads')->count(),
+            'inv_items'   => DB::table('inventory_items')->count(),
+        ];
+
+        return view('admin.reset-stock', compact('counts'));
+    }
+
+    /**
+     * Executa o reset de dados de estoque.
+     */
+    public function resetStockExecute(Request $request)
+    {
+        $request->validate([
+            'reset_stock'    => 'required|in:1',
+            'reset_products' => 'nullable|in:1',
+            'reset_durable'  => 'nullable|in:1',
+            'reset_loans'    => 'nullable|in:1',
+            'confirm_text'   => 'required|in:CONFIRMAR RESET',
+        ], [
+            'reset_stock.required' => 'É obrigatório marcar a opção de Estoque.',
+            'confirm_text.in'      => 'Digite exatamente: CONFIRMAR RESET',
+        ]);
+
+        $resetProducts = $request->boolean('reset_products');
+        $resetDurable  = $request->boolean('reset_durable');
+        $resetLoans    = $request->boolean('reset_loans');
+
+        $stats = [];
+
+        try {
+            DB::transaction(function () use ($resetProducts, $resetDurable, $resetLoans, &$stats) {
+                // 1. Movimentações
+                $stats['movements'] = DB::table('stock_movements')->delete();
+
+                // 2. Cautelas (FK impede deletar stock_items se existirem)
+                $loanItems = DB::table('loan_items')->count();
+                if ($resetLoans || $loanItems > 0) {
+                    $stats['loan_items'] = DB::table('loan_items')->delete();
+                    $stats['loans']      = DB::table('loans')->delete();
+                }
+
+                // 3. Estoque
+                $stats['stock_items'] = DB::table('stock_items')->delete();
+
+                // 4. Uso Duradouro
+                if ($resetDurable) {
+                    $stats['durable'] = DB::table('durable_goods_inventory')->delete();
+                }
+
+                // 5. Produtos
+                if ($resetProducts) {
+                    $stats['products'] = DB::table('products')->delete();
+                }
+            });
+
+            \Illuminate\Support\Facades\Log::warning('RESET DE DADOS executado', [
+                'user'  => Auth::user()->war_name,
+                'stats' => $stats,
+                'ip'    => $request->ip(),
+            ]);
+
+            return redirect()->route('admin.reset-stock')
+                ->with('success', 'Reset executado com sucesso!')
+                ->with('reset_stats', $stats);
+
+        } catch (\Exception $e) {
+            return back()->with('error', "Erro durante reset: {$e->getMessage()}");
+        }
     }
 }

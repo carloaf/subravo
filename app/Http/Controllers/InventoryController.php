@@ -188,13 +188,13 @@ class InventoryController extends Controller
 
             $successMessage = "Inventário processado com sucesso! {$upload->total_items} itens importados.";
             if ($syncStats['created'] > 0) {
-                $successMessage .= " {$syncStats['created']} produtos duráveis criados.";
+                $successMessage .= " {$syncStats['created']} produtos duráveis criados com estoque.";
+            }
+            if ($syncStats['stock_gap_filled'] > 0) {
+                $successMessage .= " {$syncStats['stock_gap_filled']} produto(s) com estoque faltando foram completados.";
             }
             if ($syncStats['already_exists'] > 0) {
-                $successMessage .= " {$syncStats['already_exists']} produtos duráveis já existentes.";
-            }
-            if ($syncStats['stock_created'] > 0) {
-                $successMessage .= " {$syncStats['stock_created']} itens adicionados ao estoque automaticamente.";
+                $successMessage .= " {$syncStats['already_exists']} já existiam no estoque.";
             }
 
             return redirect()->route('inventory.show', $upload)
@@ -233,6 +233,43 @@ class InventoryController extends Controller
 
         $inventory = $inventoryUpload;
         return view('inventory.show', compact('inventory', 'groupedItems', 'stats'));
+    }
+
+    /**
+     * Sync manual de duráveis: reconcilia produtos/estoque sem duplicar.
+     */
+    public function syncDurables(InventoryUpload $inventoryUpload)
+    {
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Acesso restrito.');
+        }
+
+        $syncService = new InventoryDurableSyncService();
+        $stats = $syncService->sync($inventoryUpload->id);
+
+        $parts = [];
+        if ($stats['created'] > 0)          $parts[] = "{$stats['created']} produto(s) novo(s) adicionados ao estoque";
+        if ($stats['stock_gap_filled'] > 0) $parts[] = "{$stats['stock_gap_filled']} produto(s) sem estoque foram completados";
+        if ($stats['qty_adjusted'] > 0)     $parts[] = "{$stats['qty_adjusted']} produto(s) com quantidade ajustada (+{$stats['qty_added']} unidades)";
+        if ($stats['qty_surplus'] > 0)      $parts[] = "{$stats['qty_surplus']} produto(s) com estoque acima do inventário (não alterado)";
+        if ($stats['in_sync'] > 0)          $parts[] = "{$stats['in_sync']} produto(s) já em sincronia";
+        if ($stats['skipped_zero'] > 0)     $parts[] = "{$stats['skipped_zero']} ignorados (qtd zero)";
+        if ($stats['errors'] > 0)           $parts[] = "{$stats['errors']} erro(s)";
+
+        $hasChanges = $stats['created'] > 0 || $stats['stock_gap_filled'] > 0 || $stats['qty_adjusted'] > 0;
+        $msg = 'Sync Duráveis concluído. ' . ($parts ? implode(', ', $parts) . '.' : 'Nenhuma alteração necessária.');
+
+        if ($stats['errors'] > 0 && !$hasChanges) {
+            $key = 'error';
+        } elseif ($hasChanges) {
+            $key = 'success';
+        } elseif ($stats['qty_surplus'] > 0) {
+            $key = 'warning';  // estoque acima do inventário — requer atenção
+        } else {
+            $key = 'info';  // tudo já estava em sincronia
+        }
+
+        return redirect()->route('inventory.show', $inventoryUpload)->with($key, $msg);
     }
 
     /**
@@ -320,13 +357,16 @@ class InventoryController extends Controller
 
             $successMessage = "Inventário reprocessado! {$inventory->total_items} itens.";
             if ($syncStats['created'] > 0) {
-                $successMessage .= " {$syncStats['created']} produtos duráveis criados.";
+                $successMessage .= " {$syncStats['created']} produtos duráveis adicionados ao estoque.";
             }
-            if ($syncStats['already_exists'] > 0) {
-                $successMessage .= " {$syncStats['already_exists']} produtos duráveis já existentes.";
+            if ($syncStats['stock_gap_filled'] > 0) {
+                $successMessage .= " {$syncStats['stock_gap_filled']} produto(s) com estoque faltando foram completados.";
             }
-            if ($syncStats['stock_created'] > 0) {
-                $successMessage .= " {$syncStats['stock_created']} itens adicionados ao estoque automaticamente.";
+            if ($syncStats['qty_adjusted'] > 0) {
+                $successMessage .= " {$syncStats['qty_adjusted']} produto(s) tiveram quantidade ajustada (+{$syncStats['qty_added']} unidades).";
+            }
+            if ($syncStats['in_sync'] > 0 && $syncStats['created'] === 0 && $syncStats['qty_adjusted'] === 0) {
+                $successMessage .= " {$syncStats['in_sync']} produto(s) duráveis já estavam em sincronia.";
             }
 
             return redirect()->route('inventory.show', $inventory)

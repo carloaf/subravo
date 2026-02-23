@@ -86,6 +86,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/inventory/{inventoryUpload}/edit-location', [InventoryController::class, 'editLocation'])->name('inventory.edit-location');
     Route::patch('/inventory/{inventoryUpload}/update-location', [InventoryController::class, 'updateLocation'])->name('inventory.update-location');
     Route::get('/inventory/{inventoryUpload}/compare-durables', [InventoryController::class, 'compareDurables'])->name('inventory.compare.durables');
+    Route::post('/inventory/{inventoryUpload}/sync-durables', [InventoryController::class, 'syncDurables'])->name('inventory.sync-durables');
     Route::post('/inventory/{inventoryUpload}/reprocess', [InventoryController::class, 'reprocess'])->name('inventory.reprocess');
     Route::delete('/inventory/{inventoryUpload}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
     Route::get('/inventory/{inventoryUpload}/download', [InventoryController::class, 'download'])->name('inventory.download');
@@ -104,6 +105,10 @@ Route::middleware(['auth', 'active'])->group(function () {
         // Relatórios
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::post('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
+
+        // Reset de Dados de Estoque
+        Route::get('/reset-stock', [AdminController::class, 'resetStockConfirm'])->name('reset-stock');
+        Route::post('/reset-stock', [AdminController::class, 'resetStockExecute'])->name('reset-stock.execute');
     });
 });
 

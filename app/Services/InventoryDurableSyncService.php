@@ -10,108 +10,155 @@ use App\Models\StockItem;
 use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 
 /**
- * Sincroniza itens de "Material de Uso Duradouro" do inventário
- * com a tabela de produtos (products).
+ * Sincroniza itens de "Material de Uso Duráduro" do inventário
+ * com a tabela de produtos (products) e estoque (stock_items).
+ *
+ * Lógica de reconciliação (por item):
+ *   - Produto não existe  → cria produto + cria stock_item
+ *   - Produto existe, sem estoque → cria stock_item (preenche lacuna)
+ *   - Produto existe, já tem estoque → ignora (sem duplicação)
  */
 class InventoryDurableSyncService
 {
-    /**
-     * Sincronizar itens de uso duradouro de um upload com a tabela products.
-     * 
-     * @param int $uploadId ID do InventoryUpload
-     * @return array Estatísticas da sincronização
-     */
     public function sync(int $uploadId): array
     {
         $upload = InventoryUpload::findOrFail($uploadId);
-        
-        // Buscar todos os itens de Material de Uso Duradouro do upload
+
         $durableItems = DurableGoodsInventory::where('inventory_upload_id', $uploadId)->get();
 
         $stats = [
             'total_items'      => $durableItems->count(),
-            'created'          => 0,
-            'already_exists'   => 0,
-            'stock_created'    => 0,
-            'stock_skipped'    => 0,
+            'total_unique'     => 0,   // produtos únicos após agrupamento por código
+            'created'          => 0,   // novo produto + novo estoque
+            'stock_gap_filled' => 0,   // produto já existia mas sem estoque → estoque adicionado
+            'qty_adjusted'     => 0,   // produto + estoque existiam mas qtd estava abaixo do inventário
+            'qty_added'        => 0,   // total de unidades acrescentadas por ajuste de quantidade
+            'qty_surplus'      => 0,   // itens cujo estoque está acima do inventário (não alterado)
+            'in_sync'          => 0,   // produto + estoque já batiam exatamente
+            'skipped_zero'     => 0,   // quantidade zero no inventário
             'errors'           => 0,
             'error_messages'   => [],
         ];
 
         if ($durableItems->isEmpty()) {
-            Log::info("Nenhum item de uso duradouro encontrado no upload #{$uploadId}");
             return $stats;
         }
 
-        // Buscar ou criar categoria "Uso Duradouro"
+        // ── Agrupar por material_code (mesmo produto pode aparecer em múltiplas linhas do PDF)
+        $grouped = $durableItems->groupBy('material_code')->map(function ($items) {
+            $first = $items->first();
+            return (object) [
+                'material_code'    => $first->material_code,
+                'material_name'    => $first->material_name,
+                'quantity'         => $items->sum('quantity'),  // soma todos os lotes do PDF
+                'unit_value'       => $first->unit_value,
+                'accounting_account' => $first->accounting_account,
+            ];
+        })->values();
+
+        $stats['total_unique'] = $grouped->count();
+
         $category = Category::firstOrCreate(
-            ['name' => 'Uso Duradouro'],
-            ['description' => 'Materiais de uso duradouro importados do SISCOFIS']
+            ['name' => 'Uso Duráduro'],
+            ['description' => 'Materiais de uso duráduro importados do SISCOFIS']
         );
 
-        DB::transaction(function () use ($durableItems, $category, $upload, &$stats) {
-            foreach ($durableItems as $item) {
+        DB::transaction(function () use ($grouped, $category, $upload, &$stats) {
+            foreach ($grouped as $item) {
                 try {
-                    // Verificar se produto já existe pelo código SISCOFIS
-                    $existingProduct = Product::where('siscofis_code', $item->material_code)->first();
-                    $product = null;
+                    if ($item->quantity <= 0) {
+                        $stats['skipped_zero']++;
+                        continue;
+                    }
 
-                    if ($existingProduct) {
-                        // Produto já existe - apenas garantir que is_durable = true
-                        if (!$existingProduct->is_durable) {
-                            $existingProduct->update(['is_durable' => true]);
-                            Log::info("Produto #{$existingProduct->id} marcado como durável: {$item->material_code}");
-                        }
-                        $product = $existingProduct;
-                        $stats['already_exists']++;
-                    } else {
-                        // Criar novo produto
+                    // ── 1. Produto ────────────────────────────────────────────
+                    $product = Product::where('siscofis_code', $item->material_code)->first();
+                    $isNewProduct = false;
+
+                    if (!$product) {
                         $product = Product::create([
                             'name'              => $item->material_name,
                             'category_id'       => $category->id,
                             'siscofis_code'     => $item->material_code,
                             'is_durable'        => true,
-                            'shelf_life_months' => null,  // Duráveis não têm validade
+                            'shelf_life_months' => null,
                             'minimum_stock'     => 0,
                             'is_serialized'     => false,
                         ]);
-
-                        $stats['created']++;
-                        Log::info("Produto durável criado: {$product->name} (SISCOFIS: {$item->material_code})");
+                        $isNewProduct = true;
+                    } elseif (!$product->is_durable) {
+                        $product->update(['is_durable' => true]);
                     }
 
-                    // Verificar se já existe entrada no estoque para este produto
-                    $hasStockItems = StockItem::where('product_id', $product->id)->exists();
+                    // ── 2. Estoque ────────────────────────────────────────────
+                    $currentQty = StockItem::where('product_id', $product->id)->sum('quantity');
 
-                    if (!$hasStockItems && $item->quantity > 0) {
-                        // Criar entrada inicial no estoque baseada no inventário
+                    if ($currentQty == 0) {
+                        // Nenhum estoque: criar entrada inicial
                         $stockItem = StockItem::create([
-                            'product_id'       => $product->id,
-                            'quantity'         => $item->quantity,
-                            'batch'            => 'INV-' . $upload->id,
-                            'location'         => $upload->dependency ?? 'Inventário SISCOFIS',
-                            'unit_cost'        => $item->unit_value,
-                            'status'           => 'available',
-                            'expiration_date'  => null, // Duráveis não expiram
-                            'serial_number'    => null,
+                            'product_id'      => $product->id,
+                            'quantity'        => $item->quantity,
+                            'batch'           => 'INV-' . $upload->id,
+                            'location'        => $upload->dependency ?? 'Inventário SISCOFIS',
+                            'unit_cost'       => $item->unit_value,
+                            'status'          => 'available',
+                            'expiration_date' => null,
+                            'serial_number'   => null,
                         ]);
 
-                        // Registrar movimentação
                         StockMovement::create([
-                            'stock_item_id'  => $stockItem->id,
-                            'movement_type'  => 'entry',
-                            'quantity'       => $item->quantity,
-                            'performed_by'   => $upload->uploaded_by,
-                            'notes'          => "Entrada inicial automática do inventário SISCOFIS - Upload #{$upload->id} ({$upload->filename})",
+                            'stock_item_id' => $stockItem->id,
+                            'movement_type' => 'entry',
+                            'quantity'      => $item->quantity,
+                            'performed_by'  => $upload->uploaded_by,
+                            'notes'         => 'Entrada do inventário SISCOFIS - Upload #' . $upload->id . ' (' . $upload->filename . ')'
+                                . ($isNewProduct ? '' : ' [produto já existia, estoque faltava]'),
                         ]);
 
-                        $stats['stock_created']++;
-                        Log::info("Estoque criado automaticamente para {$product->name}: {$item->quantity} unidades");
+                        if ($isNewProduct) {
+                            $stats['created']++;
+                        } else {
+                            $stats['stock_gap_filled']++;
+                        }
+                        continue;
+                    }
+
+                    // Já tem estoque — reconciliar quantidades
+                    $diff = $item->quantity - $currentQty;
+
+                    if ($diff > 0) {
+                        // Inventário tem mais que o estoque: adicionar a diferença
+                        $stockItem = StockItem::create([
+                            'product_id'      => $product->id,
+                            'quantity'        => $diff,
+                            'batch'           => 'INV-CORR-' . $upload->id,
+                            'location'        => $upload->dependency ?? 'Inventário SISCOFIS',
+                            'unit_cost'       => $item->unit_value,
+                            'status'          => 'available',
+                            'expiration_date' => null,
+                            'serial_number'   => null,
+                        ]);
+
+                        StockMovement::create([
+                            'stock_item_id' => $stockItem->id,
+                            'movement_type' => 'entry',
+                            'quantity'      => $diff,
+                            'performed_by'  => $upload->uploaded_by,
+                            'notes'         => "Ajuste de reconciliação SISCOFIS: inventário={$item->quantity} estoque={$currentQty} diferença=+{$diff} (Upload #{$upload->id})",
+                        ]);
+
+                        $stats['qty_adjusted']++;
+                        $stats['qty_added'] += $diff;
+
+                    } elseif ($diff < 0) {
+                        // Estoque maior que inventário — não reduzir (pode haver cautelas abertas)
+                        $stats['qty_surplus']++;
+
                     } else {
-                        $stats['stock_skipped']++;
+                        // Já está em sincronia
+                        $stats['in_sync']++;
                     }
 
                 } catch (\Exception $e) {
@@ -122,7 +169,7 @@ class InventoryDurableSyncService
             }
         });
 
-        Log::info("Sincronização de duráveis concluída para upload #{$uploadId}", $stats);
+        Log::info("Sync de duráveis concluído para upload #{$uploadId}", $stats);
         return $stats;
     }
 }

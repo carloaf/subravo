@@ -150,6 +150,10 @@
                                class="{{ str_starts_with($currentRoute, 'admin.reports') ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                 Relatórios
                             </a>
+                            <a href="{{ route('admin.reset-stock') }}"
+                               class="{{ $currentRoute === 'admin.reset-stock' ? 'border-red-500 text-red-700' : 'border-transparent text-gray-500 hover:border-red-300 hover:text-red-600' }} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                ⚠ Reset
+                            </a>
                             @endif
                         </div>
                     </div>
@@ -200,6 +204,7 @@
                     @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.users.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ str_starts_with($currentRoute, 'admin.users') ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600 hover:bg-gray-50' }} text-base font-medium">Usuários</a>
                     <a href="{{ route('admin.reports.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ str_starts_with($currentRoute, 'admin.reports') ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-transparent text-gray-600 hover:bg-gray-50' }} text-base font-medium">Relatórios</a>
+                    <a href="{{ route('admin.reset-stock') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ $currentRoute === 'admin.reset-stock' ? 'border-red-500 text-red-700 bg-red-50' : 'border-transparent text-red-600 hover:bg-red-50' }} text-base font-medium">⚠ Reset Estoque</a>
                     @endif
                 </div>
                 <div class="pt-4 pb-3 border-t border-gray-200">
@@ -261,6 +266,28 @@
                         <div class="flex items-center justify-between">
                             <span>{{ session('error') }}</span>
                             <button @click="show = false" class="text-red-500 hover:text-red-700 ml-2">&times;</button>
+                        </div>
+                    </div>
+                @endif
+
+                @if (session('info'))
+                    <div class="mb-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded"
+                         x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
+                         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                        <div class="flex items-center justify-between">
+                            <span>{{ session('info') }}</span>
+                            <button @click="show = false" class="text-blue-500 hover:text-blue-700 ml-2">&times;</button>
+                        </div>
+                    </div>
+                @endif
+
+                @if (session('warning'))
+                    <div class="mb-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded"
+                         x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
+                         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+                        <div class="flex items-center justify-between">
+                            <span>{{ session('warning') }}</span>
+                            <button @click="show = false" class="text-yellow-500 hover:text-yellow-700 ml-2">&times;</button>
                         </div>
                     </div>
                 @endif
