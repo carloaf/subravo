@@ -120,4 +120,17 @@ class AuthController extends Controller
         return redirect()->route('login')
             ->with('success', 'Usuário cadastrado com sucesso! Faça o login para continuar.');
     }
+
+    /**
+     * Realiza o logout.
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
 }
