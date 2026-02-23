@@ -9,6 +9,7 @@ use App\Models\InventoryUpload;
 use App\Models\Product;
 use App\Models\StockItem;
 use App\Services\InventoryPdfParser;
+use App\Services\InventoryDurableSyncService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -134,7 +135,8 @@ class InventoryController extends Controller
                 $totalValue = 0;
                 $totalItems = 0;
 
-                foreach ($result['items'] as $itemData) {
+                // Salvar Material Permanente em inventory_items
+                foreach ($result['permanent_items'] as $itemData) {
                     InventoryItem::create([
                         'inventory_upload_id' => $upload->id,
                         'material_type'       => $itemData['material_type'],
@@ -154,6 +156,24 @@ class InventoryController extends Controller
                     $totalItems++;
                 }
 
+                // Salvar Material de Uso Duradouro em durable_goods_inventory
+                foreach ($result['durable_goods'] as $itemData) {
+                    \App\Models\DurableGoodsInventory::create([
+                        'inventory_upload_id' => $upload->id,
+                        'material_name'       => $itemData['material_name'],
+                        'ficha_number'        => $itemData['ficha_number'],
+                        'material_code'       => $itemData['material_code'],
+                        'accounting_account'  => $itemData['accounting_account'],
+                        'quantity'            => $itemData['quantity'],
+                        'unit_value'          => $itemData['unit_value'],
+                        'total_value'         => $itemData['total_value'],
+                        'raw_text'            => $itemData['raw_text'],
+                    ]);
+
+                    $totalValue += $itemData['total_value'];
+                    $totalItems++;
+                }
+
                 $upload->update([
                     'status'       => 'completed',
                     'total_items'  => $totalItems,
@@ -162,8 +182,23 @@ class InventoryController extends Controller
                 ]);
             });
 
+            // Sincronizar itens de uso duradouro com a tabela products
+            $syncService = new InventoryDurableSyncService();
+            $syncStats = $syncService->sync($upload->id);
+
+            $successMessage = "Inventário processado com sucesso! {$upload->total_items} itens importados.";
+            if ($syncStats['created'] > 0) {
+                $successMessage .= " {$syncStats['created']} produtos duráveis criados.";
+            }
+            if ($syncStats['already_exists'] > 0) {
+                $successMessage .= " {$syncStats['already_exists']} produtos duráveis já existentes.";
+            }
+            if ($syncStats['stock_created'] > 0) {
+                $successMessage .= " {$syncStats['stock_created']} itens adicionados ao estoque automaticamente.";
+            }
+
             return redirect()->route('inventory.show', $upload)
-                ->with('success', "Inventário processado com sucesso! {$upload->total_items} itens importados.");
+                ->with('success', $successMessage);
 
         } catch (\Exception $e) {
             $upload->update([
@@ -212,8 +247,9 @@ class InventoryController extends Controller
         $inventory = $inventoryUpload;
 
         try {
-            // Deletar itens antigos
+            // Deletar itens antigos de ambas as tabelas
             $inventory->items()->delete();
+            $inventory->durableGoods()->delete();
 
             $parser = new InventoryPdfParser();
             $fullPath = storage_path('app/inventario/' . $inventory->stored_path);
@@ -230,7 +266,8 @@ class InventoryController extends Controller
                 $totalValue = 0;
                 $totalItems = 0;
 
-                foreach ($result['items'] as $itemData) {
+                // Salvar Material Permanente em inventory_items
+                foreach ($result['permanent_items'] as $itemData) {
                     InventoryItem::create([
                         'inventory_upload_id' => $inventory->id,
                         'material_type'       => $itemData['material_type'],
@@ -250,6 +287,24 @@ class InventoryController extends Controller
                     $totalItems++;
                 }
 
+                // Salvar Material de Uso Duradouro em durable_goods_inventory
+                foreach ($result['durable_goods'] as $itemData) {
+                    \App\Models\DurableGoodsInventory::create([
+                        'inventory_upload_id' => $inventory->id,
+                        'material_name'       => $itemData['material_name'],
+                        'ficha_number'        => $itemData['ficha_number'],
+                        'material_code'       => $itemData['material_code'],
+                        'accounting_account'  => $itemData['accounting_account'],
+                        'quantity'            => $itemData['quantity'],
+                        'unit_value'          => $itemData['unit_value'],
+                        'total_value'         => $itemData['total_value'],
+                        'raw_text'            => $itemData['raw_text'],
+                    ]);
+
+                    $totalValue += $itemData['total_value'];
+                    $totalItems++;
+                }
+
                 $inventory->update([
                     'status'       => 'completed',
                     'total_items'  => $totalItems,
@@ -259,8 +314,23 @@ class InventoryController extends Controller
                 ]);
             });
 
+            // Sincronizar itens de uso duradouro com a tabela products
+            $syncService = new InventoryDurableSyncService();
+            $syncStats = $syncService->sync($inventory->id);
+
+            $successMessage = "Inventário reprocessado! {$inventory->total_items} itens.";
+            if ($syncStats['created'] > 0) {
+                $successMessage .= " {$syncStats['created']} produtos duráveis criados.";
+            }
+            if ($syncStats['already_exists'] > 0) {
+                $successMessage .= " {$syncStats['already_exists']} produtos duráveis já existentes.";
+            }
+            if ($syncStats['stock_created'] > 0) {
+                $successMessage .= " {$syncStats['stock_created']} itens adicionados ao estoque automaticamente.";
+            }
+
             return redirect()->route('inventory.show', $inventory)
-                ->with('success', "Inventário reprocessado! {$inventory->total_items} itens.");
+                ->with('success', $successMessage);
 
         } catch (\Exception $e) {
             $inventory->update([
@@ -695,11 +765,39 @@ class InventoryController extends Controller
             });
         }
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('material_name', 'ilike', "%{$search}%")
-                  ->orWhere('material_code', 'ilike', "%{$search}%");
+        // Busca ampla: campo 1 OU campo 2 OU campo 3
+        // Cada campo busca em nome, código ou ficha
+        if ($request->filled('search_1') || $request->filled('search_2') || $request->filled('search_3')) {
+            $query->where(function ($q) use ($request) {
+                // Campo 1
+                if ($request->filled('search_1')) {
+                    $search1 = $request->search_1;
+                    $q->orWhere(function ($subQ) use ($search1) {
+                        $subQ->where('material_name', 'ilike', "%{$search1}%")
+                             ->orWhere('material_code', 'ilike', "%{$search1}%")
+                             ->orWhere('ficha_number', 'ilike', "%{$search1}%");
+                    });
+                }
+
+                // Campo 2
+                if ($request->filled('search_2')) {
+                    $search2 = $request->search_2;
+                    $q->orWhere(function ($subQ) use ($search2) {
+                        $subQ->where('material_name', 'ilike', "%{$search2}%")
+                             ->orWhere('material_code', 'ilike', "%{$search2}%")
+                             ->orWhere('ficha_number', 'ilike', "%{$search2}%");
+                    });
+                }
+
+                // Campo 3
+                if ($request->filled('search_3')) {
+                    $search3 = $request->search_3;
+                    $q->orWhere(function ($subQ) use ($search3) {
+                        $subQ->where('material_name', 'ilike', "%{$search3}%")
+                             ->orWhere('material_code', 'ilike', "%{$search3}%")
+                             ->orWhere('ficha_number', 'ilike', "%{$search3}%");
+                    });
+                }
             });
         }
 

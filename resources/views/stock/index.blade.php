@@ -79,55 +79,215 @@
                         default          => 'gray',
                     };
                 @endphp
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-4 py-3">
-                        <a href="{{ route('products.show', $item->product) }}" class="text-sm font-medium text-gray-900 hover:text-emerald-600">
-                            {{ $item->product->name }}
-                        </a>
-                        <p class="text-xs text-gray-400">{{ $item->product->category->name ?? '' }}</p>
-                    </td>
-                    <td class="px-4 py-3">
-                        <p class="text-sm text-gray-900">{{ $item->batch ?? '—' }}</p>
-                        @if($item->serial_number)
-                            <p class="text-xs text-gray-400">Nº {{ $item->serial_number }}</p>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-center text-sm font-semibold text-gray-900">{{ $item->quantity }}</td>
-                    <td class="px-4 py-3 text-center">
-                        <x-badge :color="$statusColor">{{ $item->getStatusLabel() }}</x-badge>
-                    </td>
-                    <td class="px-4 py-3 text-sm text-gray-600">{{ $item->location ?? '—' }}</td>
-                    <td class="px-4 py-3">
-                        @if($item->expiration_date)
-                            <x-badge color="{{ $item->isExpired() ? 'red' : ($item->isExpiringSoon() ? 'amber' : 'gray') }}">
-                                {{ $item->expiration_date->format('d/m/Y') }}
-                            </x-badge>
-                        @else
-                            <span class="text-xs text-gray-400">N/A</span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                        <div class="flex items-center justify-end space-x-1">
-                            <a href="{{ route('stock.show', $item) }}" class="p-1.5 text-gray-400 hover:text-emerald-600 rounded" title="Detalhes">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                            </a>
-                            <a href="{{ route('stock.label', $item) }}" class="p-1.5 text-gray-400 hover:text-purple-600 rounded" title="Etiqueta QR">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                                </svg>
-                            </a>
-                            @if($item->isAvailable())
-                                <a href="{{ route('stock.adjust', $item) }}" class="p-1.5 text-gray-400 hover:text-amber-600 rounded" title="Ajuste">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                                    </svg>
-                                </a>
-                            @endif
-                        </div>
-                    </td>
+                <tr x-data="{ editing: false }" class="hover:bg-gray-50 transition">
+                    {{-- Modo Visualização --}}
+                    <template x-if="!editing">
+                        <td colspan="7" class="px-4 py-3">
+                            <div class="grid grid-cols-12 gap-4 items-center">
+                                {{-- Produto (3 cols) --}}
+                                <div class="col-span-3">
+                                    <a href="{{ route('products.show', $item->product) }}" class="text-sm font-medium text-gray-900 hover:text-emerald-600">
+                                        {{ $item->product->name }}
+                                    </a>
+                                    <p class="text-xs text-gray-400">{{ $item->product->category->name ?? '' }}</p>
+                                </div>
+                                
+                                {{-- Lote/Série (2 cols) --}}
+                                <div class="col-span-2">
+                                    <p class="text-sm text-gray-900">{{ $item->batch ?? '—' }}</p>
+                                    @if($item->serial_number)
+                                        <p class="text-xs text-gray-400">Nº {{ $item->serial_number }}</p>
+                                    @endif
+                                </div>
+                                
+                                {{-- Quantidade (1 col) --}}
+                                <div class="col-span-1 text-center">
+                                    <span class="text-sm font-semibold text-gray-900">{{ $item->quantity }}</span>
+                                </div>
+                                
+                                {{-- Status (1 col) --}}
+                                <div class="col-span-1 text-center">
+                                    <x-badge :color="$statusColor">{{ $item->getStatusLabel() }}</x-badge>
+                                </div>
+                                
+                                {{-- Localização (2 cols) --}}
+                                <div class="col-span-2 text-sm text-gray-600">
+                                    {{ $item->location ?? '—' }}
+                                </div>
+                                
+                                {{-- Validade (1 col) --}}
+                                <div class="col-span-1">
+                                    @if($item->expiration_date)
+                                        <div class="text-xs">
+                                            @if($item->siscofis_entry_date)
+                                                <p class="text-gray-500 mb-0.5">
+                                                    Entrada: <span class="font-medium">{{ $item->siscofis_entry_date->format('d/m/Y') }}</span>
+                                                </p>
+                                            @endif
+                                            <x-badge color="{{ $item->isExpired() ? 'red' : ($item->isExpiringSoon() ? 'amber' : 'gray') }}">
+                                                Vence: {{ $item->expiration_date->format('d/m/Y') }}
+                                            </x-badge>
+                                            @if($item->expiration_date)
+                                                @php
+                                                    $daysRemaining = now()->diffInDays($item->expiration_date, false);
+                                                    $daysRemaining = (int) $daysRemaining;
+                                                @endphp
+                                                @if($daysRemaining < 0)
+                                                    <p class="text-red-600 font-semibold mt-0.5">
+                                                        Vencido há {{ abs($daysRemaining) }} dias
+                                                    </p>
+                                                @elseif($daysRemaining <= 30)
+                                                    <p class="text-amber-600 font-semibold mt-0.5">
+                                                        {{ $daysRemaining }} dias restantes
+                                                    </p>
+                                                @endif
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-400">N/A</span>
+                                    @endif
+                                </div>
+                                
+                                {{-- Ações (2 cols) --}}
+                                <div class="col-span-2 flex items-center justify-end space-x-1">
+                                    <a href="{{ route('stock.show', $item) }}" class="p-1.5 text-gray-400 hover:text-emerald-600 rounded transition" title="Detalhes">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{{ route('stock.label', $item) }}" class="p-1.5 text-gray-400 hover:text-purple-600 rounded transition" title="Etiqueta QR">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                        </svg>
+                                    </a>
+                                    <button @click="editing = true" class="p-1.5 text-gray-400 hover:text-emerald-600 rounded transition" title="Editar">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </template>
+
+                    {{-- Modo Edição --}}
+                    <template x-if="editing">
+                        <td colspan="7" class="px-4 py-4 bg-emerald-50">
+                            <form method="POST" action="{{ route('stock.updateItem', $item) }}">
+                                @csrf
+                                @method('PUT')
+                                
+                                <div class="mb-3">
+                                    <div class="text-sm font-semibold text-gray-700 mb-2">
+                                        Editando: <span class="text-emerald-700">{{ $item->product->name }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-6 gap-3 mb-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Lote</label>
+                                        <input type="text" name="batch" value="{{ $item->batch }}"
+                                               style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                                               class="w-full px-3 py-1.5 text-sm rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Nº Série</label>
+                                        <input type="text" name="serial_number" value="{{ $item->serial_number }}"
+                                               style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                                               class="w-full px-3 py-1.5 text-sm rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">📅 Data Entrada SISCOFIS</label>
+                                        <input type="date" name="siscofis_entry_date" 
+                                               value="{{ $item->siscofis_entry_date?->format('Y-m-d') }}"
+                                               style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                                               class="w-full px-3 py-1.5 text-sm rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Localização</label>
+                                        <input type="text" name="location" value="{{ $item->location }}"
+                                               style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                                               class="w-full px-3 py-1.5 text-sm rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Observações</label>
+                                        <input type="text" name="notes" value="{{ $item->notes }}"
+                                               placeholder="Observações..."
+                                               style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                                               class="w-full px-3 py-1.5 text-sm rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between pt-2 border-t border-emerald-200">
+                                    <div class="text-xs text-gray-600">
+                                        <span class="font-medium">Status:</span> <x-badge :color="$statusColor" size="sm">{{ $item->getStatusLabel() }}</x-badge>
+                                        <span class="ml-3 font-medium">Qtd:</span> {{ $item->quantity }}
+                                        
+                                        {{-- Informações de validade expandidas --}}
+                                        <div class="mt-2 p-2 bg-white/50 rounded border border-emerald-100">
+                                            @if($item->siscofis_entry_date)
+                                                <div class="flex items-center space-x-4">
+                                                    <span>
+                                                        <span class="font-medium">📅 Entrada SISCOFIS:</span> 
+                                                        <span class="text-gray-900">{{ $item->siscofis_entry_date->format('d/m/Y') }}</span>
+                                                    </span>
+                                                    @if($item->product->shelf_life_months)
+                                                        <span>
+                                                            <span class="font-medium">⏱️ Validade Produto:</span> 
+                                                            <span class="text-gray-900">{{ $item->product->shelf_life_months }} meses</span>
+                                                        </span>
+                                                    @endif
+                                                    @if($item->expiration_date)
+                                                        <span>
+                                                            <span class="font-medium">📆 Vence em:</span> 
+                                                            <span class="{{ $item->isExpired() ? 'text-red-600 font-bold' : ($item->isExpiringSoon() ? 'text-amber-600 font-semibold' : 'text-emerald-600') }}">
+                                                                {{ $item->expiration_date->format('d/m/Y') }}
+                                                            </span>
+                                                        </span>
+                                                        @php
+                                                            $daysRemaining = now()->diffInDays($item->expiration_date, false);
+                                                            $daysRemaining = (int) $daysRemaining;
+                                                        @endphp
+                                                        @if($daysRemaining < 0)
+                                                            <span class="text-red-600 font-bold">
+                                                                ⚠️ Vencido há {{ abs($daysRemaining) }} dias
+                                                            </span>
+                                                        @elseif($daysRemaining <= 30)
+                                                            <span class="text-amber-600 font-semibold">
+                                                                ⚠️ {{ $daysRemaining }} dias restantes
+                                                            </span>
+                                                        @else
+                                                            <span class="text-emerald-600">
+                                                                ✓ {{ $daysRemaining }} dias restantes
+                                                            </span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                                @if($item->product->shelf_life_months)
+                                                    <div class="mt-1 text-[10px] text-gray-500">
+                                                        💡 Ao alterar a Data Entrada SISCOFIS, a validade será recalculada automaticamente (+{{ $item->product->shelf_life_months }} meses)
+                                                    </div>
+                                                @endif
+                                            @else
+                                                <span class="text-gray-500">Sem data de entrada SISCOFIS registrada</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button" @click="editing = false"
+                                                class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition">
+                                            Cancelar
+                                        </button>
+                                        <button type="submit"
+                                                class="px-3 py-1.5 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md hover:bg-emerald-700 transition">
+                                            💾 Salvar Alterações
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </td>
+                    </template>
                 </tr>
             @endforeach
         </x-table>

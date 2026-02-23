@@ -5,9 +5,11 @@
 
 @section('header-actions')
     <div class="flex items-center space-x-2">
-        <x-btn variant="outline" href="{{ route('loans.pdf', $loan) }}" icon="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" size="sm">
-            PDF Cautela
-        </x-btn>
+        <a href="{{ route('loans.pdf', $loan) }}" target="_blank">
+            <x-btn variant="outline" icon="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" size="sm">
+                PDF Cautela
+            </x-btn>
+        </a>
 
         @if($loan->status === 'active')
             <x-btn variant="primary" href="{{ route('loans.return', $loan) }}" icon="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" size="sm">

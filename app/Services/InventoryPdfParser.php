@@ -7,7 +7,8 @@ use Smalot\PdfParser\Parser;
 class InventoryPdfParser
 {
     protected string $text;
-    protected array $items = [];
+    protected array $permanentItems = [];
+    protected array $durableGoods = [];
     protected array $header = [];
 
     /**
@@ -26,9 +27,10 @@ class InventoryPdfParser
         $this->parseItems();
 
         return [
-            'header' => $this->header,
-            'items'  => $this->items,
-            'raw'    => $this->text,
+            'header'          => $this->header,
+            'permanent_items' => $this->permanentItems,
+            'durable_goods'   => $this->durableGoods,
+            'raw'             => $this->text,
         ];
     }
 
@@ -93,13 +95,18 @@ class InventoryPdfParser
      */
     protected function parseItems(): void
     {
-        $this->items = [];
+        $this->permanentItems = [];
+        $this->durableGoods = [];
 
         $lines = explode("\n", $this->text);
         $currentType = null;
         $currentItem = null;
         $collectingPatrimony = false;
         $patrimonyLines = '';
+        
+        // Estado para parsing multi-linha de USO DURADOURO
+        $durableItemBuffer = null;  // Armazena item em construção
+        $durableTextBuffer = '';     // Acumula texto do nome
 
         foreach ($lines as $line) {
             $trimmed = trim($line);
@@ -109,10 +116,16 @@ class InventoryPdfParser
                 // Salvar item anterior se existir
                 if ($currentItem) {
                     $currentItem['patrimony_numbers'] = $this->parsePatrimonyNumbers($patrimonyLines);
-                    $this->items[] = $currentItem;
+                    $this->addItemToCorrectArray($currentItem);
                     $currentItem = null;
                     $patrimonyLines = '';
                     $collectingPatrimony = false;
+                }
+                // Salvar item durável pendente se existir
+                if ($durableItemBuffer) {
+                    $this->addItemToCorrectArray($durableItemBuffer);
+                    $durableItemBuffer = null;
+                    $durableTextBuffer = '';
                 }
                 $currentType = trim($secMatch[2]);
                 continue;
@@ -123,8 +136,13 @@ class InventoryPdfParser
                 continue;
             }
 
-            // Ignorar linhas de header do PDF
-            if (preg_match('/MINIST[ÉE]RIO|EX[ÉE]RCITO|DEP[ÓO]SITO|P[áa]gina|RELA[ÇC][ÃA]O DE MATERIAL/iu', $trimmed)) {
+            // Ignorar linhas de header do PDF (devem ser linhas curtas, não linhas de dados)
+            if (strlen($trimmed) < 100 && preg_match('/MINIST[ÉE]RIO|DEP[ÓO]SITO|P[áa]gina|RELA[ÇC][ÃA]O DE MATERIAL/iu', $trimmed)) {
+                continue;
+            }
+            
+            // Ignorar linha específica de cabeçalho que menciona "EXÉRCITO BRASILEIRO"
+            if (preg_match('/^.*EX[ÉE]RCITO\s+BRASILEIRO\s*$/iu', $trimmed) && !preg_match('/\d{6,}/', $trimmed)) {
                 continue;
             }
 
@@ -133,7 +151,7 @@ class InventoryPdfParser
                 // Salvar item anterior
                 if ($currentItem) {
                     $currentItem['patrimony_numbers'] = $this->parsePatrimonyNumbers($patrimonyLines);
-                    $this->items[] = $currentItem;
+                    $this->addItemToCorrectArray($currentItem);
                     $currentItem = null;
                     $patrimonyLines = '';
                     $collectingPatrimony = false;
@@ -145,7 +163,7 @@ class InventoryPdfParser
             if (preg_match('/Observa[çc][ãa]o:|Detentor direto|Rela[çc][ãa]o emitida pelo SISCOFIS/iu', $trimmed)) {
                 if ($currentItem) {
                     $currentItem['patrimony_numbers'] = $this->parsePatrimonyNumbers($patrimonyLines);
-                    $this->items[] = $currentItem;
+                    $this->addItemToCorrectArray($currentItem);
                     $currentItem = null;
                     $patrimonyLines = '';
                     $collectingPatrimony = false;
@@ -154,14 +172,15 @@ class InventoryPdfParser
             }
 
             // Tentar detectar uma linha de item de material
-            // Formato: NrFicha CodMat ContaContabil Qtd ValorUnit ValorTotal Acervo NomeMaterial
+            // Dois formatos possíveis:
+            
+            // 1. MATERIAL PERMANENTE: NrFicha CodMat ContaContabil Qtd ValorUnit ValorTotal Acervo NomeMaterial
             // Ex: 458 231810 123110301  1 225,00  225,00  N  VENTILADOR DE AMBIENTE / Tipo: Parede;
-            // Ficha pode ser numérica (458) ou alfanumérica (ACA1, ACA2, etc.)
             if (preg_match('/^\s*([A-Z0-9]+)\s+(\d+)\s+(\d{6,12})\s+(\d+)\s+([\d.,]+)\s+([\d.,]+)\s+([NS])\s+(.+)/u', $trimmed, $itemMatch)) {
                 // Salvar item anterior
                 if ($currentItem) {
                     $currentItem['patrimony_numbers'] = $this->parsePatrimonyNumbers($patrimonyLines);
-                    $this->items[] = $currentItem;
+                    $this->addItemToCorrectArray($currentItem);
                     $patrimonyLines = '';
                 }
 
@@ -181,7 +200,112 @@ class InventoryPdfParser
                 $collectingPatrimony = false;
                 continue;
             }
-
+            
+            // 2. MATERIAL DE USO DURADOURO - Parsing multi-linha
+            // Formato pode ser:
+            // Linha 1: NrFicha CodMat Conta ValorUnit NomeMaterial...
+            // Linha 2: ...continuação do nome...
+            // Linha 3: ValorTotal Qtd
+            if ($currentType && stripos($currentType, 'USO DURADOURO') !== false) {
+                // Tentar detectar INÍCIO de item: NrFicha CodMat Conta ValorUnit [texto...]
+                if (preg_match('/^\s*([A-Z0-9]+)\s+(\d+)\s+(\d{6,12})\s+([\d.,]+)\s+(.+)$/u', $trimmed, $startMatch)) {
+                    // Salvar item anterior se existir
+                    if ($durableItemBuffer) {
+                        $this->addItemToCorrectArray($durableItemBuffer);
+                        $durableItemBuffer = null;
+                        $durableTextBuffer = '';
+                    }
+                    
+                    // Verificar se já tem valor total e quantidade na mesma linha
+                    $remainingText = trim($startMatch[5]);
+                    if (preg_match('/^(.+?)\s+([\d.,]+)\s+(\d+)\s*$/u', $remainingText, $endMatch)) {
+                        // Item completo em uma linha
+                        $item = [
+                            'material_type'      => $currentType,
+                            'material_name'      => trim($endMatch[1]),
+                            'ficha_number'       => trim($startMatch[1]),
+                            'material_code'      => trim($startMatch[2]),
+                            'accounting_account' => trim($startMatch[3]),
+                            'unit_value'         => $this->parseBrDecimal($startMatch[4]),
+                            'total_value'        => $this->parseBrDecimal($endMatch[2]),
+                            'quantity'           => (int) $endMatch[3],
+                            'acervo'             => null,
+                            'patrimony_numbers'  => [],
+                            'raw_text'           => $trimmed,
+                        ];
+                        $this->addItemToCorrectArray($item);
+                        // Não precisa de buffer aqui pois item já foi salvo
+                    } else {
+                        // Item multi-linha - iniciar buffer
+                        $durableItemBuffer = [
+                            'material_type'      => $currentType,
+                            'ficha_number'       => trim($startMatch[1]),
+                            'material_code'      => trim($startMatch[2]),
+                            'accounting_account' => trim($startMatch[3]),
+                            'unit_value'         => $this->parseBrDecimal($startMatch[4]),
+                            'acervo'             => null,
+                            'patrimony_numbers'  => [],
+                            'raw_text'           => $trimmed,
+                        ];
+                        $durableTextBuffer = $remainingText;
+                    }
+                    continue;
+                }
+                
+                // Se estamos com item em buffer, acumular texto ou finalizar
+                if ($durableItemBuffer) {
+                    // 1. Tentar linha que continua nome e termina com valores: texto + ValorTotal Qtd
+                    if (preg_match('/^(.+?)\s+([\d.,]+)\s+(\d+)\s*$/u', $trimmed, $completeMatch)) {
+                        // Continua o nome e captura valores finais
+                        $durableTextBuffer .= ' ' . trim($completeMatch[1]);
+                        $durableItemBuffer['material_name'] = trim($durableTextBuffer);
+                        $durableItemBuffer['total_value'] = $this->parseBrDecimal($completeMatch[2]);
+                        $durableItemBuffer['quantity'] = (int) $completeMatch[3];
+                        $durableItemBuffer['raw_text'] .= ' | ' . $trimmed;
+                        
+                        $this->addItemToCorrectArray($durableItemBuffer);
+                        $durableItemBuffer = null;
+                        $durableTextBuffer = '';
+                        continue;
+                    }
+                    // 2. Tentar linha APENAS com valores: ValorTotal Qtd (sem texto antes)
+                    elseif (preg_match('/^\s*([\d.,]+)\s+(\d+)\s*$/u', $trimmed, $endMatch)) {
+                        // Linha final encontrada
+                        $durableItemBuffer['material_name'] = trim($durableTextBuffer);
+                        $durableItemBuffer['total_value'] = $this->parseBrDecimal($endMatch[1]);
+                        $durableItemBuffer['quantity'] = (int) $endMatch[2];
+                        $durableItemBuffer['raw_text'] .= ' | ' . $trimmed;
+                        
+                        $this->addItemToCorrectArray($durableItemBuffer);
+                        $durableItemBuffer = null;
+                        $durableTextBuffer = '';
+                        continue;
+                    }
+                    
+                    // Verificar se a linha termina com ValorTotal Qtd
+                    if (preg_match('/^(.+?)\s+([\d.,]+)\s+(\d+)\s*$/u', $trimmed, $endMatch2)) {
+                        // Última linha com texto + valores
+                        $durableTextBuffer .= ' ' . trim($endMatch2[1]);
+                        $durableItemBuffer['material_name'] = trim($durableTextBuffer);
+                        $durableItemBuffer['total_value'] = $this->parseBrDecimal($endMatch2[2]);
+                        $durableItemBuffer['quantity'] = (int) $endMatch2[3];
+                        $durableItemBuffer['raw_text'] .= ' | ' . $trimmed;
+                        
+                        $this->addItemToCorrectArray($durableItemBuffer);
+                        $durableItemBuffer = null;
+                        $durableTextBuffer = '';
+                        continue;
+                    }
+                    
+                    // Linha de continuação do nome
+                    if (!empty($trimmed) && !preg_match('/^(Página|Relação|SISCOFIS|Usuário|Data de emissão)/i', $trimmed)) {
+                        $durableTextBuffer .= ' ' . $trimmed;
+                        $durableItemBuffer['raw_text'] .= ' | ' . $trimmed;
+                    }
+                    continue;
+                }
+            }
+            
             // Detectar início de patrimônios
             if (preg_match('/Nr Patrimoniais\s*:/iu', $trimmed)) {
                 $collectingPatrimony = true;
@@ -216,10 +340,35 @@ class InventoryPdfParser
             }
         }
 
-        // Salvar último item
+        // Salvar item durável pendente
+        if ($durableItemBuffer) {
+            // Se tem texto acumulado, usar como nome
+            if (!empty($durableTextBuffer)) {
+                $durableItemBuffer['material_name'] = trim($durableTextBuffer);
+            }
+            $this->addItemToCorrectArray($durableItemBuffer);
+        }
+
+        // Salvar último item permanente
         if ($currentItem) {
             $currentItem['patrimony_numbers'] = $this->parsePatrimonyNumbers($patrimonyLines);
-            $this->items[] = $currentItem;
+            $this->addItemToCorrectArray($currentItem);
+        }
+    }
+
+    /**
+     * Adiciona item ao array correto baseado no material_type.
+     */
+    protected function addItemToCorrectArray(array $item): void
+    {
+        $materialType = $item['material_type'] ?? '';
+        
+        // Material de Uso Duradouro vai para array separado
+        if (stripos($materialType, 'USO DURADOURO') !== false) {
+            $this->durableGoods[] = $item;
+        } else {
+            // Material Permanente ou qualquer outro tipo
+            $this->permanentItems[] = $item;
         }
     }
 

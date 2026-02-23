@@ -47,6 +47,11 @@ class InventoryUpload extends Model
         return $this->hasMany(InventoryItem::class);
     }
 
+    public function durableGoods(): HasMany
+    {
+        return $this->hasMany(DurableGoodsInventory::class);
+    }
+
     // ── Helpers ───────────────────────────────────────────────
 
     public function getStatusLabelAttribute(): string

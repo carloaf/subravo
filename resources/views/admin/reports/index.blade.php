@@ -8,7 +8,7 @@
 <div class="space-y-6">
 
     {{-- Seletor de relatório --}}
-    <form method="POST" action="{{ route('admin.reports.generate') }}" class="space-y-6" x-data="{ reportType: '' }">
+    <form method="POST" action="{{ route('admin.reports.generate') }}" target="_blank" class="space-y-6" x-data="{ reportType: '' }">
         @csrf
 
         {{-- Cards de tipos de relatório --}}
