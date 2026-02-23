@@ -189,10 +189,18 @@
 
                     {{-- Info --}}
                     <div class="mt-8 pt-6 border-t border-gray-100 text-center">
-                        <p class="text-xs text-gray-500">
+                        <p class="text-xs text-gray-500 mb-4">
                             Sistema restrito para militares autorizados.<br>
                             Cadastro exclusivo pelo administrador do sistema.
                         </p>
+                        <a href="{{ route('register') }}"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                            Cadastrar Novo Usuário
+                        </a>
                     </div>
                 </div>
             </div>
