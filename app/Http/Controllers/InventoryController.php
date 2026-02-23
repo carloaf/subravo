@@ -582,8 +582,6 @@ class InventoryController extends Controller
             'summary'
         ));
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Busca de materiais entre todos os inventários.
@@ -1052,5 +1050,4 @@ class InventoryController extends Controller
         return redirect()->back()
             ->with('success', 'Todos os itens ocultos foram restaurados na visualização!');
     }
->>>>>>> dev
 }
