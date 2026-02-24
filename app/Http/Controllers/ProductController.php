@@ -16,28 +16,24 @@ class ProductController extends Controller
     {
         $query = Product::with('category');
 
-        // Busca por nome ou descrição
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('description', 'ilike', "%{$search}%");
+                  ->orWhere('description', 'ilike', "%{$search}%")
+                  ->orWhere('siscofis_code', 'ilike', "%{$search}%");
             });
         }
 
-        // Filtro por categoria
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        // Filtro por estoque baixo
-        if ($request->boolean('low_stock')) {
-            $query->whereHas('stockItems', function ($q) {
-                $q->where('status', 'available');
-            }, '<', 1); // será refinado na view
+        if ($request->filled('type')) {
+            $query->where('is_durable', $request->type === 'durable');
         }
 
-        $products   = $query->orderBy('name')->paginate(15)->appends($request->query());
+        $products   = $query->orderBy('name')->paginate(20)->appends($request->query());
         $categories = Category::orderBy('name')->get();
 
         return view('products.index', compact('products', 'categories'));
@@ -92,9 +88,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load(['category', 'stockItems' => function ($q) {
-            $q->orderByDesc('created_at');
-        }]);
+        $product->load('category');
 
         return view('products.show', compact('product'));
     }
@@ -106,9 +100,6 @@ class ProductController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $units      = ['UN', 'CX', 'PCT', 'KG', 'L', 'M', 'PAR', 'JG', 'RL', 'FL'];
-        
-        // Carregar itens de estoque do produto
-        $product->load('stockItems');
 
         return view('products.edit', compact('product', 'categories', 'units'));
     }
