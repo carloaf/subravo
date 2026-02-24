@@ -24,9 +24,18 @@
             <x-input name="full_name" label="Nome Completo" required :value="$user->full_name" />
             <x-input name="war_name" label="Nome de Guerra" required :value="$user->war_name" />
             <x-input name="email" label="E-mail" type="email" :value="$user->email" />
-            <x-select name="rank_id" label="Posto / Graduação" required
-                      :options="$ranks->mapWithKeys(fn($r) => [$r->id => $r->abbreviation . ' — ' . $r->name])->toArray()"
-                      :selected="old('rank_id', $user->rank_id)" placeholder="— Selecione —" />
+            <div>
+                <label for="rank_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Posto / Graduação <span class="text-red-500 ml-1">*</span>
+                </label>
+                <select id="rank_id" name="rank_id" required
+                        class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900">
+                    <option value="" class="text-gray-400">— Selecione —</option>
+                    @foreach($ranks as $rank)
+                        <option value="{{ $rank->id }}" @selected(old('rank_id', $user->rank_id) == $rank->id)>{{ $rank->abbreviation }} — {{ $rank->name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <x-select name="organization_id" label="Organização Militar"
                       :options="$organizations->mapWithKeys(fn($o) => [$o->id => $o->abbreviation . ' — ' . $o->name])->toArray()"
                       :selected="old('organization_id', $user->organization_id)" placeholder="— Selecione —" />

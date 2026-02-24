@@ -85,7 +85,7 @@ class AdminController extends Controller
             'subunit'         => 'nullable|string|max:100',
             'armed_force'     => 'nullable|in:EB,MB,FAB',
             'gender'          => 'nullable|in:M,F',
-            'role'            => 'required|in:admin,almoxarife,solicitante,auditor',
+            'role'            => 'required|in:admin,manager,user',
             'is_active'       => 'boolean',
         ]);
 
@@ -125,6 +125,8 @@ class AdminController extends Controller
      */
     public function updateUser(Request $request, User $user)
     {
+        \Log::info('updateUser called for user ID: ' . $user->id);
+
         if (!Auth::user()->isAdmin()) {
             abort(403, 'Acesso restrito ao administrador.');
         }
@@ -140,12 +142,17 @@ class AdminController extends Controller
             'subunit'         => 'nullable|string|max:100',
             'armed_force'     => 'nullable|in:EB,MB,FAB',
             'gender'          => 'nullable|in:M,F',
-            'role'            => 'required|in:admin,almoxarife,solicitante,auditor',
+            'role'            => 'required|in:admin,manager,user',
             'is_active'       => 'boolean',
         ]);
 
         try {
             $validated['is_active'] = $request->boolean('is_active', $user->is_active);
+
+            // Ensure rank_id is integer
+            if (isset($validated['rank_id'])) {
+                $validated['rank_id'] = (int) $validated['rank_id'];
+            }
 
             // Só atualiza senha se fornecida
             if (empty($validated['password'])) {
@@ -153,6 +160,12 @@ class AdminController extends Controller
             }
 
             $user->update($validated);
+
+            // Log the update
+            \Log::info("User {$user->id} updated successfully", $validated);
+
+            // Refresh the user to ensure we have the latest data
+            $user->refresh();
 
             return redirect()
                 ->route('admin.users.index')
