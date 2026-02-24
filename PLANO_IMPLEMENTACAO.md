@@ -144,7 +144,8 @@ O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de mat
 | borrower_user_id         | FK → users nullable — quando individual     |
 | borrower_section         | string nullable — quando seção/subunidade   |
 | borrower_organization_id | FK → organizations nullable                 |
-| loaned_by                | FK → users — almoxarife que emprestou       |
+| loaned_by                | FK → users — quem emprestou                 |
+| subunit                  | string nullable — subunidade do criador     |
 | loan_date                | datetime                                    |
 | expected_return_date     | date nullable                               |
 | actual_return_date       | datetime nullable                           |
@@ -190,6 +191,9 @@ O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de mat
 - `0001_01_01_000005` — loans
 - `0001_01_01_000006` — loan_items
 - `0001_01_01_000007` — stock_movements
+- `2026_02_10_*` — fix stock_items nullable columns
+- `2026_02_19_*` — create durable_goods_inventory table
+- `2026_02_24_090922` — add subunit to inventory_uploads, loans, durable_goods_inventory
 
 **Nota:** Portas Docker ajustadas (app:8095, postgres:5434, redis:6380) para evitar conflito com outros projetos. **Sistema renomeado para SMARTSUB**.
 
@@ -233,9 +237,10 @@ Validados via `artisan tinker`: relacionamentos, scopes, helpers e constantes OK
 - [x] Cadastro apenas via admin (sem auto-registro — sem rota de registro)
 - [x] Reset de senha via admin (sem email nesta fase — sem rota de reset)
 - [x] Autorização: coluna `role` com verificação inline (padrão SAGA)
-- [x] Roles: `admin` (ativo), `almoxarife`, `solicitante`, `auditor`, `manager` (preparados)
-  - **Manager**: Acesso completo ao sistema exceto menus "Usuários" e "Reset" (restritos apenas ao admin)
-  - **User**: Perfil padrão para usuários comuns
+- [x] Roles simplificados: `admin`, `manager`, `user`
+  - **Admin**: Gerencia usuários, relatórios e reset de estoque; enxerga dados de todas as subunidades
+  - **Manager**: Acesso completo ao sistema exceto menus "Usuários" e "Reset" (restritos ao admin); isolado à sua subunidade
+  - **User**: Perfil padrão; isolado à sua subunidade
 - [x] Middleware `EnsureUserIsActive` — desloga usuários desativados (alias `active`)
 - [x] Middleware `CheckRole` — restrição por perfil (alias `role:admin,almoxarife,...`)
 - [x] Middlewares registrados em `bootstrap/app.php` (padrão Laravel 11)
@@ -1135,13 +1140,61 @@ GET    /inventory/{inventoryUpload}/compare-durables → inventory.compare.durab
 
 ---
 
-## Passo 18 — Roles e Permissões Completos ⬜
+## Passo 18 — Roles e Permissões Completos 🔧
 
-- [ ] Temos perfis: `admin` (gerencia usuarios), `user` (menos gerenciar usuarios),
-- [ ] Middleware `role:` expandido com permissões granulares
-- [ ] Sidebar/nav condicional por perfil completo
+- [x] Roles simplificados para `admin`, `manager`, `user` (migration + model + controllers)
+- [x] Middleware `role:admin` protege rotas de administração
+- [x] Sidebar/nav condicional por `isAdmin()` (Usuários, Relatórios, Reset Estoque)
+- [x] Isolamento de dados por subunidade — ver Passo 18a
 - [ ] Páginas de acesso negado (403) customizadas
 - [ ] Testes de autorização por perfil
+
+---
+
+## Passo 18a — Isolamento de Dados por Subunidade ✅
+
+Implementação de isolamento completo de dados entre subunidades da mesma OM, garantindo que cada usuário acesse apenas os dados da sua subunidade.
+
+### Regras de Negócio
+- Admin: enxerga **todos** os dados de todas as subunidades
+- Manager/User com subunidade: enxerga **apenas** dados da sua subunidade
+- Manager/User **sem** subunidade cadastrada: enxerga todos os dados (modo de transição)
+- Máximo de **2 usuários não-admin** por subunidade
+
+### Migration
+- [x] `2026_02_24_090922_add_subunit_to_inventory_loans_durable_tables.php`:
+  - Adiciona coluna `subunit` (string nullable) a `inventory_uploads`, `loans`, `durable_goods_inventory`
+  - `stock_items` já possuía coluna `subunit` (pré-existente)
+
+### Scope Global (`app/Scopes/SubunitScope.php`)
+- [x] Global Eloquent scope aplicado automaticamente nas queries
+- [x] Lógica: `if admin → bypass` | `if user has subunit → WHERE subunit = user.subunit` | `if no subunit → bypass`
+- [x] Usa `$model->getTable() . '.subunit'` para qualificar coluna e evitar ambiguidade em JOINs
+
+### Models Atualizados
+- [x] `StockItem` — `booted()` com `static::addGlobalScope(new SubunitScope())`
+- [x] `InventoryUpload` — scope + `subunit` adicionado ao `$fillable`
+- [x] `DurableGoodsInventory` — scope + `subunit` adicionado ao `$fillable`
+- [x] `Loan` — scope + `subunit` adicionado ao `$fillable`
+
+### Controllers Atualizados
+- [x] `InventoryController@store` — `InventoryUpload::create()` recebe `subunit => Auth::user()->subunit`
+- [x] `InventoryController@store` — `DurableGoodsInventory::create()` (upload direto) recebe `subunit => Auth::user()->subunit`
+- [x] `InventoryController@reprocess` — `DurableGoodsInventory::create()` (reprocessamento) recebe `subunit => $inventory->uploader->subunit`
+- [x] `StockController@storeEntry` — `StockItem::create()` força `subunit => Auth::user()->subunit` (ignora input do formulário)
+- [x] `LoanController@store` — `Loan::create()` recebe `subunit => Auth::user()->subunit`
+
+### AdminController — Validação Max 2 Usuários
+- [x] `storeUser()`: valida `User::where('subunit')->where('organization_id')->where('role', '!=', 'admin')->count() < 2` antes de criar
+- [x] `updateUser()`: valida limite ao trocar subunidade (exclui o próprio usuário da contagem)
+- [x] Mensagem de erro amigável: `"Limite atingido: já existem 2 usuários cadastrados na subunidade..."`
+
+### Benefícios
+- ✅ **Transparente**: sem mudança nas queries existentes — scope aplicado automaticamente
+- ✅ **Dashboard escopo automático**: queries de StockItem e Loan já filtradas
+- ✅ **Segurança por defesa em profundidade**: isolamento no ORM, não apenas na UI
+- ✅ **Admin irrestrito**: administrador sempre vê tudo
+- ✅ **Transição suave**: usuários sem subunidade não são bloqueados
 
 ---
 
@@ -1174,6 +1227,7 @@ Esta arquitetura evita misturar lógicas de controle incompatíveis (patrimonial
 | ------------------- | ---------------------------------------- |
 | id                  | bigint PK                                |
 | inventory_upload_id | FK → inventory_uploads (cascade delete)  |
+| subunit             | string nullable — subunidade do criador  |
 | material_name       | string — nome do material                |
 | ficha_number        | string nullable — Nr Ficha               |
 | material_code       | string nullable — Cód Mat                |
@@ -1291,4 +1345,4 @@ Esta arquitetura evita misturar lógicas de controle incompatíveis (patrimonial
 
 ---
 
-*Última atualização: 23/02/2026 — Passo 16d (Reconciliação de Quantidades) completamente concluído ✅ — Sync Duráveis implementado com agrupamento por material_code, reconciliação automática de quantidades e interface completa. Totais SISCOFIS e Estoque Controlado agora batem perfeitamente (1.786 = 1.786). Reset de estoque admin adicionado com confirmação Alpine.js.*
+*Última atualização: 24/02/2026 — Passo 18a (Isolamento por Subunidade) concluído ✅ — Roles simplificados para admin/manager/user. SubunitScope global aplicado em StockItem, InventoryUpload, DurableGoodsInventory e Loan. Migration adicionando coluna `subunit` a inventory_uploads, loans e durable_goods_inventory executada. Controllers atualizados para popular subunit automaticamente na criação de registros. Validação de máximo 2 usuários por subunidade no AdminController.*
