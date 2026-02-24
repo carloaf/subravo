@@ -94,7 +94,7 @@ O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de mat
 | subunit           | string nullable                          |
 | armed_force       | enum (EB, MB, FAB)                       |
 | gender            | enum (M, F)                              |
-| role              | enum (admin, almoxarife, solicitante, auditor) |
+| role              | enum (admin, manager, user) |
 | is_active         | boolean default true                     |
 | avatar_url        | string nullable                          |
 | timestamps        |                                          |
@@ -233,7 +233,9 @@ Validados via `artisan tinker`: relacionamentos, scopes, helpers e constantes OK
 - [x] Cadastro apenas via admin (sem auto-registro — sem rota de registro)
 - [x] Reset de senha via admin (sem email nesta fase — sem rota de reset)
 - [x] Autorização: coluna `role` com verificação inline (padrão SAGA)
-- [x] Roles: `admin` (ativo), `almoxarife`, `solicitante`, `auditor` (preparados)
+- [x] Roles: `admin` (ativo), `almoxarife`, `solicitante`, `auditor`, `manager` (preparados)
+  - **Manager**: Acesso completo ao sistema exceto menus "Usuários" e "Reset" (restritos apenas ao admin)
+  - **User**: Perfil padrão para usuários comuns
 - [x] Middleware `EnsureUserIsActive` — desloga usuários desativados (alias `active`)
 - [x] Middleware `CheckRole` — restrição por perfil (alias `role:admin,almoxarife,...`)
 - [x] Middlewares registrados em `bootstrap/app.php` (padrão Laravel 11)
@@ -682,7 +684,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 - [x] `.env.example` atualizado com `DB_TEST_DATABASE`
 
 ### Traits de Teste (helpers)
-- [x] `CreatesUsers` trait — helpers para criar usuários (admin, almoxarife, solicitante, auditor)
+- [x] `CreatesUsers` trait — helpers para criar usuários (admin, manager, user)
 - [x] `CreatesStock` trait — helpers para criar categorias, produtos, items de estoque (serializados e bulk)
 - [x] `CreatesLoans` trait — helpers para criar empréstimos individuais e por seção, adicionar itens
 

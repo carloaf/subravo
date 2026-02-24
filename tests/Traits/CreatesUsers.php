@@ -21,40 +21,18 @@ trait CreatesUsers
     }
 
     /**
-     * Criar usuário almoxarife para testes.
+     * Criar usuário manager para testes.
      */
-    protected function createAlmoxarife(array $attributes = []): User
+    protected function createManager(array $attributes = []): User
     {
         return $this->createUser(array_merge([
-            'role' => 'almoxarife',
-            'war_name' => 'ALMOXARIFE',
+            'role' => 'manager',
+            'war_name' => 'MANAGER',
         ], $attributes));
     }
 
     /**
-     * Criar usuário solicitante para testes.
-     */
-    protected function createSolicitante(array $attributes = []): User
-    {
-        return $this->createUser(array_merge([
-            'role' => 'solicitante',
-            'war_name' => 'SOLICITANTE',
-        ], $attributes));
-    }
-
-    /**
-     * Criar usuário auditor para testes.
-     */
-    protected function createAuditor(array $attributes = []): User
-    {
-        return $this->createUser(array_merge([
-            'role' => 'auditor',
-            'war_name' => 'AUDITOR',
-        ], $attributes));
-    }
-
-    /**
-     * Criar usuário genérico para testes.
+     * Criar usuário comum para testes.
      */
     protected function createUser(array $attributes = []): User
     {
@@ -71,7 +49,7 @@ trait CreatesUsers
             'organization_id' => $organization->id,
             'armed_force' => 'EB',
             'gender' => 'M',
-            'role' => 'solicitante',
+            'role' => 'user',
             'is_active' => true,
         ], $attributes));
     }

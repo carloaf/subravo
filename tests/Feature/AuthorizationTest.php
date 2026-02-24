@@ -24,7 +24,7 @@ class AuthorizationTest extends TestCase
     /** @test */
     public function non_admin_cannot_access_admin_routes(): void
     {
-        $almoxarife = $this->createAlmoxarife();
+        $almoxarife = $this->createUser();
 
         $response = $this->actingAs($almoxarife)->get('/admin/users');
 
@@ -54,7 +54,7 @@ class AuthorizationTest extends TestCase
     /** @test */
     public function authenticated_users_can_access_dashboard(): void
     {
-        $user = $this->createSolicitante();
+        $user = $this->createUser();
 
         $response = $this->actingAs($user)->get('/dashboard');
 
@@ -64,7 +64,7 @@ class AuthorizationTest extends TestCase
     /** @test */
     public function authenticated_users_can_view_products(): void
     {
-        $user = $this->createSolicitante();
+        $user = $this->createUser();
 
         $response = $this->actingAs($user)->get('/products');
 
@@ -74,7 +74,7 @@ class AuthorizationTest extends TestCase
     /** @test */
     public function authenticated_users_can_view_stock(): void
     {
-        $user = $this->createSolicitante();
+        $user = $this->createUser();
 
         $response = $this->actingAs($user)->get('/stock');
 
@@ -84,7 +84,7 @@ class AuthorizationTest extends TestCase
     /** @test */
     public function authenticated_users_can_view_loans(): void
     {
-        $user = $this->createSolicitante();
+        $user = $this->createUser();
 
         $response = $this->actingAs($user)->get('/loans');
 

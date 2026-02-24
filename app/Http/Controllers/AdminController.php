@@ -60,7 +60,7 @@ class AdminController extends Controller
 
         $ranks         = Rank::ordered()->get();
         $organizations = Organization::orderBy('abbreviation')->get();
-        $roles         = ['admin' => 'Administrador', 'almoxarife' => 'Almoxarife', 'solicitante' => 'Solicitante', 'auditor' => 'Auditor'];
+        $roles         = ['admin' => 'Administrador', 'manager' => 'Gerente', 'user' => 'Usuário'];
 
         return view('admin.users.create', compact('ranks', 'organizations', 'roles'));
     }
@@ -115,7 +115,7 @@ class AdminController extends Controller
 
         $ranks         = Rank::ordered()->get();
         $organizations = Organization::orderBy('abbreviation')->get();
-        $roles         = ['admin' => 'Administrador', 'almoxarife' => 'Almoxarife', 'solicitante' => 'Solicitante', 'auditor' => 'Auditor'];
+        $roles         = ['admin' => 'Administrador', 'manager' => 'Gerente', 'user' => 'Usuário'];
 
         return view('admin.users.edit', compact('user', 'ranks', 'organizations', 'roles'));
     }

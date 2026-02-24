@@ -54,8 +54,8 @@ class BusinessRulesTest extends TestCase
     /** @test */
     public function stock_item_status_changes_to_loaned_when_fully_loaned(): void
     {
-        $user = $this->createAlmoxarife();
-        $borrower = $this->createSolicitante();
+        $user = $this->createUser();
+        $borrower = $this->createUser();
         $stockItem = $this->createStockItem(['quantity' => 5, 'status' => 'available']);
 
         $loan = $this->createIndividualLoan($borrower, [
@@ -70,8 +70,8 @@ class BusinessRulesTest extends TestCase
     /** @test */
     public function stock_item_status_remains_available_when_partially_loaned(): void
     {
-        $user = $this->createAlmoxarife();
-        $borrower = $this->createSolicitante();
+        $user = $this->createUser();
+        $borrower = $this->createUser();
         $stockItem = $this->createStockItem(['quantity' => 10, 'status' => 'available']);
 
         $loan = $this->createIndividualLoan($borrower, [
@@ -86,8 +86,8 @@ class BusinessRulesTest extends TestCase
     /** @test */
     public function loan_status_changes_to_returned_after_full_return(): void
     {
-        $user = $this->createAlmoxarife();
-        $borrower = $this->createSolicitante();
+        $user = $this->createUser();
+        $borrower = $this->createUser();
         $stockItem = $this->createStockItem(['quantity' => 10]);
 
         $loan = $this->createIndividualLoan($borrower, [
@@ -115,8 +115,8 @@ class BusinessRulesTest extends TestCase
     /** @test */
     public function loan_status_changes_to_partial_after_partial_return(): void
     {
-        $user = $this->createAlmoxarife();
-        $borrower = $this->createSolicitante();
+        $user = $this->createUser();
+        $borrower = $this->createUser();
         $stockItem = $this->createStockItem(['quantity' => 10]);
 
         $loan = $this->createIndividualLoan($borrower, [
@@ -144,8 +144,8 @@ class BusinessRulesTest extends TestCase
     /** @test */
     public function stock_is_restored_after_loan_return(): void
     {
-        $user = $this->createAlmoxarife();
-        $borrower = $this->createSolicitante();
+        $user = $this->createUser();
+        $borrower = $this->createUser();
         $stockItem = $this->createStockItem(['quantity' => 20]);
 
         $initialQuantity = $stockItem->quantity;
@@ -241,7 +241,7 @@ class BusinessRulesTest extends TestCase
     /** @test */
     public function loan_numbers_are_sequential(): void
     {
-        $borrower = $this->createSolicitante();
+        $borrower = $this->createUser();
         $stockItem = $this->createStockItem(['quantity' => 100]);
 
         $loan1 = $this->createIndividualLoan($borrower, [
@@ -265,8 +265,8 @@ class BusinessRulesTest extends TestCase
     /** @test */
     public function pending_quantity_is_calculated_correctly(): void
     {
-        $user = $this->createAlmoxarife();
-        $borrower = $this->createSolicitante();
+        $user = $this->createUser();
+        $borrower = $this->createUser();
         $stockItem = $this->createStockItem(['quantity' => 20]);
 
         $loan = $this->createIndividualLoan($borrower, [

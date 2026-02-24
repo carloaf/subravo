@@ -48,7 +48,7 @@ return new class extends Migration
             $table->string('subunit')->nullable();
             $table->enum('armed_force', ['EB', 'MB', 'FAB'])->default('EB');
             $table->enum('gender', ['M', 'F']);
-            $table->enum('role', ['admin', 'almoxarife', 'solicitante', 'auditor'])->default('admin');
+            $table->enum('role', ['admin', 'manager', 'user'])->default('user');
             $table->boolean('is_active')->default(true);
             $table->string('avatar_url')->nullable();
             $table->rememberToken();

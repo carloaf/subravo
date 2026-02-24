@@ -21,7 +21,7 @@
                        class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400">
             </div>
             <x-select name="role" label="" placeholder="Todos os Perfis"
-                      :options="['admin' => 'Administrador', 'almoxarife' => 'Almoxarife', 'solicitante' => 'Solicitante', 'auditor' => 'Auditor']"
+                      :options="['admin' => 'Administrador', 'manager' => 'Gerente', 'user' => 'Usuário']"
                       :selected="request('role')" />
             <x-select name="is_active" label="" placeholder="Todos os Status"
                       :options="['1' => 'Ativos', '0' => 'Inativos']"
@@ -65,8 +65,8 @@
                         <td class="px-4 py-3 text-sm text-gray-600">{{ $user->organization?->abbreviation ?? '—' }}</td>
                         <td class="px-4 py-3 text-center">
                             @php
-                                $roleColors = ['admin' => 'purple', 'almoxarife' => 'blue', 'solicitante' => 'gray', 'auditor' => 'amber'];
-                                $roleLabels = ['admin' => 'Admin', 'almoxarife' => 'Almoxarife', 'solicitante' => 'Solicitante', 'auditor' => 'Auditor'];
+                                $roleColors = ['admin' => 'purple', 'manager' => 'green', 'user' => 'blue'];
+                                $roleLabels = ['admin' => 'Admin', 'manager' => 'Gerente', 'user' => 'Usuário'];
                             @endphp
                             <x-badge :color="$roleColors[$user->role] ?? 'gray'">
                                 {{ $roleLabels[$user->role] ?? ucfirst($user->role) }}
