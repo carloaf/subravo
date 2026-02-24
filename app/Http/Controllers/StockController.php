@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DurablesExport;
 use App\Models\DurableGoodsInventory;
 use App\Models\Product;
 use App\Models\StockItem;
 use App\Models\StockMovement;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -360,5 +363,132 @@ class StockController extends Controller
         }, SORT_REGULAR, $sortDir === 'desc');
 
         return view('stock.durables', compact('durableItems', 'durableProducts'));
+    }
+
+    /**
+     * Gera PDF da relação de material de uso duradouro.
+     */
+    public function durablesPdf()
+    {
+        $durableProducts = Product::where('is_durable', true)
+            ->with('category')
+            ->orderBy('name')
+            ->get();
+
+        $durableItems = collect();
+
+        foreach ($durableProducts as $product) {
+            $stockItems = StockItem::where('product_id', $product->id)
+                ->with('product.category')
+                ->get();
+
+            $inventoryQty   = 0;
+            $inventoryValue = 0;
+            $inventoryDate  = null;
+
+            if ($product->siscofis_code) {
+                $inventoryRecords = DurableGoodsInventory::where('material_code', $product->siscofis_code)->get();
+                $inventoryQty     = $inventoryRecords->sum('quantity') ?? 0;
+                $inventoryValue   = $inventoryRecords->sum('total_value') ?? 0;
+                $inventoryDate    = $inventoryRecords->max('created_at');
+            }
+
+            $totalQuantity = $stockItems->sum('quantity');
+            $availableQty  = $stockItems->where('status', 'available')->sum('quantity');
+            $loanedQty     = $stockItems->where('status', 'loaned')->sum('quantity');
+            $damagedQty    = $stockItems->where('status', 'damaged')->sum('quantity');
+
+            $expiringSoon = $stockItems->filter(function ($item) {
+                return $item->expiration_date
+                    && $item->expiration_date->lte(now()->addDays(30))
+                    && $item->expiration_date->gt(now())
+                    && $item->status === 'available';
+            })->count();
+
+            $expired = $stockItems->filter(function ($item) {
+                return $item->expiration_date
+                    && $item->expiration_date->lt(now())
+                    && $item->status === 'available';
+            })->count();
+
+            $durableItems->push((object) [
+                'product'         => $product,
+                'inventory_qty'   => $inventoryQty,
+                'inventory_value' => $inventoryValue,
+                'inventory_date'  => $inventoryDate,
+                'total'           => $totalQuantity,
+                'available'       => $availableQty,
+                'loaned'          => $loanedQty,
+                'damaged'         => $damagedQty,
+                'expiring_soon'   => $expiringSoon,
+                'expired'         => $expired,
+                'items'           => $stockItems,
+            ]);
+        }
+
+        $durableItems = $durableItems->sortBy('product.name');
+
+        $pdf = Pdf::loadView('stock.pdf.durables', compact('durableItems'))
+            ->setPaper('A4', 'landscape');
+
+        $filename = 'relacao-uso-duradouro-' . now()->format('Ymd-His') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Exporta relação de material de uso duradouro em Excel.
+     */
+    public function durablesExcel()
+    {
+        $durableProducts = Product::where('is_durable', true)
+            ->with('category')
+            ->orderBy('name')
+            ->get();
+
+        $durableItems = collect();
+
+        foreach ($durableProducts as $product) {
+            $stockItems = StockItem::where('product_id', $product->id)->get();
+
+            $inventoryQty   = 0;
+            $inventoryValue = 0;
+
+            if ($product->siscofis_code) {
+                $inventoryRecords = DurableGoodsInventory::where('material_code', $product->siscofis_code)->get();
+                $inventoryQty     = $inventoryRecords->sum('quantity') ?? 0;
+                $inventoryValue   = $inventoryRecords->sum('total_value') ?? 0;
+            }
+
+            $expiringSoon = $stockItems->filter(fn ($i) =>
+                $i->expiration_date
+                && $i->expiration_date->lte(now()->addDays(30))
+                && $i->expiration_date->gt(now())
+                && $i->status === 'available'
+            )->count();
+
+            $expired = $stockItems->filter(fn ($i) =>
+                $i->expiration_date
+                && $i->expiration_date->lt(now())
+                && $i->status === 'available'
+            )->count();
+
+            $durableItems->push((object) [
+                'product'         => $product,
+                'inventory_qty'   => $inventoryQty,
+                'inventory_value' => $inventoryValue,
+                'total'           => $stockItems->sum('quantity'),
+                'available'       => $stockItems->where('status', 'available')->sum('quantity'),
+                'loaned'          => $stockItems->where('status', 'loaned')->sum('quantity'),
+                'damaged'         => $stockItems->where('status', 'damaged')->sum('quantity'),
+                'expiring_soon'   => $expiringSoon,
+                'expired'         => $expired,
+            ]);
+        }
+
+        $durableItems = $durableItems->sortBy('product.name')->values();
+        $filename = 'relacao-uso-duradouro-' . now()->format('Ymd-His') . '.xlsx';
+
+        return Excel::download(new DurablesExport($durableItems), $filename);
     }
 }

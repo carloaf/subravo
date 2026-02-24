@@ -57,6 +57,8 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // ── Uso Duradouro ─────────────────────────────────────────
     Route::get('/durables', [StockController::class, 'durables'])->name('durables.index');
+    Route::get('/durables/pdf', [StockController::class, 'durablesPdf'])->name('durables.pdf');
+    Route::get('/durables/excel', [StockController::class, 'durablesExcel'])->name('durables.excel');
 
     // ── Debug (temporário) ────────────────────────────────────
     Route::get('/debug/forms', function () {
