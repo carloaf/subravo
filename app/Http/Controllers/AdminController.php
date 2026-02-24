@@ -125,8 +125,6 @@ class AdminController extends Controller
      */
     public function updateUser(Request $request, User $user)
     {
-        \Log::info('updateUser called for user ID: ' . $user->id);
-
         if (!Auth::user()->isAdmin()) {
             abort(403, 'Acesso restrito ao administrador.');
         }
@@ -160,9 +158,6 @@ class AdminController extends Controller
             }
 
             $user->update($validated);
-
-            // Log the update
-            \Log::info("User {$user->id} updated successfully", $validated);
 
             // Refresh the user to ensure we have the latest data
             $user->refresh();
