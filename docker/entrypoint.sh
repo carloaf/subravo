@@ -2,11 +2,11 @@
 set -e
 
 # =============================================================================
-# SUBRAVO — Container Entrypoint
+# SMARTSUB — Container Entrypoint
 # =============================================================================
 
 echo "╔══════════════════════════════════════╗"
-echo "║  SUBRAVO — Iniciando aplicação...    ║"
+echo "║  SMARTSUB — Iniciando aplicação...    ║"
 echo "╚══════════════════════════════════════╝"
 
 # ── Aguarda dependências ──────────────────────────────────────────
@@ -75,7 +75,7 @@ fi
 php artisan storage:link --force --no-interaction 2>/dev/null || true
 
 echo "╔══════════════════════════════════════╗"
-echo "║  SUBRAVO — Pronto! (porta 80)       ║"
+echo "║  SMARTSUB — Pronto! (porta 80)       ║"
 echo "╚══════════════════════════════════════╝"
 
 # ── Inicia Apache ────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Entrada de Material — SUBRAVO')
+@section('title', 'Entrada de Material — SMARTSUB')
 @section('page-title', 'Entrada de Material')
 
 @section('content')

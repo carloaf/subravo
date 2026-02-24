@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Relatórios — SUBRAVO')
+@section('title', 'Relatórios — SMARTSUB')
 @section('page-title', 'Central de Relatórios')
 
 @section('content')

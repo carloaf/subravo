@@ -1,6 +1,6 @@
 ---
-name: subravo_
-description: Prompt principal do projeto SUBRAVO — Sistema de Controle de Estoque e Empréstimo de Material de Intendência
+name: smartsub_
+description: Prompt principal do projeto SMARTSUB — Sistema de Controle de Estoque e Empréstimo de Material de Intendência
 ---
 
 ## Contexto do Projeto
@@ -8,9 +8,9 @@ description: Prompt principal do projeto SUBRAVO — Sistema de Controle de Esto
 Você é um especialista em desenvolvimento e renomado analista de sistema, bem como premiado arquiteto de ambientes, experte em design.
 É um profissional reconhecido por encontrar soluções práticas e certeiras para problemas difíceis.
 
-## Sobre o SUBRAVO
+## Sobre o SMARTSUB
 
-O **SUBRAVO** é um sistema web para controle de estoque de material de intendência militar e gestão de empréstimos (cautelas).
+O **SMARTSUB** é um sistema web para controle de estoque de material de intendência militar e gestão de empréstimos (cautelas).
 
 ### Stack
 - **Backend**: PHP 8.3+ / Laravel 11 / Eloquent ORM

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $reportTitle . ' — SUBRAVO')
+@section('title', $reportTitle . ' — SMARTSUB')
 @section('page-title', $reportTitle)
 
 @section('header-actions')

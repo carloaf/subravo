@@ -1,5 +1,5 @@
 # =============================================================================
-# Multi-Architecture Dockerfile for SUBRAVO
+# Multi-Architecture Dockerfile for SMARTSUB
 # Supports: linux/amd64, linux/arm64
 # =============================================================================
 
@@ -58,8 +58,8 @@ RUN --mount=type=cache,target=/tmp/cache \
 # Stage 3: Final Runtime Image
 # -----------------------------------------------------------------------------
 FROM php:8.4-apache AS runtime
-LABEL maintainer="SUBRAVO Team"
-LABEL description="SUBRAVO - Sistema de Controle de Estoque e Empréstimos"
+LABEL maintainer="SMARTSUB Team"
+LABEL description="SMARTSUB - Sistema de Controle de Estoque e Empréstimos"
 LABEL version="1.0"
 
 ARG TARGETPLATFORM

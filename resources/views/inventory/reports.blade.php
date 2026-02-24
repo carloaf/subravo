@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Relatórios de Inventário — SUBRAVO')
+@section('title', 'Relatórios de Inventário — SMARTSUB')
 @section('page-title', 'Relatórios de Inventário')
 
 @section('header-actions')

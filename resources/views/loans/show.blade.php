@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Cautela #' . $loan->loan_number . ' — SUBRAVO')
+@section('title', 'Cautela #' . $loan->loan_number . ' — SMARTSUB')
 @section('page-title', 'Cautela #' . $loan->loan_number)
 
 @section('header-actions')

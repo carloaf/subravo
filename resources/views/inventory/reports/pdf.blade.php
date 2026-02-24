@@ -1,6 +1,6 @@
 @extends('layouts.pdf-inventory')
 
-@section('title', $reportTitle . ' — SUBRAVO')
+@section('title', $reportTitle . ' — SMARTSUB')
 @section('location', 'DE INVENTÁRIO GERAL')
 
 @php

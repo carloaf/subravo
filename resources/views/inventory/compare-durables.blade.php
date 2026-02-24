@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Comparar com Uso Duradouro — SUBRAVO')
+@section('title', 'Comparar com Uso Duradouro — SMARTSUB')
 @section('page-title', 'Inventário × Uso Duradouro')
 
 @section('header-actions')

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Ajuste de Estoque — SUBRAVO')
+@section('title', 'Ajuste de Estoque — SMARTSUB')
 @section('page-title', 'Ajuste de Estoque')
 
 @section('content')

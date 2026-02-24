@@ -1,6 +1,6 @@
 @extends('layouts.pdf-inventory')
 
-@section('title', 'Busca de Materiais — SUBRAVO')
+@section('title', 'Busca de Materiais — SMARTSUB')
 @section('location', 'DE BUSCA DE MATERIAIS')
 
 @php

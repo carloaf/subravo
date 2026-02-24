@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Cautelas — SUBRAVO')
+@section('title', 'Cautelas — SMARTSUB')
 @section('page-title', 'Cautelas (Empréstimos)')
 
 @section('header-actions')

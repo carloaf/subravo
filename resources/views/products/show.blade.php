@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $product->name . ' — SUBRAVO')
+@section('title', $product->name . ' — SMARTSUB')
 @section('page-title', $product->name)
 
 @section('header-actions')

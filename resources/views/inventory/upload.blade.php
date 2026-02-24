@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Carregar Inventário — SUBRAVO')
+@section('title', 'Carregar Inventário — SMARTSUB')
 @section('page-title', 'Carregar Inventário PDF')
 
 @section('content')

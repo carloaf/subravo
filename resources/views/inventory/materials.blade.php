@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Busca de Materiais — SUBRAVO')
+@section('title', 'Busca de Materiais — SMARTSUB')
 @section('page-title', 'Busca de Materiais')
 
 @section('header-actions')

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Item de Estoque — SUBRAVO')
+@section('title', 'Item de Estoque — SMARTSUB')
 @section('page-title', $stockItem->product->name)
 
 @section('header-actions')

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Usuário — SUBRAVO')
+@section('title', 'Editar Usuário — SMARTSUB')
 @section('page-title', 'Editar: ' . $user->getDisplayName())
 
 @section('content')

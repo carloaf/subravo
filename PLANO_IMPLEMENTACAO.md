@@ -1,4 +1,4 @@
-# SUBRAVO — Plano de Implementação
+# SMARTSUB — Plano de Implementação
 
 > Sistema de Controle de Estoque e Empréstimo de Material de Intendência
 > Baseado na arquitetura do sistema SAGA (Laravel 11 + PostgreSQL + Blade/Tailwind + Docker)
@@ -7,7 +7,7 @@
 
 ## Visão Geral
 
-O **SUBRAVO** é um sistema web monolítico MVC para controle de estoque de material de intendência militar e gestão de empréstimos (cautelas). Login por número de identidade militar + senha local. Gera Cautelas/Termos de Responsabilidade em PDF, comprovantes de devolução, relatórios de movimentação/estoque e etiquetas com QR Code. Empréstimos podem ser feitos para indivíduos ou seções/subunidades. Estoque detalhado com: lote, validade, número de série, localização física, subunidade e data de entrada no SISCOFIS.
+O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de material de intendência militar e gestão de empréstimos (cautelas). Login por número de identidade militar + senha local. Gera Cautelas/Termos de Responsabilidade em PDF, comprovantes de devolução, relatórios de movimentação/estoque e etiquetas com QR Code. Empréstimos podem ser feitos para indivíduos ou seções/subunidades. Estoque detalhado com: lote, validade, número de série, localização física, subunidade e data de entrada no SISCOFIS.
 
 ---
 
@@ -191,7 +191,7 @@ O **SUBRAVO** é um sistema web monolítico MVC para controle de estoque de mate
 - `0001_01_01_000006` — loan_items
 - `0001_01_01_000007` — stock_movements
 
-**Nota:** Portas Docker ajustadas (postgres:5434, redis:6380) para evitar conflito com outros projetos.
+**Nota:** Portas Docker ajustadas (app:8095, postgres:5434, redis:6380) para evitar conflito com outros projetos. **Sistema renomeado para SMARTSUB**.
 
 ---
 

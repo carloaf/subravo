@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Produtos — SUBRAVO')
+@section('title', 'Produtos — SMARTSUB')
 @section('page-title', 'Produtos')
 
 @section('header-actions')

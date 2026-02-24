@@ -36,7 +36,7 @@
             </div>
         @endif
 
-        <div class="system-tag">SUBRAVO — Mat. Intendência</div>
+        <div class="system-tag">SMARTSUB — Mat. Intendência</div>
     </div>
 
     <div class="label-right">

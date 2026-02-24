@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>@yield('title', 'Relatório SUBRAVO')</title>
+    <title>@yield('title', 'Relatório SMARTSUB')</title>
     <style>
         @page { 
             margin: 25mm 30mm 25mm 30mm; 
@@ -446,7 +446,7 @@
                     <div class="subtitle">Comando Logístico — Sistema Integrado de Controle de Material</div>
                 </div>
                 <div class="header-sistema">
-                    <div class="sistema-badge">SUBRAVO</div>
+                    <div class="sistema-badge">SMARTSUB</div>
                 </div>
             </div>
         </div>
@@ -481,7 +481,7 @@
 
     {{-- Rodapé Institucional --}}
     <div class="footer">
-        <strong>SUBRAVO</strong> — Sistema de Controle de Estoque e Empréstimo de Material de Intendência<br>
+        <strong>SMARTSUB</strong> — Sistema de Controle de Estoque e Empréstimo de Material de Intendência<br>
         Documento gerado automaticamente em {{ now()->format('d/m/Y \à\s H:i:s') }} — {{ now()->timezone->getName() }}<br>
         Este documento possui validade jurídica conforme legislação vigente do Exército Brasileiro<br>
         <strong>Classificação:</strong> OSTENSIVO — <strong>Uso:</strong> INTERNO

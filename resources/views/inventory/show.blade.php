@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inventário: {{ $inventory->filename }} — SUBRAVO')
+@section('title', 'Inventário: {{ $inventory->filename }} — SMARTSUB')
 @section('page-title', 'Detalhes do Inventário')
 
 @section('header-actions')

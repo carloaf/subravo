@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Reset de Dados — SUBRAVO')
+@section('title', 'Reset de Dados — SMARTSUB')
 @section('page-title', 'Reset de Dados de Estoque')
 
 @section('header-actions')

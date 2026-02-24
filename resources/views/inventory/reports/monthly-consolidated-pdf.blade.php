@@ -1,6 +1,6 @@
 @extends('layouts.pdf-inventory')
 
-@section('title', 'Consolidado Mensal — ' . ucfirst($monthName) . ' — SUBRAVO')
+@section('title', 'Consolidado Mensal — ' . ucfirst($monthName) . ' — SMARTSUB')
 @section('location', 'CONSOLIDADO MENSAL - ' . strtoupper($monthName))
 
 @php

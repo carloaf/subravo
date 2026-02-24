@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nova Cautela — SUBRAVO')
+@section('title', 'Nova Cautela — SMARTSUB')
 @section('page-title', 'Nova Cautela')
 
 @section('content')
