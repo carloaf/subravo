@@ -56,6 +56,7 @@ class DashboardController extends Controller
             ->get();
 
         $recentMovements = StockMovement::with(['stockItem.product', 'performedBy'])
+            ->whereHas('stockItem') // herda SubunitScope do StockItem automaticamente
             ->latest()
             ->take(5)
             ->get();
