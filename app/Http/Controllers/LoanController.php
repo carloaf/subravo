@@ -122,6 +122,7 @@ class LoanController extends Controller
                     'borrower_section'         => $validated['borrower_section'] ?? null,
                     'borrower_organization_id' => $validated['borrower_organization_id'] ?? null,
                     'loaned_by'                => Auth::user()->id,
+                    'subunit'                  => Auth::user()->subunit,
                     'loan_date'                => now(),
                     'expected_return_date'     => $validated['expected_return_date'] ?? null,
                     'status'                   => 'active',

@@ -114,6 +114,7 @@ class InventoryController extends Controller
             'filename'    => $originalName,
             'stored_path' => $storedPath,
             'uploaded_by' => Auth::user()->id,
+            'subunit'     => Auth::user()->subunit,
             'status'      => 'processing',
         ]);
 
@@ -160,6 +161,7 @@ class InventoryController extends Controller
                 foreach ($result['durable_goods'] as $itemData) {
                     \App\Models\DurableGoodsInventory::create([
                         'inventory_upload_id' => $upload->id,
+                        'subunit'             => Auth::user()->subunit,
                         'material_name'       => $itemData['material_name'],
                         'ficha_number'        => $itemData['ficha_number'],
                         'material_code'       => $itemData['material_code'],
@@ -328,6 +330,7 @@ class InventoryController extends Controller
                 foreach ($result['durable_goods'] as $itemData) {
                     \App\Models\DurableGoodsInventory::create([
                         'inventory_upload_id' => $inventory->id,
+                        'subunit'             => $inventory->uploader->subunit ?? Auth::user()->subunit,
                         'material_name'       => $itemData['material_name'],
                         'ficha_number'        => $itemData['ficha_number'],
                         'material_code'       => $itemData['material_code'],

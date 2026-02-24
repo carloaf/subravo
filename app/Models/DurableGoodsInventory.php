@@ -9,8 +9,14 @@ class DurableGoodsInventory extends Model
 {
     protected $table = 'durable_goods_inventory';
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new \App\Scopes\SubunitScope());
+    }
+
     protected $fillable = [
         'inventory_upload_id',
+        'subunit',
         'material_name',
         'ficha_number',
         'material_code',

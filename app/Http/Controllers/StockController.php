@@ -99,7 +99,7 @@ class StockController extends Controller
                     'expiration_date'     => $validated['expiration_date'] ?? null,
                     'siscofis_entry_date' => $validated['siscofis_entry_date'] ?? null,
                     'location'            => $validated['location'] ?? null,
-                    'subunit'             => $validated['subunit'] ?? null,
+                    'subunit'             => Auth::user()->subunit, // sempre da subunidade do usuário logado
                     'status'              => 'available',
                     'notes'               => $validated['notes'] ?? null,
                 ]);

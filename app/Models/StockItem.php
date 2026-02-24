@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\SubunitScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,6 +12,8 @@ class StockItem extends Model
 
     protected static function booted(): void
     {
+        static::addGlobalScope(new SubunitScope());
+
         // Impedir que a quantidade fique negativa
         static::saving(function (StockItem $item) {
             if ($item->quantity < 0) {

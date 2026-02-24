@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Scopes\SubunitScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InventoryUpload extends Model
 {
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new SubunitScope());
+    }
+
     protected $fillable = [
         'filename',
         'stored_path',
@@ -15,6 +21,7 @@ class InventoryUpload extends Model
         'unit',
         'unit_code',
         'uploaded_by',
+        'subunit',
         'status',
         'total_items',
         'total_value',

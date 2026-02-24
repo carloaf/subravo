@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\SubunitScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +11,11 @@ class Loan extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new SubunitScope());
+    }
+
     protected $fillable = [
         'loan_number',
         'borrower_type',
@@ -17,6 +23,7 @@ class Loan extends Model
         'borrower_section',
         'borrower_organization_id',
         'loaned_by',
+        'subunit',
         'loan_date',
         'expected_return_date',
         'actual_return_date',

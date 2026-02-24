@@ -92,6 +92,20 @@ class AdminController extends Controller
         try {
             $validated['is_active'] = $request->boolean('is_active', true);
 
+            // Validação: máximo de 2 usuários por subunidade (exceto admin)
+            if (!empty($validated['subunit']) && ($validated['role'] ?? '') !== 'admin') {
+                $count = User::where('subunit', $validated['subunit'])
+                    ->where('organization_id', $validated['organization_id'] ?? null)
+                    ->where('role', '!=', 'admin')
+                    ->count();
+
+                if ($count >= 2) {
+                    return back()->withInput()->with('error',
+                        "Limite atingido: já existem 2 usuários cadastrados na subunidade \"{$validated['subunit']}\"."
+                    );
+                }
+            }
+
             $user = User::create($validated);
 
             return redirect()
@@ -150,6 +164,23 @@ class AdminController extends Controller
             // Ensure rank_id is integer
             if (isset($validated['rank_id'])) {
                 $validated['rank_id'] = (int) $validated['rank_id'];
+            }
+
+            // Validação: máximo de 2 usuários por subunidade ao trocar subunidade (exceto admin)
+            $newSubunit = $validated['subunit'] ?? null;
+            $subunitChanged = $newSubunit !== $user->subunit;
+            if ($subunitChanged && !empty($newSubunit) && ($validated['role'] ?? '') !== 'admin') {
+                $count = User::where('subunit', $newSubunit)
+                    ->where('organization_id', $validated['organization_id'] ?? null)
+                    ->where('role', '!=', 'admin')
+                    ->where('id', '!=', $user->id)
+                    ->count();
+
+                if ($count >= 2) {
+                    return back()->withInput()->with('error',
+                        "Limite atingido: já existem 2 usuários cadastrados na subunidade \"{$newSubunit}\"."
+                    );
+                }
             }
 
             // Só atualiza senha se fornecida
