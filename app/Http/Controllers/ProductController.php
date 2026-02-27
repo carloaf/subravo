@@ -69,6 +69,7 @@ class ProductController extends Controller
 
         $validated['is_serialized'] = $request->boolean('is_serialized');
         $validated['is_durable'] = $request->boolean('is_durable');
+        $validated['subunit'] = Auth::user()->subunit;
 
         try {
             $product = Product::create($validated);

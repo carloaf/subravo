@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\SubunitScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,6 +11,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'subunit',
         'name',
         'siscofis_code',
         'description',
@@ -20,6 +22,11 @@ class Product extends Model
         'is_durable',
         'shelf_life_months',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new SubunitScope());
+    }
 
     protected function casts(): array
     {
