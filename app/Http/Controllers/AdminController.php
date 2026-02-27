@@ -2,8 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DurableGoodsInventory;
+use App\Models\InventoryItem;
+use App\Models\InventoryUpload;
+use App\Models\Loan;
+use App\Models\LoanItem;
 use App\Models\Organization;
+use App\Models\Product;
 use App\Models\Rank;
+use App\Models\StockItem;
+use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -92,11 +100,10 @@ class AdminController extends Controller
         try {
             $validated['is_active'] = $request->boolean('is_active', true);
 
-            // Validação: máximo de 2 usuários por subunidade (exceto admin)
-            if (!empty($validated['subunit']) && ($validated['role'] ?? '') !== 'admin') {
+            // Validação: máximo de 2 usuários por subunidade
+            if (!empty($validated['subunit'])) {
                 $count = User::where('subunit', $validated['subunit'])
                     ->where('organization_id', $validated['organization_id'] ?? null)
-                    ->where('role', '!=', 'admin')
                     ->count();
 
                 if ($count >= 2) {
@@ -166,13 +173,12 @@ class AdminController extends Controller
                 $validated['rank_id'] = (int) $validated['rank_id'];
             }
 
-            // Validação: máximo de 2 usuários por subunidade ao trocar subunidade (exceto admin)
+            // Validação: máximo de 2 usuários por subunidade ao trocar subunidade
             $newSubunit = $validated['subunit'] ?? null;
             $subunitChanged = $newSubunit !== $user->subunit;
-            if ($subunitChanged && !empty($newSubunit) && ($validated['role'] ?? '') !== 'admin') {
+            if ($subunitChanged && !empty($newSubunit)) {
                 $count = User::where('subunit', $newSubunit)
                     ->where('organization_id', $validated['organization_id'] ?? null)
-                    ->where('role', '!=', 'admin')
                     ->where('id', '!=', $user->id)
                     ->count();
 
@@ -232,15 +238,16 @@ class AdminController extends Controller
      */
     public function resetStockConfirm()
     {
+        // Todos os contadores respeitam o SubunitScope do usuário logado
         $counts = [
-            'movements'   => DB::table('stock_movements')->count(),
-            'stock_items' => DB::table('stock_items')->count(),
-            'durable'     => DB::table('durable_goods_inventory')->count(),
-            'products'    => DB::table('products')->count(),
-            'loan_items'  => DB::table('loan_items')->count(),
-            'loans'       => DB::table('loans')->count(),
-            'inv_uploads' => DB::table('inventory_uploads')->count(),
-            'inv_items'   => DB::table('inventory_items')->count(),
+            'movements'   => StockMovement::whereHas('stockItem')->count(),
+            'stock_items' => StockItem::count(),
+            'durable'     => DurableGoodsInventory::count(),
+            'products'    => Product::count(),
+            'loan_items'  => LoanItem::whereHas('loan')->count(),
+            'loans'       => Loan::count(),
+            'inv_uploads' => InventoryUpload::count(),
+            'inv_items'   => InventoryItem::count(),
         ];
 
         return view('admin.reset-stock', compact('counts'));
@@ -268,29 +275,35 @@ class AdminController extends Controller
 
         $stats = [];
 
-        try {
-            DB::transaction(function () use ($resetProducts, $resetDurable, $resetLoans, &$stats) {
-                // 1. Movimentações
-                $stats['movements'] = DB::table('stock_movements')->delete();
+        $subunit = Auth::user()->subunit;
 
-                // 2. Cautelas (FK impede deletar stock_items se existirem)
-                $loanItems = DB::table('loan_items')->count();
+        try {
+            DB::transaction(function () use ($subunit, $resetProducts, $resetDurable, $resetLoans, &$stats) {
+                // 1. Movimentações (sem coluna subunit — filtrar via stock_items)
+                $stockItemIds = DB::table('stock_items')->where('subunit', $subunit)->pluck('id');
+                $stats['movements'] = DB::table('stock_movements')
+                    ->whereIn('stock_item_id', $stockItemIds)
+                    ->delete();
+
+                // 2. Cautelas (loan_items não tem subunit — filtrar via loans)
+                $loanIds   = DB::table('loans')->where('subunit', $subunit)->pluck('id');
+                $loanItems = DB::table('loan_items')->whereIn('loan_id', $loanIds)->count();
                 if ($resetLoans || $loanItems > 0) {
-                    $stats['loan_items'] = DB::table('loan_items')->delete();
-                    $stats['loans']      = DB::table('loans')->delete();
+                    $stats['loan_items'] = DB::table('loan_items')->whereIn('loan_id', $loanIds)->delete();
+                    $stats['loans']      = DB::table('loans')->where('subunit', $subunit)->delete();
                 }
 
                 // 3. Estoque
-                $stats['stock_items'] = DB::table('stock_items')->delete();
+                $stats['stock_items'] = DB::table('stock_items')->where('subunit', $subunit)->delete();
 
                 // 4. Uso Duradouro
                 if ($resetDurable) {
-                    $stats['durable'] = DB::table('durable_goods_inventory')->delete();
+                    $stats['durable'] = DB::table('durable_goods_inventory')->where('subunit', $subunit)->delete();
                 }
 
                 // 5. Produtos
                 if ($resetProducts) {
-                    $stats['products'] = DB::table('products')->delete();
+                    $stats['products'] = DB::table('products')->where('subunit', $subunit)->delete();
                 }
             });
 

@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Auth;
  * Aplicado automaticamente em StockItem, Loan, InventoryUpload e DurableGoodsInventory.
  *
  * Regras:
- * - Admin: enxerga TODOS os dados (sem filtro)
- * - Manager e User: enxergam apenas os dados da sua subunidade
+ * - Qualquer usuário COM subunidade: enxerga apenas dados da sua subunidade
+ * - Qualquer usuário SEM subunidade: enxerga tudo (sem filtro)
  * - Sem sessão (CLI/artisan): sem filtro
  */
 class SubunitScope implements Scope
@@ -26,11 +26,6 @@ class SubunitScope implements Scope
         }
 
         $user = Auth::user();
-
-        // Admin enxerga tudo
-        if ($user->isAdmin()) {
-            return;
-        }
 
         // Sem subunidade definida — não filtra (evita bloqueio total)
         if (blank($user->subunit)) {

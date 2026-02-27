@@ -39,7 +39,10 @@
             <x-select name="organization_id" label="Organização Militar"
                       :options="$organizations->mapWithKeys(fn($o) => [$o->id => $o->abbreviation . ' — ' . $o->name])->toArray()"
                       :selected="old('organization_id', $user->organization_id)" placeholder="— Selecione —" />
-            <x-input name="subunit" label="Subunidade" :value="$user->subunit" />
+@php
+$subunitOptions = ['CCs'=>'CCs','CCAp'=>'CCAp','Esqd Cmdo'=>'Esqd Cmdo','Bia Cmdo'=>'Bia Cmdo','1ª Cia'=>'1ª Cia','2ª Cia'=>'2ª Cia','3ª Cia'=>'3ª Cia','4ª Cia'=>'4ª Cia','1ª Bia'=>'1ª Bia','2ª Bia'=>'2ª Bia','3ª Bia'=>'3ª Bia','4ª Bia'=>'4ª Bia','1º Esqd'=>'1º Esqd','2º Esqd'=>'2º Esqd','3º Esqd'=>'3º Esqd','4º Esqd'=>'4º Esqd'];
+@endphp
+            <x-select name="subunit" label="Subunidade" :options="$subunitOptions" :selected="$user->subunit" placeholder="— Nenhuma —" />
             <x-select name="armed_force" label="Força"
                       :options="['EB' => 'Exército Brasileiro', 'MB' => 'Marinha do Brasil', 'FAB' => 'Força Aérea Brasileira']"
                       :selected="old('armed_force', $user->armed_force)" placeholder="— Selecione —" />

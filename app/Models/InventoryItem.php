@@ -7,6 +7,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InventoryItem extends Model
 {
+    /**
+     * Filtra automaticamente pelos inventários visíveis ao usuário logado
+     * (via SubunitScope aplicado em InventoryUpload).
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('subunit_via_upload', function ($builder) {
+            $builder->whereHas('upload');
+        });
+    }
+
     protected $fillable = [
         'inventory_upload_id',
         'material_type',

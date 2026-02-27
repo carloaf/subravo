@@ -94,8 +94,6 @@
     </div>
 @endif
 
-<<<<<<< HEAD
-=======
 {{-- Alerta: Localização não definida --}}
 @if(!$inventory->dependency && !$inventory->unit)
     <div class="mb-6 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg p-4">
@@ -125,7 +123,6 @@
     </div>
 @endif
 
->>>>>>> dev
 {{-- Estatísticas --}}
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
     <x-stat-card title="Itens" :value="$stats['total_items']"

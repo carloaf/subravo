@@ -162,17 +162,17 @@ class InventoryController extends Controller
                     \App\Models\DurableGoodsInventory::create([
                         'inventory_upload_id' => $upload->id,
                         'subunit'             => Auth::user()->subunit,
-                        'material_name'       => $itemData['material_name'],
-                        'ficha_number'        => $itemData['ficha_number'],
-                        'material_code'       => $itemData['material_code'],
-                        'accounting_account'  => $itemData['accounting_account'],
-                        'quantity'            => $itemData['quantity'],
-                        'unit_value'          => $itemData['unit_value'],
-                        'total_value'         => $itemData['total_value'],
-                        'raw_text'            => $itemData['raw_text'],
+                        'material_name'       => $itemData['material_name'] ?? '',
+                        'ficha_number'        => $itemData['ficha_number'] ?? null,
+                        'material_code'       => $itemData['material_code'] ?? null,
+                        'accounting_account'  => $itemData['accounting_account'] ?? null,
+                        'quantity'            => $itemData['quantity'] ?? 0,
+                        'unit_value'          => $itemData['unit_value'] ?? 0,
+                        'total_value'         => $itemData['total_value'] ?? 0,
+                        'raw_text'            => $itemData['raw_text'] ?? null,
                     ]);
 
-                    $totalValue += $itemData['total_value'];
+                    $totalValue += $itemData['total_value'] ?? 0;
                     $totalItems++;
                 }
 
@@ -195,8 +195,11 @@ class InventoryController extends Controller
             if ($syncStats['stock_gap_filled'] > 0) {
                 $successMessage .= " {$syncStats['stock_gap_filled']} produto(s) com estoque faltando foram completados.";
             }
-            if ($syncStats['already_exists'] > 0) {
-                $successMessage .= " {$syncStats['already_exists']} já existiam no estoque.";
+            if ($syncStats['qty_adjusted'] > 0) {
+                $successMessage .= " {$syncStats['qty_adjusted']} produto(s) com quantidade ajustada (+{$syncStats['qty_added']} unidades).";
+            }
+            if ($syncStats['in_sync'] > 0) {
+                $successMessage .= " {$syncStats['in_sync']} já estavam sincronizados.";
             }
 
             return redirect()->route('inventory.show', $upload)
@@ -331,17 +334,17 @@ class InventoryController extends Controller
                     \App\Models\DurableGoodsInventory::create([
                         'inventory_upload_id' => $inventory->id,
                         'subunit'             => $inventory->uploader->subunit ?? Auth::user()->subunit,
-                        'material_name'       => $itemData['material_name'],
-                        'ficha_number'        => $itemData['ficha_number'],
-                        'material_code'       => $itemData['material_code'],
-                        'accounting_account'  => $itemData['accounting_account'],
-                        'quantity'            => $itemData['quantity'],
-                        'unit_value'          => $itemData['unit_value'],
-                        'total_value'         => $itemData['total_value'],
-                        'raw_text'            => $itemData['raw_text'],
+                        'material_name'       => $itemData['material_name'] ?? '',
+                        'ficha_number'        => $itemData['ficha_number'] ?? null,
+                        'material_code'       => $itemData['material_code'] ?? null,
+                        'accounting_account'  => $itemData['accounting_account'] ?? null,
+                        'quantity'            => $itemData['quantity'] ?? 0,
+                        'unit_value'          => $itemData['unit_value'] ?? 0,
+                        'total_value'         => $itemData['total_value'] ?? 0,
+                        'raw_text'            => $itemData['raw_text'] ?? null,
                     ]);
 
-                    $totalValue += $itemData['total_value'];
+                    $totalValue += $itemData['total_value'] ?? 0;
                     $totalItems++;
                 }
 
