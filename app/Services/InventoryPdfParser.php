@@ -123,6 +123,9 @@ class InventoryPdfParser
                 }
                 // Salvar item durável pendente se existir
                 if ($durableItemBuffer) {
+                    if (!empty($durableTextBuffer)) {
+                        $durableItemBuffer['material_name'] = trim($durableTextBuffer);
+                    }
                     $this->addItemToCorrectArray($durableItemBuffer);
                     $durableItemBuffer = null;
                     $durableTextBuffer = '';
@@ -174,9 +177,10 @@ class InventoryPdfParser
             // Tentar detectar uma linha de item de material
             // Dois formatos possíveis:
             
-            // 1. MATERIAL PERMANENTE: NrFicha CodMat ContaContabil Qtd ValorUnit ValorTotal Acervo NomeMaterial
-            // Ex: 458 231810 123110301  1 225,00  225,00  N  VENTILADOR DE AMBIENTE / Tipo: Parede;
-            if (preg_match('/^\s*([A-Z0-9]+)\s+(\d+)\s+(\d{6,12})\s+(\d+)\s+([\d.,]+)\s+([\d.,]+)\s+([NS])\s+(.+)/u', $trimmed, $itemMatch)) {
+            // 1. MATERIAL PERMANENTE: NrFicha CodMat ContaContabil Qtd ValorUnit ValorTotal [Acervo]NomeMaterial
+            // Ex: 11 231750 123110303 1 680,00 680,00 NMESA PARA TELEFONE...
+            // Nota: Acervo (N/S) pode estar colado ao valor anterior ou ao nome do material (sem espaço)
+            if (preg_match('/^\s*([A-Z0-9]+)\s+(\d+)\s+(\d{6,12})\s+(\d+)\s+([\d.,]+)\s*([\d.,]+)\s*([NS])\s*(.+)/u', $trimmed, $itemMatch)) {
                 // Salvar item anterior
                 if ($currentItem) {
                     $currentItem['patrimony_numbers'] = $this->parsePatrimonyNumbers($patrimonyLines);
@@ -218,7 +222,7 @@ class InventoryPdfParser
                     
                     // Verificar se já tem valor total e quantidade na mesma linha
                     $remainingText = trim($startMatch[5]);
-                    if (preg_match('/^(.+?)\s+([\d.,]+)\s+(\d+)\s*$/u', $remainingText, $endMatch)) {
+                    if (preg_match('/^(.+?)\s+([\d.]+,\d{2})\s*(\d+)\s*$/u', $remainingText, $endMatch)) {
                         // Item completo em uma linha
                         $item = [
                             'material_type'      => $currentType,
@@ -255,7 +259,7 @@ class InventoryPdfParser
                 // Se estamos com item em buffer, acumular texto ou finalizar
                 if ($durableItemBuffer) {
                     // 1. Tentar linha que continua nome e termina com valores: texto + ValorTotal Qtd
-                    if (preg_match('/^(.+?)\s+([\d.,]+)\s+(\d+)\s*$/u', $trimmed, $completeMatch)) {
+                    if (preg_match('/^(.+?)\s+([\d.]+,\d{2})\s*(\d+)\s*$/u', $trimmed, $completeMatch)) {
                         // Continua o nome e captura valores finais
                         $durableTextBuffer .= ' ' . trim($completeMatch[1]);
                         $durableItemBuffer['material_name'] = trim($durableTextBuffer);
@@ -269,7 +273,8 @@ class InventoryPdfParser
                         continue;
                     }
                     // 2. Tentar linha APENAS com valores: ValorTotal Qtd (sem texto antes)
-                    elseif (preg_match('/^\s*([\d.,]+)\s+(\d+)\s*$/u', $trimmed, $endMatch)) {
+                    // Suporte a valor+qtd colados sem espaço: ex '14,951' = 14,95 + 1; '3.493,4020' = 3.493,40 + 20
+                    elseif (preg_match('/^\s*([\d.]+,\d{2})\s*(\d+)\s*$/u', $trimmed, $endMatch)) {
                         // Linha final encontrada
                         $durableItemBuffer['material_name'] = trim($durableTextBuffer);
                         $durableItemBuffer['total_value'] = $this->parseBrDecimal($endMatch[1]);
@@ -283,7 +288,7 @@ class InventoryPdfParser
                     }
                     
                     // Verificar se a linha termina com ValorTotal Qtd
-                    if (preg_match('/^(.+?)\s+([\d.,]+)\s+(\d+)\s*$/u', $trimmed, $endMatch2)) {
+                    if (preg_match('/^(.+?)\s+([\d.]+,\d{2})\s*(\d+)\s*$/u', $trimmed, $endMatch2)) {
                         // Última linha com texto + valores
                         $durableTextBuffer .= ' ' . trim($endMatch2[1]);
                         $durableItemBuffer['material_name'] = trim($durableTextBuffer);
@@ -362,7 +367,15 @@ class InventoryPdfParser
     protected function addItemToCorrectArray(array $item): void
     {
         $materialType = $item['material_type'] ?? '';
-        
+
+        // Garantir que material_name sempre existe (evita erros ao salvar no banco)
+        if (!isset($item['material_name'])) {
+            $item['material_name'] = trim($item['raw_text'] ?? '');
+        }
+        // Safeguard: truncar nomes muito longos (acumulação excessiva do parser)
+        if (mb_strlen($item['material_name']) > 400) {
+            $item['material_name'] = mb_substr($item['material_name'], 0, 400);
+        }
         // Material de Uso Duradouro vai para array separado
         if (stripos($materialType, 'USO DURADOURO') !== false) {
             $this->durableGoods[] = $item;
