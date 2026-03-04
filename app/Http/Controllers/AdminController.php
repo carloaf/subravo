@@ -250,7 +250,9 @@ class AdminController extends Controller
             'inv_items'   => InventoryItem::count(),
         ];
 
-        return view('admin.reset-stock', compact('counts'));
+        $globalReset = blank(Auth::user()->subunit);
+
+        return view('admin.reset-stock', compact('counts', 'globalReset'));
     }
 
     /**
@@ -275,35 +277,41 @@ class AdminController extends Controller
 
         $stats = [];
 
-        $subunit = Auth::user()->subunit;
+        $subunit     = Auth::user()->subunit;
+        $globalReset = blank($subunit); // admin sem subunit deve resetar TUDO
 
         try {
-            DB::transaction(function () use ($subunit, $resetProducts, $resetDurable, $resetLoans, &$stats) {
+            DB::transaction(function () use ($subunit, $globalReset, $resetProducts, $resetDurable, $resetLoans, &$stats) {
+                // Helper: aplica ou não o filtro de subunit
+                $bySubunit = function (\Illuminate\Database\Query\Builder $query, string $column = 'subunit') use ($subunit, $globalReset) {
+                    return $globalReset ? $query : $query->where($column, $subunit);
+                };
+
                 // 1. Movimentações (sem coluna subunit — filtrar via stock_items)
-                $stockItemIds = DB::table('stock_items')->where('subunit', $subunit)->pluck('id');
+                $stockItemIds = $bySubunit(DB::table('stock_items'))->pluck('id');
                 $stats['movements'] = DB::table('stock_movements')
                     ->whereIn('stock_item_id', $stockItemIds)
                     ->delete();
 
-                // 2. Cautelas (loan_items não tem subunit — filtrar via loans)
-                $loanIds   = DB::table('loans')->where('subunit', $subunit)->pluck('id');
+                // 2. Cautelas
+                $loanIds   = $bySubunit(DB::table('loans'))->pluck('id');
                 $loanItems = DB::table('loan_items')->whereIn('loan_id', $loanIds)->count();
                 if ($resetLoans || $loanItems > 0) {
                     $stats['loan_items'] = DB::table('loan_items')->whereIn('loan_id', $loanIds)->delete();
-                    $stats['loans']      = DB::table('loans')->where('subunit', $subunit)->delete();
+                    $stats['loans']      = $bySubunit(DB::table('loans'))->delete();
                 }
 
                 // 3. Estoque
-                $stats['stock_items'] = DB::table('stock_items')->where('subunit', $subunit)->delete();
+                $stats['stock_items'] = $bySubunit(DB::table('stock_items'))->delete();
 
                 // 4. Uso Duradouro
                 if ($resetDurable) {
-                    $stats['durable'] = DB::table('durable_goods_inventory')->where('subunit', $subunit)->delete();
+                    $stats['durable'] = $bySubunit(DB::table('durable_goods_inventory'))->delete();
                 }
 
                 // 5. Produtos
                 if ($resetProducts) {
-                    $stats['products'] = DB::table('products')->where('subunit', $subunit)->delete();
+                    $stats['products'] = $bySubunit(DB::table('products'))->delete();
                 }
             });
 

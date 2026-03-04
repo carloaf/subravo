@@ -303,13 +303,15 @@ class StockController extends Controller
                 ->with('product.category')
                 ->get();
 
-            // Buscar dados do último inventário SISCOFIS para este produto (somar todos os lotes)
+            // Buscar dados do último inventário SISCOFIS para este produto (individual por lote)
             $inventoryQty = 0;
             $inventoryValue = 0;
             $inventoryDate = null;
+            $inventoryRecords = collect();
             
             if ($product->siscofis_code) {
                 $inventoryRecords = DurableGoodsInventory::where('material_code', $product->siscofis_code)
+                    ->orderBy('unit_value')
                     ->get();
                 
                 $inventoryQty = $inventoryRecords->sum('quantity') ?? 0;
@@ -338,6 +340,7 @@ class StockController extends Controller
                 'inventory_qty'    => $inventoryQty,
                 'inventory_value'  => $inventoryValue,
                 'inventory_date'   => $inventoryDate,
+                'inventory_lots'   => $inventoryRecords ?? collect(),
                 'total'            => $totalQuantity,
                 'available'        => $availableQty,
                 'loaned'           => $loanedQty,
@@ -349,16 +352,22 @@ class StockController extends Controller
         }
 
         // Ordenação
-        $sortBy = $request->get('sort', 'name');
+        $sortBy  = $request->get('sort', 'name');
         $sortDir = $request->get('dir', 'asc');
+
+        // Filtro: apenas produtos divergentes
+        if ($request->boolean('divergent_only')) {
+            $durableItems = $durableItems->filter(fn($item) => $item->inventory_qty > 0 && $item->inventory_qty !== $item->total);
+        }
 
         $durableItems = $durableItems->sortBy(function ($item) use ($sortBy) {
             switch ($sortBy) {
-                case 'total': return $item->total;
+                case 'total':     return $item->total;
                 case 'available': return $item->available;
-                case 'loaned': return $item->loaned;
-                case 'expiring': return $item->expiring_soon + $item->expired;
-                default: return $item->product->name;
+                case 'loaned':    return $item->loaned;
+                case 'expiring':  return $item->expiring_soon + $item->expired;
+                case 'diff':      return abs($item->inventory_qty - $item->total);
+                default:          return $item->product->name;
             }
         }, SORT_REGULAR, $sortDir === 'desc');
 
@@ -385,9 +394,12 @@ class StockController extends Controller
             $inventoryQty   = 0;
             $inventoryValue = 0;
             $inventoryDate  = null;
+            $inventoryRecords = collect();
 
             if ($product->siscofis_code) {
-                $inventoryRecords = DurableGoodsInventory::where('material_code', $product->siscofis_code)->get();
+                $inventoryRecords = DurableGoodsInventory::where('material_code', $product->siscofis_code)
+                    ->orderBy('unit_value')
+                    ->get();
                 $inventoryQty     = $inventoryRecords->sum('quantity') ?? 0;
                 $inventoryValue   = $inventoryRecords->sum('total_value') ?? 0;
                 $inventoryDate    = $inventoryRecords->max('created_at');
@@ -416,6 +428,7 @@ class StockController extends Controller
                 'inventory_qty'   => $inventoryQty,
                 'inventory_value' => $inventoryValue,
                 'inventory_date'  => $inventoryDate,
+                'inventory_lots'  => $inventoryRecords ?? collect(),
                 'total'           => $totalQuantity,
                 'available'       => $availableQty,
                 'loaned'          => $loanedQty,

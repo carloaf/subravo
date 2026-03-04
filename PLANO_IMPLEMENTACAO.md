@@ -194,6 +194,7 @@ O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de mat
 - `2026_02_10_*` — fix stock_items nullable columns
 - `2026_02_19_*` — create durable_goods_inventory table
 - `2026_02_24_090922` — add subunit to inventory_uploads, loans, durable_goods_inventory
+- `2026_03_03_000001` — add unit_cost (decimal 15,2 nullable) to stock_items
 
 **Nota:** Portas Docker ajustadas (app:8095, postgres:5434, redis:6380) para evitar conflito com outros projetos. **Sistema renomeado para SMARTSUB**.
 
@@ -1316,6 +1317,93 @@ Esta arquitetura evita misturar lógicas de controle incompatíveis (patrimonial
 
 ---
 
+## Passo 19 — Uso Duradouro: Carregamento por Lote sem Divergência ✅
+
+### Problema Identificado
+
+Ao sincronizar o inventário SISCOFIS com o estoque controlado, havia divergência sistemática de unidades. Exemplo real: SISCOFIS = 1.786 unidades × Estoque = 1.662 unidades (gap de 124 un.).
+
+**Causa raiz:** Algumas fichas do SISCOFIS possuem sub-itens (mesmo material em tamanhos/cores distintos), gerando múltiplas linhas com o **mesmo `ficha_number`** em um único PDF. O código anterior processava cada linha individualmente — a segunda linha do mesmo produto gerava apenas um diff de reconciliação, sobrescrevendo a quantidade em vez de somá-la.
+
+### Solução: Agregação por `ficha_number` antes de processar
+
+`app/Services/InventoryDurableSyncService.php` foi reescrito para **agregar por `ficha_number` com `sum(quantity)`** antes de criar/atualizar `StockItems`:
+
+```php
+// 1. Busca todos os registros do upload
+$inventoryItems = DurableGoodsInventory::where('inventory_upload_id', $uploadId)->get();
+
+// 2. Agrupa por ficha_number (ou gera chave fallback) e SOMA as quantidades
+$aggregated = $inventoryItems
+    ->groupBy(function ($item) use ($uploadId, &$lotCounter) {
+        return $item->ficha_number
+            ? 'FICHA-' . $item->ficha_number
+            : 'INV-' . $uploadId . '-' . (++$lotCounter);
+    })
+    ->map(function ($rows, $batchKey) {
+        return (object) [
+            'batch_key'  => $batchKey,
+            'quantity'   => $rows->sum('quantity'),   // ← chave do fix
+            'unit_value' => $rows->max('unit_value'),
+            'row_count'  => $rows->count(),
+            // ... demais campos do primeiro registro do grupo
+        ];
+    });
+
+// 3. Itera sobre os lotes agregados (não sobre as linhas brutas)
+foreach ($aggregated as $lot) {
+    // upsert de Product + StockItem usando $lot->batch_key como $item->batch
+}
+```
+
+**Formato do batch key:** `FICHA-{ficha_number}` para fichas identificadas, `INV-{uploadId}-{n}` como fallback.
+
+### Preço por Lote (`unit_cost`)
+
+- Migração `2026_03_03_000001_add_unit_cost_to_stock_items_table.php` adicionou `unit_cost decimal(15,2) nullable` à tabela `stock_items`.
+- `StockItem::$fillable` e `$casts` atualizados; accessor `getFormattedUnitCostAttribute()` retorna `'R$ x.xxx,xx'` ou `'—'`.
+- Durante a sincronização, `unit_value` do registro SISCOFIS é gravado em `stock_items.unit_cost`.
+- A coluna **Preço Unit.** é exibida na listagem `/stock`.
+
+### Reset de Estoque para Admin Global
+
+**Problema:** O usuário admin tem `subunit = NULL`. A query `WHERE subunit = NULL` (SQL) não bate nenhum registro — o reset não excluía nada.
+
+**Fix em `AdminController::resetStockExecute()`:**
+
+```php
+$subunit     = Auth::user()->subunit;
+$globalReset = blank($subunit); // true quando subunit é NULL ou ''
+
+$bySubunit = function (Builder $query, string $column = 'subunit') use ($subunit, $globalReset) {
+    return $globalReset ? $query : $query->where($column, $subunit);
+};
+// Todas as 5 etapas de deleção usam $bySubunit() em vez de ->where('subunit', $subunit)
+```
+
+Banner de aviso laranja adicionado em `resources/views/admin/reset-stock.blade.php` quando `$globalReset` é verdadeiro.
+
+### View `/stock` — Melhorias de UX
+
+- **Alinhamento de colunas:** substituído `<template x-if>` + `colspan` + CSS grid por `<td x-show>` individuais por coluna — o browser agora alinha os `<td>` com os `<th>` nativamente.
+- **Coluna Preço Unit.:** exibida à direita em verde-esmeralda quando disponível.
+- **Coluna Localização:** removida para dar mais espaço ao produto.
+- **Nome resumido do produto:** lógica PHP extrai `base / Cor / Tamanho` do nome completo:
+  - `COTURNO DE COMBATE / Cor: Preto; Tamanho: 38` → **COTURNO DE COMBATE Preto 38**
+  - `CONJUNTO CAMUFLADO / Tamanho: M` → **CONJUNTO CAMUFLADO M**
+  - Nome completo permanece no atributo `title` (tooltip no hover).
+
+### View `/durables` — Melhorias
+
+- **Painel de resumo 3 colunas:** Inventário SISCOFIS × Estoque Controlado × Divergência (âmbar quando > 0).
+- **Badge por produto:** mostra `⚖ SISCOFIS +N vs estoque` quando divergente, `✓ Em sincronia` quando igual.
+- **Filtro "Só divergentes"** e **ordenação por divergência**.
+- **Tabela de lotes SISCOFIS** com colunas Entrada SISCOFIS e Validade (extraídas do `StockItem` via `batch = 'FICHA-{ficha_number}'`).
+- **Cores:** alteradas de índigo para esmeralda no card SISCOFIS.
+- **Colapsível duplicado removido** (o segundo "Ver N lotes do SISCOFIS" foi eliminado).
+
+---
+
 ## Passo 20 — Importação SISCOFIS ⬜
 
 - [ ] Upload de planilha Excel/CSV para carga em massa do estoque
@@ -1345,4 +1433,4 @@ Esta arquitetura evita misturar lógicas de controle incompatíveis (patrimonial
 
 ---
 
-*Última atualização: 24/02/2026 — Passo 18a (Isolamento por Subunidade) concluído ✅ — Roles simplificados para admin/manager/user. SubunitScope global aplicado em StockItem, InventoryUpload, DurableGoodsInventory e Loan. Migration adicionando coluna `subunit` a inventory_uploads, loans e durable_goods_inventory executada. Controllers atualizados para popular subunit automaticamente na criação de registros. Validação de máximo 2 usuários por subunidade no AdminController.*
+*Última atualização: 03/03/2026 — Passo 19 concluído ✅ — Uso Duradouro carregado por lote com agregação de `ficha_number` (sem divergência SISCOFIS vs Estoque). Adicionado `unit_cost` em `stock_items`. Fix de reset global para admin (subunit NULL). View `/stock` com colunas alinhadas, preço unitário e nome resumido do produto. View `/durables` com painel de divergência, filtros e tabela de lotes aprimorada.*

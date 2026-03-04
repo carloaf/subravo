@@ -72,6 +72,14 @@
     </div>
 </div>
 
+{{-- Aviso de reset global (admin sem subunit) --}}
+@if($globalReset)
+<div class="mb-6 bg-orange-50 border-l-4 border-orange-500 rounded-r-lg p-4 text-sm text-orange-900">
+    <strong>⚠ Modo Reset Global:</strong> Sua conta não possui subunidade configurada.
+    Esta operação irá remover os dados de <strong>todas as subunidades</strong>.
+</div>
+@endif
+
 {{-- Aviso de cautelas ativas --}}
 @if($counts['loans'] > 0)
 <div class="mb-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg p-4 text-sm text-yellow-800">

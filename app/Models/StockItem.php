@@ -40,6 +40,7 @@ class StockItem extends Model
         'location',
         'subunit',
         'quantity',
+        'unit_cost',
         'status',
         'notes',
     ];
@@ -50,7 +51,19 @@ class StockItem extends Model
             'expiration_date'     => 'date',
             'siscofis_entry_date' => 'date',
             'quantity'            => 'integer',
+            'unit_cost'           => 'decimal:2',
         ];
+    }
+
+    /**
+     * Formata custo unitário em formato BR.
+     */
+    public function getFormattedUnitCostAttribute(): string
+    {
+        if ($this->unit_cost === null) {
+            return '—';
+        }
+        return 'R$ ' . number_format((float) $this->unit_cost, 2, ',', '.');
     }
 
     /**

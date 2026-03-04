@@ -26,62 +26,82 @@ class InventoryDurableSyncService
     {
         $upload = InventoryUpload::findOrFail($uploadId);
 
-        $durableItems = DurableGoodsInventory::where('inventory_upload_id', $uploadId)->get();
+        $inventoryItems = DurableGoodsInventory::where('inventory_upload_id', $uploadId)->get();
 
         $stats = [
-            'total_items'      => $durableItems->count(),
-            'total_unique'     => 0,   // produtos únicos após agrupamento por código
-            'created'          => 0,   // novo produto + novo estoque
-            'stock_gap_filled' => 0,   // produto já existia mas sem estoque → estoque adicionado
-            'qty_adjusted'     => 0,   // produto + estoque existiam mas qtd estava abaixo do inventário
-            'qty_added'        => 0,   // total de unidades acrescentadas por ajuste de quantidade
-            'qty_surplus'      => 0,   // itens cujo estoque está acima do inventário (não alterado)
-            'in_sync'          => 0,   // produto + estoque já batiam exatamente
+            'total_items'      => $inventoryItems->count(), // linhas brutas no durable_goods_inventory
+            'total_unique'     => 0,   // produtos únicos pelo código SISCOFIS
+            'total_lots'       => 0,   // lotes únicos após agregação de fichas duplicadas
+            'lots_created'     => 0,   // novos lotes de estoque criados
+            'created'          => 0,   // novo produto + novo lote
+            'stock_gap_filled' => 0,   // lote novo para produto já existente
+            'qty_adjusted'     => 0,   // lote existente com qtd abaixo do inventário → ajustado
+            'qty_added'        => 0,   // total de unidades acrescentadas por ajuste
+            'qty_surplus'      => 0,   // lote cujo estoque está acima do inventário (não alterado)
+            'in_sync'          => 0,   // lote já em sincronia
             'skipped_zero'     => 0,   // quantidade zero no inventário
             'errors'           => 0,
             'error_messages'   => [],
         ];
 
-        if ($durableItems->isEmpty()) {
+        if ($inventoryItems->isEmpty()) {
             return $stats;
         }
 
-        // ── Agrupar por material_code (mesmo produto pode aparecer em múltiplas linhas do PDF)
-        $grouped = $durableItems->groupBy('material_code')->map(function ($items) {
-            $first = $items->first();
+        // Contar produtos únicos (por código SISCOFIS)
+        $stats['total_unique'] = $inventoryItems->pluck('material_code')->filter()->unique()->count();
+
+        // ── Agregar linhas com o mesmo ficha_number ──────────────────────────
+        // O mesmo nº de ficha pode aparecer N vezes na planilha SISCOFIS quando
+        // o lote contém sub-itens (tamanhos, cores…). A quantidade correta é a
+        // SOMA de todas as linhas do mesmo ficha.  Linhas sem ficha_number são
+        // mantidas individualmente com chave INV-{uploadId}-{n}.
+        $lotCounter = 0;
+        $aggregated = $inventoryItems->groupBy(function ($item) use ($uploadId, &$lotCounter) {
+            if ($item->ficha_number) {
+                return 'FICHA-' . $item->ficha_number;
+            }
+            return 'INV-' . $uploadId . '-' . (++$lotCounter);
+        })->map(function ($rows, $batchKey) {
+            $first = $rows->first();
             return (object) [
-                'material_code'    => $first->material_code,
-                'material_name'    => $first->material_name,
-                'quantity'         => $items->sum('quantity'),  // soma todos os lotes do PDF
-                'unit_value'       => $first->unit_value,
-                'accounting_account' => $first->accounting_account,
+                'batch_key'         => $batchKey,
+                'material_code'     => $first->material_code,
+                'material_name'     => $first->material_name,
+                'quantity'          => $rows->sum('quantity'),   // ← soma correta
+                'unit_value'        => $rows->max('unit_value'), // valor máximo do lote
+                'accounting_account'=> $first->accounting_account,
+                'row_count'         => $rows->count(),
             ];
         })->values();
 
-        $stats['total_unique'] = $grouped->count();
+        $stats['total_items'] = $inventoryItems->count();  // linhas brutas
+        $stats['total_lots']  = $aggregated->count();      // lotes únicos após agregação
 
         $category = Category::firstOrCreate(
             ['name' => 'Uso Duráduro'],
             ['description' => 'Materiais de uso duráduro importados do SISCOFIS']
         );
 
-        DB::transaction(function () use ($grouped, $category, $upload, &$stats) {
-            foreach ($grouped as $item) {
+        DB::transaction(function () use ($aggregated, $uploadId, $category, $upload, &$stats) {
+            foreach ($aggregated as $lot) {
                 try {
-                    if ($item->quantity <= 0) {
+                    if ($lot->quantity <= 0) {
                         $stats['skipped_zero']++;
                         continue;
                     }
 
+                    $batchKey = $lot->batch_key;
+
                     // ── 1. Produto ────────────────────────────────────────────
-                    $product = Product::where('siscofis_code', $item->material_code)->first();
+                    $product = Product::where('siscofis_code', $lot->material_code)->first();
                     $isNewProduct = false;
 
                     if (!$product) {
                         $product = Product::create([
-                            'name'              => $item->material_name,
+                            'name'              => $lot->material_name,
                             'category_id'       => $category->id,
-                            'siscofis_code'     => $item->material_code,
+                            'siscofis_code'     => $lot->material_code,
                             'subunit'           => $upload->subunit,
                             'is_durable'        => true,
                             'shelf_life_months' => null,
@@ -93,81 +113,83 @@ class InventoryDurableSyncService
                         $product->update(['is_durable' => true]);
                     }
 
-                    // ── 2. Estoque ────────────────────────────────────────────
-                    $currentQty = StockItem::where('product_id', $product->id)->sum('quantity');
+                    // ── 2. Lote de estoque ────────────────────────────────────
+                    $existingLotItem = StockItem::where('product_id', $product->id)
+                        ->where('batch', $batchKey)
+                        ->first();
 
-                    if ($currentQty == 0) {
-                        // Nenhum estoque: criar entrada inicial
+                    if (!$existingLotItem) {
                         $stockItem = StockItem::create([
                             'product_id'      => $product->id,
-                            'quantity'        => $item->quantity,
-                            'batch'           => 'INV-' . $upload->id,
+                            'quantity'        => $lot->quantity,
+                            'batch'           => $batchKey,
                             'location'        => $upload->dependency ?? 'Inventário SISCOFIS',
                             'subunit'         => $upload->subunit,
-                            'unit_cost'       => $item->unit_value,
+                            'unit_cost'       => $lot->unit_value,
                             'status'          => 'available',
                             'expiration_date' => null,
                             'serial_number'   => null,
                         ]);
 
+                        $note = 'Entrada do inventário SISCOFIS (lote ' . $batchKey . ') - Upload #' . $upload->id
+                            . ' (' . $upload->filename . ')';
+                        if ($lot->row_count > 1) {
+                            $note .= " [{$lot->row_count} sub-itens agregados]";
+                        }
+                        if (!$isNewProduct) {
+                            $note .= ' [produto já existia]';
+                        }
+
                         StockMovement::create([
                             'stock_item_id' => $stockItem->id,
                             'movement_type' => 'entry',
-                            'quantity'      => $item->quantity,
+                            'quantity'      => $lot->quantity,
                             'performed_by'  => $upload->uploaded_by,
-                            'notes'         => 'Entrada do inventário SISCOFIS - Upload #' . $upload->id . ' (' . $upload->filename . ')'
-                                . ($isNewProduct ? '' : ' [produto já existia, estoque faltava]'),
+                            'notes'         => $note,
                         ]);
 
-                        if ($isNewProduct) {
-                            $stats['created']++;
-                        } else {
-                            $stats['stock_gap_filled']++;
-                        }
+                        $stats['lots_created']++;
+                        $isNewProduct ? $stats['created']++ : $stats['stock_gap_filled']++;
                         continue;
                     }
 
-                    // Já tem estoque — reconciliar quantidades
-                    $diff = $item->quantity - $currentQty;
+                    // Lote já existe — atualizar custo e reconciliar quantidade
+                    $updates = [];
+                    if ((float) $existingLotItem->unit_cost !== (float) $lot->unit_value) {
+                        $updates['unit_cost'] = $lot->unit_value;
+                    }
+                    if ($updates) {
+                        $existingLotItem->update($updates);
+                    }
+
+                    $diff = $lot->quantity - $existingLotItem->quantity;
 
                     if ($diff > 0) {
-                        // Inventário tem mais que o estoque: adicionar a diferença
-                        $stockItem = StockItem::create([
-                            'product_id'      => $product->id,
-                            'quantity'        => $diff,
-                            'batch'           => 'INV-CORR-' . $upload->id,
-                            'location'        => $upload->dependency ?? 'Inventário SISCOFIS',
-                            'subunit'         => $upload->subunit,
-                            'unit_cost'       => $item->unit_value,
-                            'status'          => 'available',
-                            'expiration_date' => null,
-                            'serial_number'   => null,
-                        ]);
+                        $existingLotItem->increment('quantity', $diff);
 
                         StockMovement::create([
-                            'stock_item_id' => $stockItem->id,
+                            'stock_item_id' => $existingLotItem->id,
                             'movement_type' => 'entry',
                             'quantity'      => $diff,
                             'performed_by'  => $upload->uploaded_by,
-                            'notes'         => "Ajuste de reconciliação SISCOFIS: inventário={$item->quantity} estoque={$currentQty} diferença=+{$diff} (Upload #{$upload->id})",
+                            'notes'         => "Ajuste SISCOFIS (lote {$batchKey}): "
+                                . "inventário={$lot->quantity} estoque=" . ($existingLotItem->quantity - $diff)
+                                . " +{$diff} (Upload #{$uploadId})"
+                                . ($lot->row_count > 1 ? " [{$lot->row_count} sub-itens]" : ''),
                         ]);
 
                         $stats['qty_adjusted']++;
                         $stats['qty_added'] += $diff;
-
                     } elseif ($diff < 0) {
-                        // Estoque maior que inventário — não reduzir (pode haver cautelas abertas)
                         $stats['qty_surplus']++;
-
                     } else {
-                        // Já está em sincronia
                         $stats['in_sync']++;
                     }
 
                 } catch (\Exception $e) {
                     $stats['errors']++;
-                    $stats['error_messages'][] = "Item {$item->material_code}: {$e->getMessage()}";
-                    Log::error("Erro ao sincronizar item durável {$item->material_code}: {$e->getMessage()}");
+                    $stats['error_messages'][] = "Lote {$lot->batch_key} ({$lot->material_code}): {$e->getMessage()}";
+                    Log::error("Erro ao sincronizar lote {$lot->batch_key} {$lot->material_code}: {$e->getMessage()}");
                 }
             }
         });
