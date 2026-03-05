@@ -22,6 +22,8 @@ class Loan extends Model
         'borrower_user_id',
         'borrower_section',
         'borrower_organization_id',
+        'borrower_cpf',
+        'borrower_phone',
         'loaned_by',
         'subunit',
         'loan_date',

@@ -36,8 +36,9 @@ class LoanController extends Controller
             ->limit(10)
             ->get()
             ->map(fn ($u) => [
-                'id'    => $u->id,
-                'label' => $u->getDisplayName() . ' (' . $u->identity_number . ')',
+                'id'              => $u->id,
+                'label'           => $u->getDisplayName() . ' (' . $u->identity_number . ')',
+                'identity_number' => $u->identity_number,
             ]);
 
         return response()->json($users);
@@ -103,6 +104,8 @@ class LoanController extends Controller
             'borrower_user_id'         => 'required_if:borrower_type,individual|nullable|exists:users,id',
             'borrower_section'         => 'required_if:borrower_type,section|nullable|string|max:150',
             'borrower_organization_id' => 'nullable|exists:organizations,id',
+            'borrower_cpf'             => 'nullable|string|max:14',
+            'borrower_phone'           => 'nullable|string|max:20',
             'expected_return_date'     => 'nullable|date|after_or_equal:today',
             'notes'                    => 'nullable|string|max:1000',
             // Itens: array de {stock_item_id, quantity, condition_out}
@@ -121,6 +124,8 @@ class LoanController extends Controller
                     'borrower_user_id'         => $validated['borrower_user_id'] ?? null,
                     'borrower_section'         => $validated['borrower_section'] ?? null,
                     'borrower_organization_id' => $validated['borrower_organization_id'] ?? null,
+                    'borrower_cpf'             => $validated['borrower_cpf'] ?? null,
+                    'borrower_phone'           => $validated['borrower_phone'] ?? null,
                     'loaned_by'                => Auth::user()->id,
                     'subunit'                  => Auth::user()->subunit,
                     'loan_date'                => now(),

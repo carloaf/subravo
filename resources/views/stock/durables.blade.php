@@ -242,8 +242,16 @@
                                             <tbody class="bg-white divide-y divide-emerald-100">
                                                 @foreach($item->inventory_lots as $lot)
                                                     @php
-                                                        $matchedStock = $lot->ficha_number
-                                                            ? $item->items->firstWhere('batch', 'FICHA-' . $lot->ficha_number)
+                                                        // Suporta todos os formatos de batch key gerados pelo sync:
+                                                        // - antigo: FICHA-xxx
+                                                        // - v2: FICHA-xxx-UPn
+                                                        // - v3 (atual): FICHA-xxx-Vvalue-UPn
+                                                        $fichaPrefix  = $lot->ficha_number ? 'FICHA-' . $lot->ficha_number : null;
+                                                        $matchedStock = $fichaPrefix
+                                                            ? $item->items->first(fn($si) =>
+                                                                $si->batch === $fichaPrefix ||
+                                                                str_starts_with($si->batch, $fichaPrefix . '-')
+                                                              )
                                                             : null;
                                                     @endphp
                                                     <tr class="hover:bg-emerald-50">

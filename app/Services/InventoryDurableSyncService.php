@@ -59,7 +59,11 @@ class InventoryDurableSyncService
         $lotCounter = 0;
         $aggregated = $inventoryItems->groupBy(function ($item) use ($uploadId, &$lotCounter) {
             if ($item->ficha_number) {
-                return 'FICHA-' . $item->ficha_number;
+                // Agrupa por ficha + valor unitário: mesma ficha com preços diferentes
+                // (sub-itens com tamanhos/cores de preços iguais são somados;
+                //  sub-itens com preços distintos geram lotes independentes)
+                $valuePart = str_replace('.', '', number_format((float) $item->unit_value, 2, '.', ''));
+                return 'FICHA-' . $item->ficha_number . '-V' . $valuePart . '-UP' . $uploadId;
             }
             return 'INV-' . $uploadId . '-' . (++$lotCounter);
         })->map(function ($rows, $batchKey) {
