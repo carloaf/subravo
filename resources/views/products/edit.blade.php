@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Produto — SMARTSUB')
+@section('title', 'Editar Produto - HelpSub')
 @section('page-title', 'Editar Produto')
 
 @section('content')

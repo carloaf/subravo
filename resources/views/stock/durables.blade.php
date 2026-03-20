@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Uso Duradouro — SMARTSUB')
+@section('title', 'Uso Duradouro - HelpSub')
 @section('page-title', 'Material de Uso Duradouro')
 
 @section('content')

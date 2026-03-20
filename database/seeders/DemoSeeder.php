@@ -15,7 +15,7 @@ use App\Models\LoanItem;
 class DemoSeeder extends Seeder
 {
     /**
-     * Dados de demonstração realistas para o SUBRAVO.
+    * Dados de demonstracao realistas para o HelpSub.
      *
      * Roda APÓS o DatabaseSeeder (ranks, organizations, categories, admin).
      * Uso: php artisan db:seed --class=DemoSeeder
@@ -111,10 +111,10 @@ class DemoSeeder extends Seeder
         foreach ($usersData as $u) {
             $users[$u['identity_number']] = DB::table('users')->insertGetId([
                 'identity_number'  => $u['identity_number'],
-                'password'         => Hash::make('subravo2026'),
+                'password'         => Hash::make('helpsub2026'),
                 'full_name'        => $u['full_name'],
                 'war_name'         => $u['war_name'],
-                'email'            => strtolower($u['war_name']) . '@subravo.local',
+                'email'            => strtolower($u['war_name']) . '@helpsub.local',
                 'rank_id'          => $u['rank_id'],
                 'organization_id'  => $u['organization_id'],
                 'subunit'          => $u['subunit'],
@@ -678,7 +678,7 @@ class DemoSeeder extends Seeder
         $this->command->info("  Movimentações:  {$totalMovements}");
         $this->command->info('═══════════════════════════════════════════');
         $this->command->info('');
-        $this->command->info('Credenciais de teste (senha: subravo2026):');
+        $this->command->info('Credenciais de teste (senha: helpsub2026):');
         $this->command->info('  Admin:       000000000');
         $this->command->info('  Almoxarife:  111111111 (FERREIRA)');
         $this->command->info('  Almoxarife:  222222222 (SANTOS)');

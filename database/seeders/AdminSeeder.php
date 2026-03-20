@@ -16,10 +16,10 @@ class AdminSeeder extends Seeder
 
         DB::table('users')->insert([
             'identity_number'  => '000000000',
-            'password'         => Hash::make('subravo2026'),
+            'password'         => Hash::make('helpsub2026'),
             'full_name'        => 'Administrador do Sistema',
             'war_name'         => 'ADMIN',
-            'email'            => 'admin@subravo.local',
+            'email'            => 'admin@helpsub.local',
             'rank_id'          => $rankId,
             'organization_id'  => $organizationId,
             'subunit'          => null,

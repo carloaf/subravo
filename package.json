@@ -1,4 +1,5 @@
 {
+    "name": "helpsub",
     "private": true,
     "type": "module",
     "scripts": {

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Comparar Inventários — SMARTSUB')
+@section('title', 'Comparar Inventarios - HelpSub')
 @section('page-title', 'Comparar Inventários')
 
 @section('header-actions')

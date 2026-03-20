@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'SMARTSUB — Dashboard')
+@section('title', 'HelpSub - Dashboard')
 
 @push('styles')
 <style>
@@ -59,7 +59,7 @@
                 </div>
                 <div>
                     <h1 class="text-3xl font-bold">
-                        <span class="bg-gradient-to-r from-yellow-200 to-yellow-100 bg-clip-text text-transparent">SMARTSUB</span>
+                        <span class="bg-gradient-to-r from-yellow-200 to-yellow-100 bg-clip-text text-transparent">HelpSub</span>
                     </h1>
                     <p class="text-green-100 text-sm font-medium">Sub-Chefia de Material Bélico — Controle de Estoque</p>
                 </div>

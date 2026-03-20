@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $product->name . ' — SMARTSUB')
+@section('title', $product->name . ' - HelpSub')
 @section('page-title', $product->name)
 
 @section('header-actions')

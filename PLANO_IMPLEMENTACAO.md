@@ -1,4 +1,4 @@
-# SMARTSUB — Plano de Implementação
+# HelpSub — Plano de Implementacao
 
 > Sistema de Controle de Estoque e Empréstimo de Material de Intendência
 > Baseado na arquitetura do sistema SAGA (Laravel 11 + PostgreSQL + Blade/Tailwind + Docker)
@@ -7,7 +7,7 @@
 
 ## Visão Geral
 
-O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de material de intendência militar e gestão de empréstimos (cautelas). Login por número de identidade militar + senha local. Gera Cautelas/Termos de Responsabilidade em PDF, comprovantes de devolução, relatórios de movimentação/estoque e etiquetas com QR Code. Empréstimos podem ser feitos para indivíduos ou seções/subunidades. Estoque detalhado com: lote, validade, número de série, localização física, subunidade e data de entrada no SISCOFIS.
+O **HelpSub** é um sistema web monolitico MVC para controle de estoque de material de intendencia militar e gestao de emprestimos (cautelas). Login por numero de identidade militar + senha local. Gera Cautelas/Termos de Responsabilidade em PDF, comprovantes de devolucao, relatorios de movimentacao/estoque e etiquetas com QR Code. Emprestimos podem ser feitos para individuos ou secoes/subunidades. Estoque detalhado com: lote, validade, numero de serie, localizacao fisica, subunidade e data de entrada no SISCOFIS.
 
 ---
 
@@ -47,13 +47,13 @@ O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de mat
 - [x] Configurar `config/app.php`: timezone `America/Sao_Paulo`, locale `pt_BR`
 - [x] Criar `Dockerfile` multi-stage (Node → Composer → PHP 8.4-apache)
 - [x] Criar `docker-compose.yml` (app:8000, postgres:5432, redis:6379, mailpit:8025)
-- [x] Criar `.env.example` com variáveis: DB, Redis, APP_NAME=SUBRAVO
+- [x] Criar `.env.example` com variaveis: DB, Redis, APP_NAME=HelpSub
 - [x] Instalar dependências Composer:
   - `barryvdh/laravel-dompdf` ^2.0 (v2.2.0)
   - `maatwebsite/excel` ^3.1 (v3.1.67)
   - `simplesoftwareio/simple-qrcode` ^4.2 (v4.2.0)
   - `smalot/pdfparser` ^2.12 (v2.12.3)
-- [x] Configurar Vite + Tailwind CSS com paleta `subravo` (olive/militar)
+- [x] Configurar Vite + Tailwind CSS com paleta `helpsub` (emerald/militar)
 - [x] Configurar `tailwind.config.js` com plugin `@tailwindcss/forms`
 - [x] Configurar `config/database.php` default para `pgsql`
 - [x] Criar `docker/apache/000-default.conf` (virtualhost Apache)
@@ -196,7 +196,7 @@ O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de mat
 - `2026_02_24_090922` — add subunit to inventory_uploads, loans, durable_goods_inventory
 - `2026_03_03_000001` — add unit_cost (decimal 15,2 nullable) to stock_items
 
-**Nota:** Portas Docker ajustadas (app:8095, postgres:5434, redis:6380) para evitar conflito com outros projetos. **Sistema renomeado para SMARTSUB**.
+**Nota:** Portas Docker ajustadas (app:8095, postgres:5434, redis:6380) para evitar conflito com outros projetos. **Sistema renomeado para HelpSub**.
 
 ---
 
@@ -205,7 +205,7 @@ O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de mat
 - [x] `RankSeeder` — 16 postos/graduações com abreviações (Gen Ex → Sd)
 - [x] `OrganizationSeeder` — 13 OMs com abreviações (11º D Sup como host)
 - [x] `CategorySeeder` — 8 categorias: Fardamento, Equipamento Individual, Material de Camping, Cama e Mesa, Cozinha, Ferramentas, Material de Expediente, Outros
-- [x] `AdminSeeder` — Usuário admin (identity_number: `000000000`, senha: `subravo2026`, role: admin)
+- [x] `AdminSeeder` — Usuario admin (identity_number: `000000000`, senha: `helpsub2026`, role: admin)
 - [x] `DatabaseSeeder` — Orquestra: Ranks → Organizations → Categories → Admin
 - [x] Verificado com `php artisan migrate:fresh --seed` — 16 ranks, 13 orgs, 8 categorias, 1 admin
 
@@ -252,7 +252,7 @@ Validados via `artisan tinker`: relacionamentos, scopes, helpers e constantes OK
 - `Auth::attempt` com senha errada → BLOQUEADO
 - `Auth::attempt` com identidade inexistente → BLOQUEADO
 - HTTP `GET /` → 302 redirect → `/login`
-- HTTP `GET /login` → 200 (formulário com identity_number + SUBRAVO)
+- HTTP `GET /login` → 200 (formulario com identity_number + HelpSub)
 - HTTP `GET /dashboard` sem auth → 302 redirect → `/login`
 
 ---
@@ -263,7 +263,7 @@ Validados via `artisan tinker`: relacionamentos, scopes, helpers e constantes OK
 - [x] `layouts/partials/sidebar-nav.blade.php` — navegação: Dashboard, Produtos, Estoque, Categorias, Cautelas, Movimentações, Usuários, Relatórios
 - [x] Sidebar condicional por role (`@if($user->isAdmin())` para seção Administração)
 - [x] Sidebar responsiva: colapsável desktop + drawer mobile com overlay
-- [x] Tailwind CSS paleta militar `subravo` (olive 50-950), custom utilities em `app.css`
+- [x] Tailwind CSS paleta militar `helpsub` (emerald 50-950), custom utilities em `app.css`
 - [x] Fonte Figtree via `fonts.bunny.net` + Vite (não CDN)
 - [x] Alpine.js 3 via CDN para interatividade
 - [x] Componentes Blade (9 componentes em `resources/views/components/`):
@@ -396,7 +396,7 @@ Autenticado (middleware 'auth'):
   - Cabeçalho institucional completo com 3 camadas (brasão + info + sistema)
   - Gradiente verde militar profissional (065f46 → 047857 → 059669)
   - Brasão circular com bandeira do Brasil 🇧🇷
-  - Badge SUBRAVO em destaque com gradiente dourado
+  - Badge HelpSub em destaque com gradiente dourado
   - Informação organizacional completa (Ministério da Defesa, 11º D Sup, etc.)
 - [x] **Título de relatório impactante**:
   - Ícones decorativos laterais (📊)
@@ -538,7 +538,7 @@ Autenticado (middleware 'auth'):
 - [x] **Stage 3 — Runtime**: `php:8.4-apache` → extensões (pdo_pgsql, gd, redis, zip, bcmath, etc.)
 - [x] Apache com `mod_rewrite` + `mod_headers`, DocumentRoot `/var/www/html/public`
 - [x] Healthcheck HTTP integrado (`curl -f http://localhost/`)
-- [x] PHP config personalizado (`docker/php/subravo.ini`): timezone, upload 20M, memory 256M, opcache
+- [x] PHP config personalizado (`docker/php/helpsub.ini`): timezone, upload 20M, memory 256M, opcache
 - [x] Entrypoint inteligente (`docker/entrypoint.sh`): aguarda DB/Redis, composer dev em local, migrate, cache, storage:link
 - [x] `.dockerignore` — exclui node_modules, vendor, .git, tests, docs do contexto de build
 
@@ -567,7 +567,7 @@ Autenticado (middleware 'auth'):
 
 ## Passo 12 — Testes e Validação Final ✅
 
-- [x] Login com admin padrão (identidade 000000000 + senha subravo2026)
+- [x] Login com admin padrao (identidade 000000000 + senha helpsub2026)
 - [x] CRUD de produtos e categorias (create/read/update/delete, isBelowMinimum)
 - [x] Entrada de material no estoque (StockItem + StockMovement, validade, nullable siscofis_entry_date)
 - [x] Criar empréstimo individual (CAUTELA-2026-000001, borrower_type=individual, estoque 10→7)
@@ -609,31 +609,31 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 
 ### Login
 - [x] Reescrever `auth/login.blade.php` no estilo SAGA: gradiente, glass-card, logo com imagem, inputs modernos
-- [x] Adaptar texto/branding para SUBRAVO (nome, subtítulo, cor olive→green emerald)
-- [x] Manter campo `identity_number` (SUBRAVO) ao invés de email (SAGA)
-- [x] Remover botões Google/Registro (SUBRAVO é cadastro somente via admin)
+- [x] Adaptar texto/branding para HelpSub (nome, subtitulo, cor olive→green emerald)
+- [x] Manter campo `identity_number` (HelpSub) ao inves de email (SAGA)
+- [x] Remover botoes Google/Registro (HelpSub e cadastro somente via admin)
 
 ### Layout Principal
 - [x] Trocar layout sidebar por **top navigation** (padrão SAGA `layouts/app.blade.php`)
 - [x] Navbar com: logo+nome, links de navegação, info do usuário, botão sair
 - [x] Incluir links condicionais por role (admin: Usuários, Relatórios)
-- [x] Footer padronizado: "© 2026 SUBRAVO - Desenv: Augusto"
+- [x] Footer padronizado: "© 2026 HelpSub - Desenv: Augusto"
 - [x] Flash messages com estilo SAGA (sucesso verde, erro vermelho)
 
 ### Dashboard
-- [x] Header gradient (emerald→green) com logo, título SUBRAVO, user info, status online, botões
+- [x] Header gradient (emerald→green) com logo, titulo HelpSub, user info, status online, botoes
 - [x] Quick stats bar glassmorphism no header (produtos, estoque, empréstimos, alertas)
 - [x] Manter conteúdo existente do dashboard (alertas, tabelas, stat cards) abaixo do header
 
 ### Assets
 - [x] Copiar favicons do SAGA para `/public/` (favicon.ico, favicon-16/32, apple-touch, android-chrome)
 - [x] Copiar logo `folhaint_transparent.png` para `/public/images/`
-- [x] Criar `site.webmanifest` adaptado para SUBRAVO
+- [x] Criar `site.webmanifest` adaptado para HelpSub
 
 ### CSS/Estilos
 - [x] Adicionar `enhanced-forms.css` (inputs/selects/radios estilizados do SAGA)
 - [x] Incluir Tailwind CDN como fallback além do Vite build
-- [x] Atualizar componentes Blade para nova paleta (emerald-* primary, substituindo subravo-*)
+- [x] Atualizar componentes Blade para nova paleta (emerald-* primary, substituindo helpsub-*)
 - [x] Adicionar Chart.js CDN para gráficos
 
 ---
@@ -646,7 +646,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 - [x] 5 usuários demo (2 almoxarifes, 2 solicitantes, 1 auditor) + 1 admin = 6 total
 - [x] 220 movimentações históricas realistas (entradas SISCOFIS, empréstimos, devoluções, ajustes)
 - [x] Comando `php artisan db:seed --class=DemoSeeder` separado do seed padrão
-- [x] Credenciais de teste documentadas (senha: `subravo2026`)
+- [x] Credenciais de teste documentadas (senha: `helpsub2026`)
 
 ---
 
@@ -684,7 +684,7 @@ Copiar e adaptar o layout, CSS, estilos e página de login do projeto SAGA para 
 ## Passo 16 — PHPUnit / Feature Tests ✅
 
 ### Configuração do Ambiente de Testes
-- [x] `phpunit.xml` configurado para PostgreSQL de teste (`subravo_test`)
+- [x] `phpunit.xml` configurado para PostgreSQL de teste (`helpsub_test`)
 - [x] `config/database.php` com conexão `pgsql_testing`
 - [x] `TestCase` base com trait `RefreshDatabase` e seed automático
 - [x] `.env.example` atualizado com `DB_TEST_DATABASE`

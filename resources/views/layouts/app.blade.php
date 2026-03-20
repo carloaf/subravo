@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'SMARTSUB') }} - @yield('title', 'Sistema')</title>
+    <title>{{ config('app.name', 'HelpSub') }} - @yield('title', 'Sistema')</title>
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
@@ -109,7 +109,7 @@
                         <div class="flex-shrink-0 flex items-center">
                             <a href="{{ route('dashboard') }}" class="flex items-center">
                                 <img src="{{ asset('images/folhaint_transparent.png') }}" alt="Logo" class="w-8 h-8 object-contain">
-                                <h1 class="ml-2 text-xl font-bold text-emerald-600">SMARTSUB</h1>
+                                <h1 class="ml-2 text-xl font-bold text-emerald-600">HelpSub</h1>
                             </a>
                         </div>
 
@@ -302,7 +302,7 @@
         <footer class="bg-gray-50 border-t border-gray-200 mt-auto">
             <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                 <div class="text-center text-sm text-gray-400 italic">
-                    &copy; {{ date('Y') }} SMARTSUB - Desenv: Augusto
+                    &copy; {{ date('Y') }} HelpSub - Desenv: Augusto
                 </div>
             </div>
         </footer>

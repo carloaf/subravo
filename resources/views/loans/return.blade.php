@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Devolução — Cautela #' . $loan->loan_number . ' — SMARTSUB')
+@section('title', 'Devolucao - Cautela #' . $loan->loan_number . ' - HelpSub')
 @section('page-title', 'Devolução — #' . $loan->loan_number)
 
 @section('content')

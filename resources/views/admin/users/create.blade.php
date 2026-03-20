@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Novo Usuário — SMARTSUB')
+@section('title', 'Novo Usuario - HelpSub')
 @section('page-title', 'Cadastrar Usuário')
 
 @section('content')

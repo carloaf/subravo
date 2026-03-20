@@ -66,7 +66,7 @@
         .header-meta strong {
             color: white;
         }
-        .smartsub-badge {
+        .helpsub-badge {
             display: inline-block;
             background: linear-gradient(135deg, #d97706, #f59e0b);
             color: white;
@@ -223,7 +223,7 @@
     <div class="header">
         <div class="header-inner">
             <div class="header-left">
-                <div class="smartsub-badge">SMARTSUB</div>
+                <div class="helpsub-badge">HelpSub</div>
                 <div class="header-om">Ministério da Defesa — Exército Brasileiro</div>
                 <div class="header-title">Relação de Material de Uso Duradouro</div>
                 <div class="header-subtitle">Controle individualizado de material permanente / bens duráveis</div>
@@ -365,7 +365,7 @@
         <div class="footer-inner">
             <div class="footer-left">
                 <div class="footer-text">
-                    <strong>SMARTSUB</strong> — Sistema de Controle de Material de Intendência<br>
+                    <strong>HelpSub</strong> - Sistema de Controle de Material de Intendencia<br>
                     Documento gerado em {{ now()->setTimezone('America/Sao_Paulo')->format('d/m/Y \à\s H:i:s') }} (BRT)<br>
                     <strong>Classificação:</strong> OSTENSIVO — USO INTERNO
                 </div>

@@ -49,7 +49,7 @@
     <div class="header">
         <h1>MINISTÉRIO DA DEFESA</h1>
         <h2>{{ $loan->borrowerOrganization?->name ?? 'Organização Militar' }}</h2>
-        <div class="subtitle">Sistema SMARTSUB — Controle de Material</div>
+        <div class="subtitle">Sistema HelpSub - Controle de Material</div>
     </div>
 
     <div class="doc-title">
@@ -179,7 +179,7 @@
     </table>
 
     <div class="footer">
-        Documento gerado pelo Sistema SMARTSUB em {{ now()->format('d/m/Y \à\s H:i') }}
+        Documento gerado pelo Sistema HelpSub em {{ now()->format('d/m/Y \a\s H:i') }}
         &mdash; Este documento não possui validade sem as assinaturas acima.
     </div>
 

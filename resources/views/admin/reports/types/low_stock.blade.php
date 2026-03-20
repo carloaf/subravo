@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $reportTitle . ' — SMARTSUB')
+@section('title', $reportTitle . ' - HelpSub')
 @section('page-title', $reportTitle)
 
 @section('header-actions')

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>@yield('title', 'Relatório de Inventário — SMARTSUB')</title>
+    <title>@yield('title', 'Relatorio de Inventario - HelpSub')</title>
     <style>
         @page { 
             margin: 25mm 0mm 20mm 0mm; 
@@ -173,7 +173,7 @@
 
         {{-- Rodapé --}}
         <div class="footer">
-            Sistema SMARTSUB — 11º Depósito de Suprimento | Gerado em {{ date('d/m/Y \à\s H:i:s') }} | Documento Oficial
+            Sistema HelpSub - 11o Deposito de Suprimento | Gerado em {{ date('d/m/Y \a\s H:i:s') }} | Documento Oficial
         </div>
     </div>
 </body>

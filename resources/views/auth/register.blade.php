@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Cadastro - SMARTSUB</title>
+    <title>Cadastro - HelpSub</title>
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
@@ -24,7 +24,7 @@
     <script>tailwind.config = { devtools: false }</script>
 
     <style>
-        /* Modern Register — padrão SAGA adaptado para SMARTSUB */
+        /* Modern Register — padrao SAGA adaptado para HelpSub */
         .page-container {
             background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%);
             min-height: 100vh;
@@ -97,7 +97,7 @@
             <div class="text-center mb-8 relative z-10">
                 <div class="flex items-center justify-center mb-4">
                     <img src="{{ asset('images/folhaint_transparent.png') }}" alt="11º D Sup Logo" class="w-12 h-12 object-contain mr-3">
-                    <h1 class="text-4xl font-bold text-white">Sistema SMARTSUB</h1>
+                    <h1 class="text-4xl font-bold text-white">Sistema HelpSub</h1>
                 </div>
                 <p class="text-xl text-emerald-100 mb-2">Sistema de Controle de Estoque e Empréstimo de Material</p>
                 <div class="w-24 h-1 bg-emerald-300 mx-auto mt-4 rounded-full"></div>
@@ -419,7 +419,7 @@
             {{-- Footer --}}
             <footer class="mt-8 relative z-10">
                 <div class="text-center text-sm text-emerald-200/60 italic">
-                    &copy; {{ date('Y') }} SMARTSUB - Desenv: Augusto
+                    &copy; {{ date('Y') }} HelpSub - Desenv: Augusto
                 </div>
             </footer>
         </div>

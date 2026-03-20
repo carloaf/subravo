@@ -36,7 +36,7 @@
             </div>
         @endif
 
-        <div class="system-tag">SMARTSUB — Mat. Intendência</div>
+        <div class="system-tag">HelpSub - Mat. Intendencia</div>
     </div>
 
     <div class="label-right">

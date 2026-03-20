@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Localização — SMARTSUB')
+@section('title', 'Editar Localizacao - HelpSub')
 @section('page-title', 'Editar Localização do Inventário')
 
 @section('header-actions')

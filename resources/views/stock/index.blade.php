@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Estoque — SMARTSUB')
+@section('title', 'Estoque - HelpSub')
 @section('page-title', 'Itens de Estoque')
 
 @section('header-actions')

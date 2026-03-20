@@ -149,7 +149,7 @@
 
     {{-- ── Rodapé ── --}}
     <div class="footer">
-        Documento gerado pelo Sistema SMARTSUB em {{ now()->format('d/m/Y \à\s H:i') }}
+        Documento gerado pelo Sistema HelpSub em {{ now()->format('d/m/Y \a\s H:i') }}
         — Este documento não possui validade sem a assinatura acima.
     </div>
 
