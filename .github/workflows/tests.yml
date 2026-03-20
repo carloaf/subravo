@@ -20,9 +20,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: subravo_test
-          POSTGRES_USER: subravo_user
-          POSTGRES_PASSWORD: subravo_password
+          POSTGRES_DB: helpsub_test
+          POSTGRES_USER: helpsub_user
+          POSTGRES_PASSWORD: helpsub_password
         ports:
           - 5432:5432
         options: >-
@@ -75,9 +75,9 @@ jobs:
           DB_CONNECTION: pgsql_testing
           DB_HOST: localhost
           DB_PORT: 5432
-          DB_DATABASE: subravo_test
-          DB_USERNAME: subravo_user
-          DB_PASSWORD: subravo_password
+          DB_DATABASE: helpsub_test
+          DB_USERNAME: helpsub_user
+          DB_PASSWORD: helpsub_password
         run: php artisan migrate --force
 
       - name: Run tests
@@ -85,9 +85,9 @@ jobs:
           DB_CONNECTION: pgsql_testing
           DB_HOST: localhost
           DB_PORT: 5432
-          DB_DATABASE: subravo_test
-          DB_USERNAME: subravo_user
-          DB_PASSWORD: subravo_password
+          DB_DATABASE: helpsub_test
+          DB_USERNAME: helpsub_user
+          DB_PASSWORD: helpsub_password
           REDIS_HOST: localhost
           REDIS_PORT: 6379
         run: php artisan test --coverage --min=70

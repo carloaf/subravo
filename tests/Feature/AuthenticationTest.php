@@ -19,7 +19,7 @@ class AuthenticationTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
-        $response->assertSee('SUBRAVO');
+        $response->assertSee('HelpSub');
         $response->assertSee('Número de Identidade');
     }
 

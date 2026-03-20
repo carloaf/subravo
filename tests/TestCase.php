@@ -24,7 +24,7 @@ abstract class TestCase extends BaseTestCase
         $testEnv = [
             'APP_ENV' => 'testing',
             'DB_CONNECTION' => 'pgsql_testing',
-            'DB_DATABASE' => 'subravo_test',
+            'DB_DATABASE' => 'helpsub_test',
             'SESSION_DRIVER' => 'array',
             'CACHE_STORE' => 'array',
             'QUEUE_CONNECTION' => 'sync',

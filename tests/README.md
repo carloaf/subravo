@@ -1,8 +1,8 @@
-# SUBRAVO — Testes Automatizados
+# HelpSub — Testes Automatizados
 
 ## 📋 Visão Geral
 
-Suíte completa de testes automatizados para o sistema SUBRAVO, cobrindo autenticação, CRUD, regras de negócio, empréstimos e geração de documentos.
+Suite completa de testes automatizados para o sistema HelpSub, cobrindo autenticacao, CRUD, regras de negocio, emprestimos e geracao de documentos.
 
 ## 🏗️ Estrutura
 
@@ -67,7 +67,7 @@ docker compose exec app php artisan test --stop-on-failure
 
 ## 🧪 Banco de Dados de Teste
 
-Os testes usam PostgreSQL (`subravo_test`) configurado em `phpunit.xml`:
+Os testes usam PostgreSQL (`helpsub_test`) configurado em `phpunit.xml`:
 
 - **Conexão**: `pgsql_testing` (config/database.php)
 - **Trait**: `RefreshDatabase` — banco é recriado a cada teste
@@ -144,9 +144,9 @@ docker compose exec app php artisan test --group=authentication
 ## 🚨 Troubleshooting
 
 ### Erro "Database does not exist"
-Certifique-se de que o banco `subravo_test` existe:
+Certifique-se de que o banco `helpsub_test` existe:
 ```bash
-docker compose exec database psql -U subravo_user -c "CREATE DATABASE subravo_test;"
+docker compose exec database psql -U helpsub_user -c "CREATE DATABASE helpsub_test;"
 ```
 
 ### Erro "Connection refused"
@@ -172,4 +172,4 @@ docker compose exec app composer dump-autoload
 ---
 
 **Última atualização**: 14/02/2026  
-**Mantido por**: Equipe SUBRAVO
+**Mantido por**: Equipe HelpSub
