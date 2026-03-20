@@ -1,10 +1,10 @@
-# SMARTSUB
+# HelpSub
 
 Sistema de Controle de Estoque e Empréstimo de Material de Intendência
 
 ## Sobre
 
-O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de material de intendência militar e gestão de empréstimos (cautelas). Desenvolvido com Laravel 11, PostgreSQL e Docker.
+O **HelpSub** é um sistema web monolítico MVC para controle de estoque de material de intendência militar e gestão de empréstimos (cautelas). Desenvolvido com Laravel 11, PostgreSQL e Docker.
 
 ### Funcionalidades Principais
 
@@ -29,9 +29,15 @@ O **SMARTSUB** é um sistema web monolítico MVC para controle de estoque de mat
 
 1. Clone o repositório
 2. Copie `.env.example` para `.env`
-3. Configure as variáveis de ambiente
+3. Configure as variáveis de ambiente, mantendo `APP_URL` com a mesma porta definida em `APP_PORT`
 4. Execute `docker compose up -d --build`
 5. Acesse `http://localhost:8095`
+
+Observação: neste ambiente o container web usa a porta interna `8081`, publicada externamente em `8095`, para evitar bloqueios locais no acesso à porta `80` da bridge Docker.
+
+### Migração automática de ambiente legado
+
+Se o volume PostgreSQL ainda estiver com a base antiga `smartsub`, o container `app` tenta criar automaticamente o role/banco novos (`helpsub`) e aplicar as permissões mínimas para a transição. Os valores de fallback são controlados por `LEGACY_DB_DATABASE`, `LEGACY_DB_USERNAME` e `LEGACY_DB_PASSWORD` no `.env`.
 
 ## Desenvolvimento
 

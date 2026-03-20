@@ -1,5 +1,5 @@
 # =============================================================================
-# Multi-Architecture Dockerfile for SMARTSUB
+# Multi-Architecture Dockerfile for HelpSub
 # Supports: linux/amd64, linux/arm64
 # =============================================================================
 
@@ -58,8 +58,8 @@ RUN --mount=type=cache,target=/tmp/cache \
 # Stage 3: Final Runtime Image
 # -----------------------------------------------------------------------------
 FROM php:8.4-apache AS runtime
-LABEL maintainer="SMARTSUB Team"
-LABEL description="SMARTSUB - Sistema de Controle de Estoque e Empréstimos"
+LABEL maintainer="HelpSub Team"
+LABEL description="HelpSub - Sistema de Controle de Estoque e Emprestimos"
 LABEL version="1.0"
 
 ARG TARGETPLATFORM
@@ -121,9 +121,10 @@ RUN composer dump-autoload --optimize
 
 # Configure Apache
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/apache/ports.conf /etc/apache2/ports.conf
 
 # Custom PHP configuration
-COPY docker/php/subravo.ini /usr/local/etc/php/conf.d/99-subravo.ini
+COPY docker/php/helpsub.ini /usr/local/etc/php/conf.d/99-helpsub.ini
 
 # Create log directory for PHP
 RUN mkdir -p /var/log/php && chown www-data:www-data /var/log/php
@@ -143,13 +144,15 @@ RUN chown -R www-data:www-data /var/www/html \
 
 # Copy and prepare entrypoint
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY docker/bootstrap-legacy-db.sh /usr/local/bin/bootstrap-legacy-db.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/bootstrap-legacy-db.sh
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
+    CMD curl -f http://localhost:8081/ || exit 1
 
-EXPOSE 80
+EXPOSE 8081
 
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2-foreground"]

@@ -2,11 +2,11 @@
 set -e
 
 # =============================================================================
-# SMARTSUB — Container Entrypoint
+# HelpSub — Container Entrypoint
 # =============================================================================
 
 echo "╔══════════════════════════════════════╗"
-echo "║  SMARTSUB — Iniciando aplicação...    ║"
+echo "║  HelpSub — Iniciando aplicacao...     ║"
 echo "╚══════════════════════════════════════╝"
 
 # ── Aguarda dependências ──────────────────────────────────────────
@@ -26,6 +26,11 @@ wait_for_service() {
 
 wait_for_service "${DB_HOST:-database}" "${DB_PORT:-5432}" "PostgreSQL"
 wait_for_service "${REDIS_HOST:-redis}" "${REDIS_PORT:-6379}" "Redis"
+
+# ── Bootstrap de banco legado ───────────────────────────────────
+if [ "${CONTAINER_ROLE:-app}" = "app" ] && [ -x /usr/local/bin/bootstrap-legacy-db.sh ]; then
+    /usr/local/bin/bootstrap-legacy-db.sh
+fi
 
 # ── Permissões de storage ────────────────────────────────────────
 echo "→ Ajustando permissões..."
@@ -75,7 +80,7 @@ fi
 php artisan storage:link --force --no-interaction 2>/dev/null || true
 
 echo "╔══════════════════════════════════════╗"
-echo "║  SMARTSUB — Pronto! (porta 80)       ║"
+echo "║  HelpSub — Pronto! (porta 8081)      ║"
 echo "╚══════════════════════════════════════╝"
 
 # ── Inicia Apache ────────────────────────────────────────────────
