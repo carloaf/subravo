@@ -158,26 +158,54 @@
                         </div>
                     </div>
 
-                    {{-- User info + Logout (desktop) --}}
-                    <div class="hidden sm:flex items-center space-x-4">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center">
-                                <span class="text-xs font-bold text-emerald-800">
-                                    {{ strtoupper(substr(auth()->user()->war_name, 0, 2)) }}
-                                </span>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700">{{ auth()->user()->war_name }}</span>
-                            @if(auth()->user()->isAdmin())
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Admin</span>
-                            @endif
-                        </div>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-gray-500 hover:text-red-600 px-3 py-2 text-sm font-medium transition-colors">
-                                Sair
+                    {{-- User menu (desktop) — engrenagem com dropdown --}}
+                    <div class="hidden sm:flex items-center" x-data="{ open: false }">
+                        <div class="relative">
+                            <button @click="open = !open" @click.away="open = false"
+                                    class="flex items-center justify-center w-9 h-9 rounded-full text-gray-500 hover:text-emerald-600 hover:bg-gray-100 transition-colors focus:outline-none"
+                                    title="Menu do usuário">
+                                {{-- Heroicon: cog-6-tooth (outline) --}}
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                </svg>
                             </button>
-                        </form>
+
+                            {{-- Dropdown --}}
+                            <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                                <div class="py-1">
+                                    {{-- Informações do usuário --}}
+                                    <div class="px-4 py-3 border-b border-gray-100">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-8 h-8 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center">
+                                                <span class="text-xs font-bold text-emerald-800">{{ strtoupper(substr(auth()->user()->war_name, 0, 2)) }}</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">{{ auth()->user()->war_name }}</p>
+                                                <p class="text-xs text-gray-500">{{ auth()->user()->rank->abbreviation ?? '' }} — {{ auth()->user()->organization->abbreviation ?? '' }}</p>
+                                            </div>
+                                        </div>
+                                        @if(auth()->user()->isAdmin())
+                                            <span class="mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Admin</span>
+                                        @elseif(auth()->user()->role === 'manager')
+                                            <span class="mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Gerente</span>
+                                        @endif
+                                    </div>
+
+                                    {{-- Sair --}}
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center space-x-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                                            </svg>
+                                            <span>Sair</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Hamburger mobile --}}
