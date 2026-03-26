@@ -62,6 +62,11 @@ echo "✓ APP_KEY configurado"
 echo "→ Executando migrations..."
 php artisan migrate --force --no-interaction
 
+if [ "$APP_ENV" != "production" ]; then
+    echo "→ Garantindo dados iniciais do ambiente local..."
+    php artisan db:seed --class=Database\\Seeders\\DatabaseSeeder --force --no-interaction
+fi
+
 # ── Cache de configuração (produção) ─────────────────────────────
 if [ "$APP_ENV" = "production" ]; then
     echo "→ Otimizando para produção..."

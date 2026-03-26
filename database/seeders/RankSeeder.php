@@ -35,6 +35,10 @@ class RankSeeder extends Seeder
             $rank['updated_at'] = $now;
         }
 
-        DB::table('ranks')->insert($ranks);
+        DB::table('ranks')->upsert(
+            $ranks,
+            ['name'],
+            ['abbreviation', 'order', 'updated_at']
+        );
     }
 }

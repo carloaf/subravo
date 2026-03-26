@@ -14,7 +14,7 @@ class AdminSeeder extends Seeder
         $organizationId = DB::table('organizations')->where('is_host', true)->value('id') ?? 1;
         $rankId = DB::table('ranks')->where('abbreviation', 'Cel')->value('id') ?? 4;
 
-        DB::table('users')->insert([
+        DB::table('users')->insertOrIgnore([
             'identity_number'  => '000000000',
             'password'         => Hash::make('helpsub2026'),
             'full_name'        => 'Administrador do Sistema',

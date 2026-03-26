@@ -33,6 +33,8 @@ O **HelpSub** é um sistema web monolítico MVC para controle de estoque de mate
 4. Execute `docker compose up -d --build`
 5. Acesse `http://localhost:8095`
 
+Em ambiente local, o container aplica migrations e garante a carga básica do sistema automaticamente após subir. O admin padrão fica disponível com identidade `000000000` e senha `helpsub2026`.
+
 Observação: neste ambiente o container web usa a porta interna `8081`, publicada externamente em `8095`, para evitar bloqueios locais no acesso à porta `80` da bridge Docker.
 
 ### Migração automática de ambiente legado

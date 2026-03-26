@@ -32,6 +32,10 @@ class OrganizationSeeder extends Seeder
             $org['updated_at'] = $now;
         }
 
-        DB::table('organizations')->insert($organizations);
+        DB::table('organizations')->upsert(
+            $organizations,
+            ['name'],
+            ['abbreviation', 'is_host', 'updated_at']
+        );
     }
 }
