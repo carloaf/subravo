@@ -17,10 +17,11 @@ return new class extends Migration
             $table->string('serial_number')->nullable()->unique()->comment('Nº de série');
             $table->string('batch')->nullable()->comment('Lote');
             $table->date('expiration_date')->nullable()->comment('Validade');
-            $table->date('siscofis_entry_date')->comment('Data entrada SISCOFIS');
-            $table->string('location')->comment('Prateleira/corredor/armário');
+            $table->date('siscofis_entry_date')->nullable()->comment('Data entrada SISCOFIS');
+            $table->string('location')->nullable()->comment('Prateleira/corredor/armário');
             $table->string('subunit')->nullable()->comment('Subunidade responsável');
             $table->integer('quantity')->default(1)->comment('Qtd para itens não serializados');
+            $table->decimal('unit_cost', 15, 2)->nullable()->comment('Custo unitário do lote (R$)');
             $table->enum('status', ['available', 'loaned', 'damaged', 'decommissioned'])->default('available');
             $table->text('notes')->nullable();
             $table->timestamps();

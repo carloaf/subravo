@@ -26,12 +26,16 @@ return new class extends Migration
         // -----------------------------------------------------------------
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->string('subunit')->nullable();
             $table->string('name');
+            $table->string('siscofis_code')->nullable()->comment('Código/Ficha SISCOFIS do material');
             $table->text('description')->nullable();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('unit')->default('un')->comment('un, pç, par, kg, etc.');
             $table->integer('minimum_stock')->default(0)->comment('Alerta de estoque baixo');
             $table->boolean('is_serialized')->default(false)->comment('Controle por nº de série');
+            $table->boolean('is_durable')->default(false)->comment('Material de uso duradouro (não perece)');
+            $table->integer('shelf_life_months')->nullable()->comment('Validade em meses após entrada SISCOFIS');
             $table->timestamps();
         });
     }

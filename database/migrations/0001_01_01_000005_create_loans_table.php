@@ -18,7 +18,10 @@ return new class extends Migration
             $table->foreignId('borrower_user_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
             $table->string('borrower_section')->nullable()->comment('Seção/subunidade quando type=section');
             $table->foreignId('borrower_organization_id')->nullable()->constrained('organizations')->cascadeOnUpdate()->nullOnDelete();
+            $table->string('borrower_cpf', 14)->nullable();
+            $table->string('borrower_phone', 20)->nullable();
             $table->foreignId('loaned_by')->constrained('users')->cascadeOnUpdate()->restrictOnDelete()->comment('Almoxarife que emprestou');
+            $table->string('subunit')->nullable()->comment('Subunidade que emitiu a cautela');
             $table->datetime('loan_date');
             $table->date('expected_return_date')->nullable();
             $table->datetime('actual_return_date')->nullable();

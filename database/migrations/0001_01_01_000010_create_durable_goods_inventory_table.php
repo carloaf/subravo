@@ -6,15 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('durable_goods_inventory', function (Blueprint $table) {
             $table->id();
+            $table->string('subunit')->nullable()->comment('Subunidade responsável pelo bem duradouro');
             $table->foreignId('inventory_upload_id')->constrained('inventory_uploads')->cascadeOnDelete();
-            $table->string('material_name');
+            $table->text('material_name')->nullable();
             $table->string('ficha_number')->nullable();
             $table->string('material_code')->nullable()->index();
             $table->string('accounting_account')->nullable();
@@ -24,15 +22,10 @@ return new class extends Migration
             $table->text('raw_text')->nullable();
             $table->timestamps();
 
-            // Índices para buscas
-            $table->index('material_name');
             $table->index('ficha_number');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('durable_goods_inventory');
