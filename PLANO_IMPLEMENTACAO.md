@@ -182,19 +182,18 @@ O **HelpSub** é um sistema web monolitico MVC para controle de estoque de mater
 - [x] Criar todas as migrations na ordem correta de dependência
 - [x] Verificar com `php artisan migrate` que todas rodam sem erro
 
-**Migrations criadas:**
-- `0001_01_01_000000` — ranks, organizations, users, password_reset_tokens, sessions
+**Migrations consolidadas (11 arquivos):**
+- `0001_01_01_000000` — ranks, organizations, users (admin/manager/user), password_reset_tokens, sessions
 - `0001_01_01_000001` — cache, cache_locks
 - `0001_01_01_000002` — jobs, job_batches, failed_jobs
-- `0001_01_01_000003` — categories, products
-- `0001_01_01_000004` — stock_items
-- `0001_01_01_000005` — loans
+- `0001_01_01_000003` — categories, products (+ subunit, siscofis_code, is_durable, shelf_life_months)
+- `0001_01_01_000004` — stock_items (+ nullable siscofis_entry_date/location, unit_cost)
+- `0001_01_01_000005` — loans (+ subunit, borrower_cpf, borrower_phone)
 - `0001_01_01_000006` — loan_items
 - `0001_01_01_000007` — stock_movements
-- `2026_02_10_*` — fix stock_items nullable columns
-- `2026_02_19_*` — create durable_goods_inventory table
-- `2026_02_24_090922` — add subunit to inventory_uploads, loans, durable_goods_inventory
-- `2026_03_03_000001` — add unit_cost (decimal 15,2 nullable) to stock_items
+- `0001_01_01_000008` — extensão pg_trgm (PostgreSQL)
+- `0001_01_01_000009` — inventory_uploads, inventory_items (+ índices GIN trigram)
+- `0001_01_01_000010` — durable_goods_inventory (+ subunit)
 
 **Nota:** Portas Docker ajustadas (app:8095, postgres:5434, redis:6380) para evitar conflito com outros projetos. **Sistema renomeado para HelpSub**.
 
@@ -562,6 +561,7 @@ Autenticado (middleware 'auth'):
 - [x] `docker compose exec app php artisan migrate:fresh --seed` — 8 migrations + 4 seeders OK
 - [x] `curl http://localhost:8000/login` — HTTP 200 (8.5KB)
 - [x] `docker compose exec app php artisan loans:check-overdue` — OK
+- [x] `docker/entrypoint.sh` atualizado para garantir seed básico idempotente em ambiente local após `migrate`, evitando banco vazio sem usuário admin
 
 ---
 
@@ -1433,4 +1433,4 @@ Banner de aviso laranja adicionado em `resources/views/admin/reset-stock.blade.p
 
 ---
 
-*Última atualização: 03/03/2026 — Passo 19 concluído ✅ — Uso Duradouro carregado por lote com agregação de `ficha_number` (sem divergência SISCOFIS vs Estoque). Adicionado `unit_cost` em `stock_items`. Fix de reset global para admin (subunit NULL). View `/stock` com colunas alinhadas, preço unitário e nome resumido do produto. View `/durables` com painel de divergência, filtros e tabela de lotes aprimorada.*
+*Última atualização: 26/03/2026 — Migrations consolidadas de 28 arquivos para 11 (patches incrementais e data-fixes absorvidos nas migrations base). Todas as colunas adicionadas posteriormente (subunit, siscofis_code, is_durable, shelf_life_months, unit_cost, borrower_cpf, borrower_phone) agora estão nas migrations de criação original. Testado com `migrate:fresh --seed` sem erros.*
