@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             OrganizationSeeder::class,
             CategorySeeder::class,
             AdminSeeder::class,
+            IrduSeeder::class,
         ]);
     }
 }

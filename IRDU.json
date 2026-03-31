@@ -1,0 +1,2104 @@
+{
+  "documento": "IRDU - Instruções Reguladoras para Distribuição de Uniformes",
+  "categoria_filtrada": "Cabos/Soldados",
+  "anexos": {
+    "A": {
+      "titulo": "Tabela de Distribuição de Peças de Uniformes de Uso Comum",
+      "itens": [
+        {
+          "numero": 1,
+          "material": "Agasalho Verde-Oliva para TFM",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável (OM Clima frio)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Clima frio)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 2,
+          "material": "Avental em PVC Branco",
+          "dotacoes": [
+            {
+              "descricao": "Cozinheiros e Aux de Cozinha",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 3,
+          "material": "Avental para Pessoal de Cozinha",
+          "dotacoes": [
+            {
+              "descricao": "Cozinheiros e Aux de Cozinha",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 4,
+          "material": "Avental para Pessoal de Saúde",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados de OMS - Aux de Saúde",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 5,
+          "material": "Bandeira do Brasil Emborrachada",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 6,
+          "material": "Bermuda Camuflada",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (8ª e 12ª RM)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (8ª e 12ª RM)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos e Soldados (6ª, 7ª, 9ª e 10ª RM)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos e Soldados (OM Eng Cnst)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 7,
+          "material": "Bermuda Preta para Treinamento Físico Militar",
+          "dotacoes": [
+            {
+              "descricao": "CET/1º ano (segmento feminino)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (segmento feminino)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 8,
+          "material": "Blusa de Combate Camuflada Leve (Gandoleta)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (Frações de OM dotadas de colete balístico ou kit traje antitumulto)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (Frações de OM dotadas de colete balístico ou kit traje antitumulto)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 9,
+          "material": "Blusa Meia-Manga Tipo Safari",
+          "dotacoes": [
+            {
+              "descricao": "Mot e Seg de Of Gen (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Mot e Seg de Of Gen (nos demais anos)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros (nos demais anos)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 10,
+          "material": "Blusão Verde-Oliva Masculino",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 11,
+          "material": "Blusão Verde-Oliva Feminino",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Profissional (segmento feminino) (OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 12,
+          "material": "Boina Azul-Ultramar",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Av Ex)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 13,
+          "material": "Boina Bege",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Aeromóvel)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 14,
+          "material": "Boina Bordô",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Pqdt)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 15,
+          "material": "Boina Camuflada",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Selva)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 16,
+          "material": "Boina Cinza",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Montanha)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 17,
+          "material": "Boina Preta",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Bld e Mec)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 18,
+          "material": "Boina Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (Exceto OM dotadas de boinas de outras cores)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 19,
+          "material": "Bombacha (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 20,
+          "material": "Bota de Borracha Branca (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 21,
+          "material": "Bota de Borracha Preta (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 22,
+          "material": "Botina de Lona Camuflada (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (6ª a 10ª e 12ª RM)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos e Soldados (OM Eng Cnst)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 23,
+          "material": "Bustiê Preto para Treinamento Físico Militar",
+          "dotacoes": [
+            {
+              "descricao": "CET/1º ano (segmento feminino)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (segmento feminino)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 24,
+          "material": "Cachecol de Lã Branco",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Saúde (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 25,
+          "material": "Cachecol de Lã Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 26,
+          "material": "Cachecol de Parada Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo o Efetivo de QCP (OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 27,
+          "material": "Cachecol de Parada Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Todo o Efetivo de QCP (OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 28,
+          "material": "Cadarço Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo o Efetivo de QCP (OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 29,
+          "material": "Calça Branca",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Saúde (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Aux de Saúde (nos demais anos)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 30,
+          "material": "Calça Preta para Taifeiro",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Cozinha e Copeiros (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Aux de Cozinha e Copeiros (nos demais anos)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 31,
+          "material": "Calça Tipo Safari",
+          "dotacoes": [
+            {
+              "descricao": "Mot e Seg de Of Gen (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Mot e Seg de Of Gen (nos demais anos)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros (nos demais anos)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 32,
+          "material": "Calça Verde-Oliva Masculina",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (Contingentes OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 33,
+          "material": "Calça Verde-Oliva Feminina",
+          "dotacoes": [
+            {
+              "descricao": "CET/1º ano (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 35,
+          "material": "Calção para TFM",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Eng Cnst)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 37,
+          "material": "Camisa Bege Meia-Manga Masculina",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 38,
+          "material": "Camisa Bege Meia-Manga Feminina",
+          "dotacoes": [
+            {
+              "descricao": "CET/1º ano (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 39,
+          "material": "Camisa Branca de Colarinho Duplo",
+          "dotacoes": [
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Mot e Seg de Of Gen",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 40,
+          "material": "Camisa Branca Manga Comprida",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Saúde (OM Clima Frio)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 41,
+          "material": "Camisa Branca Meia-Manga",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados - Aux de Saúde",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 42,
+          "material": "Camiseta Branca Meia-Manga",
+          "dotacoes": [
+            {
+              "descricao": "Mot e Seg de Of Gen (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Mot e Seg de Of Gen (nos demais anos)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros (nos demais anos)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 43,
+          "material": "Camiseta Branca Sem Manga",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 44,
+          "material": "Camiseta Camuflada Meia-Manga",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "3 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (8ª RM, 12ª RM e OM Pqdt)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "3 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos e Soldados (OM Eng Cnst)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "4 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 45,
+          "material": "Capa Verde-Oliva Impermeável",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 46,
+          "material": "Capacete Especial para Tripulante de Viatura Blindada",
+          "dotacoes": [
+            {
+              "descricao": "Todo o Efetivo Tripulante Vtr Bld (Oficiais e Praças)",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 47,
+          "material": "Capuz de Lã Preto",
+          "dotacoes": [
+            {
+              "descricao": "Tropas de Forças Especiais ou Comandos",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 48,
+          "material": "Chapéu Tropical Camuflado",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Eng Cnst)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 49,
+          "material": "Cinto de Couro Preto",
+          "dotacoes": [
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Mot e Seg de Of Gen",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 50,
+          "material": "Cinto de Náilon Branco",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Saúde",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cozinheiros, Aux de Cozinha e Copeiros",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 51,
+          "material": "Cinto de Náilon Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos e Soldados (OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 52,
+          "material": "Conjunto Camuflado",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Eng Cnst)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 53,
+          "material": "Conjunto Paletó e Calça",
+          "dotacoes": [
+            {
+              "descricao": "Mot e Seg de Of Gen",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 54,
+          "material": "Conjunto Segunda Pele Branco",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano - Aux de Saúde (OM Clima frio)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional - Aux de Saúde (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 55,
+          "material": "Conjunto Segunda Pele Preto",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (OM Clima frio)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Clima frio)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Tropas de Forças Especiais ou Comandos",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 56,
+          "material": "Correia de Couro para Espora",
+          "dotacoes": [
+            {
+              "descricao": "RCG, Coudelaria de Rincão e SU Hipomóveis de OM de Cerimonial",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Seções de Equinos Reiúnos das OM",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "C Cav e Seções de Equitação de EE",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 57,
+          "material": "Coturno de Combate Marrom (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (OM Pqdt)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Pqdt)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 58,
+          "material": "Coturno de Combate Lona Preta (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (inclusive OM Pqdt, exceto OM Selva)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (exceto OM Pqdt e OM Selva)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Eng Cnst)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 59,
+          "material": "Coturno de Combate Lona Verde (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (OM Selva)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Selva)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Eng Cnst/Selva)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 60,
+          "material": "Coturno de Três Fivelas (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano de RCG, Coudelaria de Rincão e SU Hipomóveis de OM de Cerimonial",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Variável e CET/1º ano de Seções de Equinos Reiúnos das OM",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Variável e CET/1º ano de C Cav e Seções de Equitação de EE",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional de RCG, Coudelaria de Rincão e SU Hipomóveis de OM de Cerimonial",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional de Seções de Equinos Reiúnos das OM",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional de C Cav e Seções de Equitação de EE",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 61,
+          "material": "Culote Camuflado",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano de SU Hipomóveis de RCG e de OM de Cerimoniais",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional de SU Hipomóveis de RCG e de OM de Cerimoniais",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 62,
+          "material": "Distintivo de OM/Distintivo Histórico Masculino",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 63,
+          "material": "Distintivo de OM/Distintivo Histórico Feminino",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Profissional (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 64,
+          "material": "Distintivo Metálico de CFC",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes do Curso de Formação de Cabos",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 65,
+          "material": "Distintivo Símbolo do Exército",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 66,
+          "material": "Distintivos Bordados de Cursos e Estágios (Grupo F do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes de cursos e estágios constantes do grupo F do RUE",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "3 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 67,
+          "material": "Distintivos Metálicos das Armas, Quadro, Serviço e Qualificação Militar (Grupo A do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Profissional (Contingentes, OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "3 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 68,
+          "material": "Distintivos Metálicos de Cursos e Estágios (Grupo D do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes de cursos e estágios constantes do grupo D do RUE",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 69,
+          "material": "Distintivos Metálicos de Cursos e Estágios (Grupo E do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes de cursos e estágios constantes do grupo E do RUE",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 70,
+          "material": "Distintivos Metálicos de Cursos, Estágios e Ex-Integrantes de Missões de Paz (Grupo G do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes de cursos e estágios constantes do grupo G do RUE e ex-integrantes de missões de paz",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 71,
+          "material": "Distintivos Plastificados das Armas, Quadro, Serviço e Qualificação Militar (Grupo A do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "4 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 72,
+          "material": "Distintivos Plastificados de Cursos e Estágios (Grupo D do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes de cursos e estágios constantes do grupo D do RUE",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 73,
+          "material": "Distintivos Plastificados de Cursos e Estágios (Grupo E do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes de cursos e estágios constantes do grupo E do RUE",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 74,
+          "material": "Distintivos Plastificados de Cursos e Estágios (Grupo F do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes de cursos e estágios constantes do grupo F do RUE",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 75,
+          "material": "Distintivos Plastificados de Cursos, Estágios e Ex-Integrantes de Missões de Paz (Grupo G do RUE)",
+          "dotacoes": [
+            {
+              "descricao": "Concludentes de cursos e estágios constantes do grupo G do RUE e ex-integrantes de missões de paz",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 76,
+          "material": "Espora Dourada",
+          "dotacoes": [
+            {
+              "descricao": "RCG, Coudelaria de Rincão e SU Hipomóveis de OM de Cerimonial",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Seções de Equinos Reiúnos das OM",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "C Cav e Seções de Equitação de EE",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 77,
+          "material": "Fivela Dourada",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (Contingentes, OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 78,
+          "material": "Fivela Preta",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 79,
+          "material": "Gorro com Pala Colorido (Cores Diversas)",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados que façam jus, conforme previsto no RUE",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 80,
+          "material": "Gorro de Selva",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Selva e OM do CMO)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 81,
+          "material": "Gorro para Pessoal de Cozinha",
+          "dotacoes": [
+            {
+              "descricao": "Cozinheiros e Aux de Cozinha",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 82,
+          "material": "Gravata Horizontal Preta",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Cozinha e Copeiros",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 83,
+          "material": "Insígnia Bordada Bege de Cabo ou Soldado (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Soldados do Efetivo Variável e CET/1º ano (Contingente, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Soldados do Efetivo Profissional (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 84,
+          "material": "Insígnia Bordada Branca de Cabo ou Soldado (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Soldados - Aux Saúde",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Soldados - Aux Saúde (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "4 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos - Aux Saúde",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos - Aux Saúde (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "4 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 85,
+          "material": "Insígnia Bordada Verde-Oliva de Cabo ou Soldado (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 86,
+          "material": "Insígnia Metálica (Miniatura) de Cabo ou Soldado (Und)",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (Contingentes, OM PE e Gd) (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 87,
+          "material": "Insígnia Plastificada de Cabo, Soldado ou Atirador de Tiro de Guerra (Und)",
+          "dotacoes": [
+            {
+              "descricao": "Soldados do Efetivo Profissional",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Soldados do Efetivo Profissional (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "4 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "4 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 90,
+          "material": "Japona de Campanha",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (OM Clima frio)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 91,
+          "material": "Jaqueta Branca",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Saúde (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 92,
+          "material": "Jaqueta para Copeiro (Branca ou Vinho)",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Cozinha e Copeiros",
+              "tipo": "OM",
+              "duracao": "4 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 93,
+          "material": "Jaqueta Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (Contingentes, OM PE e Gd) (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 94,
+          "material": "Luva Branca de Suedine (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Cozinha e Copeiros",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 95,
+          "material": "Macacão de Manutenção",
+          "dotacoes": [
+            {
+              "descricao": "Pessoal de Mnt Moto",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Operadores de tratores e afins (OM Eng Cnst)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 96,
+          "material": "Macacão para Guarnição de Blindado",
+          "dotacoes": [
+            {
+              "descricao": "Pessoal de Gu Bld",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 97,
+          "material": "Meia 3/4 de Náilon Transparente (Par)",
+          "dotacoes": [
+            {
+              "descricao": "CET/1º ano (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "3 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 98,
+          "material": "Meia Branca",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "3 p/ pessoa"
+            },
+            {
+              "descricao": "Cabos e Soldados (Contingentes)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 99,
+          "material": "Meia de Nailon Branca",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados - Aux de Saúde",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 100,
+          "material": "Meia Preta",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (Contingentes, Mot e Seg de Of Gen)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 101,
+          "material": "Meia Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "3 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 102,
+          "material": "Paletó (Branco ou Preto)",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Cozinha e Copeiros (no 1º ano de qualificação)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Aux de Cozinha e Copeiros (nos demais anos)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 103,
+          "material": "Plaqueta de Identificação",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (Contingentes, OM PE e Gd)",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 104,
+          "material": "Saia Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "CET/1º ano (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 105,
+          "material": "Sandália de Borracha Preta (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 106,
+          "material": "Sapato Branco (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados - Aux de Saúde",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 107,
+          "material": "Sapato Preto Masculino (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados (Contingentes, Mot e Seg de Of Gen)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 108,
+          "material": "Sapato Preto de Salto Baixo Feminino (Par)",
+          "dotacoes": [
+            {
+              "descricao": "CET/1º ano (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 109,
+          "material": "Sapato Preto de Salto Médio Feminino (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Profissional (segmento feminino) (Contingentes, OM PE e Gd)",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 110,
+          "material": "Tênis Preto (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável e CET/1º ano",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 111,
+          "material": "Véstia Branca Especial Manga Comprida - Rancho",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Cozinha e Copeiros (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 112,
+          "material": "Véstia Branca Especial Meia-Manga - Rancho",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Cozinha e Copeiros",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 113,
+          "material": "Véstia Branca Manga Comprida - Saúde",
+          "dotacoes": [
+            {
+              "descricao": "Aux de Saúde (OM Clima Frio)",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 114,
+          "material": "Véstia Branca Meia-Manga - Saúde",
+          "dotacoes": [
+            {
+              "descricao": "Cabos e Soldados - Aux de Saúde",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "2 p/ pessoa"
+            }
+          ]
+        }
+      ]
+    },
+    "B": {
+      "titulo": "Tabela de Distribuição de Peças de Roupas de Cama e Banho",
+      "itens": [
+        {
+          "numero": 10,
+          "material": "Toalha de Banho",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo Variável",
+              "tipo": "Individual",
+              "duracao": "1 Ano",
+              "quantidade": "1 p/ pessoa"
+            },
+            {
+              "descricao": "Efetivo Profissional",
+              "tipo": "OM",
+              "duracao": "2 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        }
+      ]
+    },
+    "C": {
+      "titulo": "Tabela de Distribuição de Peças de Uniformes de Uso Exclusivo das OM de Guarda (GD)",
+      "observacao": "Todos os itens se aplicam a 'Todo efetivo de QCP' da OM de Guarda, incluindo Cabos e Soldados",
+      "itens": [
+        {
+          "numero": 1,
+          "material": "Apito com Cordão",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 2,
+          "material": "Braçal de Guarda Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 3,
+          "material": "Braçal de Guarda Preto",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 4,
+          "material": "Capacete de Guarda",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 5,
+          "material": "Cinto Talabarte Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 6,
+          "material": "Coldre Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 7,
+          "material": "Coldre Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 8,
+          "material": "Luva Branca de Couro (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        }
+      ]
+    },
+    "D": {
+      "titulo": "Tabela de Distribuição de Peças de Uniformes de Uso Exclusivo das OM de Polícia do Exército (PE)",
+      "observacao": "Todos os itens se aplicam a 'Todo efetivo de QCP' da OM de PE, incluindo Cabos e Soldados",
+      "itens": [
+        {
+          "numero": 1,
+          "material": "Apito com Cordão",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 2,
+          "material": "Braçal de Polícia do Exército Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 3,
+          "material": "Braçal de Polícia do Exército Preto",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 4,
+          "material": "Capacete de Polícia do Exército Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 5,
+          "material": "Capacete de Polícia do Exército Preto",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "5 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 6,
+          "material": "Cinto Talabarte Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 7,
+          "material": "Coldre Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 8,
+          "material": "Coldre Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 9,
+          "material": "Luva Branca de Couro (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 10,
+          "material": "Porta-Cassetete Branco",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 11,
+          "material": "Porta-Cassetete Verde-Oliva",
+          "dotacoes": [
+            {
+              "descricao": "Todo efetivo de QCP",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        }
+      ]
+    },
+    "E": {
+      "titulo": "Tabela de Distribuição de Peças de Uniformes de Uso Exclusivo de Motociclistas Militares",
+      "observacao": "Todos os itens se aplicam ao efetivo do QCP que desempenha a função de motociclista militar, incluindo Cabos e Soldados",
+      "itens": [
+        {
+          "numero": 1,
+          "material": "Blusão de Couro Preto",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo do QCP que desempenha a função de motociclista militar",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 2,
+          "material": "Braçal Preto",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo do QCP que desempenha a função de motociclista militar",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 3,
+          "material": "Bota Preta de Motociclista (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo do QCP que desempenha a função de motociclista militar",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 4,
+          "material": "Capacete Modular para Motociclista Militar",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo do QCP que desempenha a função de motociclista militar",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 5,
+          "material": "Coldre Ambidestro Subaxiliar",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo do QCP que desempenha a função de motociclista militar",
+              "tipo": "OM",
+              "duracao": "Indeterminado",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        },
+        {
+          "numero": 6,
+          "material": "Luva de Motociclista Preta (Par)",
+          "dotacoes": [
+            {
+              "descricao": "Efetivo do QCP que desempenha a função de motociclista militar",
+              "tipo": "OM",
+              "duracao": "3 Anos",
+              "quantidade": "1 p/ pessoa"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

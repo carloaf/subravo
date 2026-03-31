@@ -91,4 +91,26 @@ class Product extends Model
     {
         return $this->getAvailableStock() < $this->minimum_stock;
     }
+
+    /**
+     * Retorna uma versão reduzida do nome, preservando atributos úteis como cor e tamanho.
+     */
+    public function getShortDisplayNameAttribute(): string
+    {
+        $segments = preg_split('/\s*\/\s*/', $this->name) ?: [$this->name];
+        $baseName = trim(array_shift($segments) ?: $this->name);
+        $details = [];
+
+        foreach ($segments as $segment) {
+            foreach (preg_split('/\s*;\s*/', $segment) ?: [$segment] as $piece) {
+                if (preg_match('/^(Cor|Tamanho|Tipo|Modelo|Numera(?:cao|ção)|Nº|Num\.)\s*:\s*(.+)$/iu', trim($piece), $matches)) {
+                    $details[] = trim($matches[2]);
+                }
+            }
+        }
+
+        $details = array_values(array_unique(array_filter($details)));
+
+        return trim(implode(' ', array_merge([$baseName], $details)));
+    }
 }
