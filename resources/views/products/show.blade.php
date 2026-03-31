@@ -64,9 +64,16 @@
             </div>
 
             <div>
-                <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Serializado</p>
-                <p class="text-sm text-gray-900 mt-0.5">{{ $product->is_serialized ? 'Sim' : 'Não' }}</p>
+                <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Estoque Mínimo</p>
+                <p class="text-sm font-semibold text-gray-900 mt-0.5">{{ $product->minimum_stock ?? 0 }}</p>
             </div>
+
+            @if($product->subunit)
+            <div>
+                <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Subunidade</p>
+                <p class="text-sm font-semibold text-gray-900 mt-0.5">{{ $product->subunit }}</p>
+            </div>
+            @endif
 
             <div>
                 <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Cadastrado em</p>

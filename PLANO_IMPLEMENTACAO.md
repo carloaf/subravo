@@ -359,10 +359,10 @@ Autenticado (middleware 'auth'):
 - [x] `stock/adjust.blade.php` — info atual + formulário de ajuste com motivo obrigatório
 - [x] `stock/movements.blade.php` — filtros (tipo, período) + tabela cronológica com ±coloração
 - [x] `loans/index.blade.php` — busca + filtro status + tabela com ações (PDF, devolução)
-- [x] `loans/create.blade.php` — formulário com Alpine.js: tipo mutuário, itens dinâmicos, condição saída
-- [x] `loans/show.blade.php` — detalhes da cautela + mutuário + itens com condição saída/retorno
+- [x] `loans/create.blade.php` — formulário com Alpine.js: dados da cautela, cautelado manual com busca opcional, campos de cautelado/assinante com nome de guerra e posto/grad em select, itens dinâmicos, condição saída
+- [x] `loans/show.blade.php` — detalhes da cautela + cautelado/assinante opcional + itens com condição saída/retorno
 - [x] `loans/return.blade.php` — formulário de devolução parcial/total com condição de retorno
-- [x] `loans/pdf/cautela.blade.php` — template DomPDF A4 com cabeçalho militar, tabela de itens, assinaturas
+- [x] `loans/pdf/cautela.blade.php` — template DomPDF A4 com cabeçalho militar, tabela de itens, assinante opcional e assinatura em nome completo + posto/grad
 - [x] `loans/pdf/return-receipt.blade.php` — template DomPDF recibo de devolução com condições
 - [x] `admin/users/index.blade.php` — tabela com busca, filtro perfil/status, toggle ativar/desativar
 - [x] `admin/users/create.blade.php` — formulário completo: identidade, senha, dados pessoais, perfil
@@ -1387,11 +1387,21 @@ Banner de aviso laranja adicionado em `resources/views/admin/reset-stock.blade.p
 
 - **Alinhamento de colunas:** substituído `<template x-if>` + `colspan` + CSS grid por `<td x-show>` individuais por coluna — o browser agora alinha os `<td>` com os `<th>` nativamente.
 - **Coluna Preço Unit.:** exibida à direita em verde-esmeralda quando disponível.
+- **Preço unitário na própria linha:** além da coluna dedicada, cada linha de lote exibe `Preço Unit.` em badge no bloco de detalhes para evitar ambiguidade visual.
+- **Fallback de preço para estoque legado:** quando `stock_items.unit_cost` está nulo em lotes antigos importados do inventário (`INV-*`), a exibição resolve o valor a partir de `durable_goods_inventory` usando `upload_id + material_code`.
+- **Backfill persistente de preço:** comando `stock:backfill-unit-cost` preenche `unit_cost` nulo em registros antigos com base no inventário SISCOFIS, eliminando dependência operacional do fallback para os lotes legados.
+- **Edição manual de preço unitário:** o modo inline de edição em `/stock` passou a permitir alterar `unit_cost` junto com lote, data SISCOFIS, localização e observações.
+- **Edição manual de quantidade:** o modo inline de edição em `/stock` também permite alterar `quantity`, registrando automaticamente a diferença em `stock_movements` como ajuste.
+- **Entrada manual com preço unitário:** o formulário `/stock/entry` agora aceita preenchimento de `Preço Unit.` e persiste o valor diretamente em `stock_items.unit_cost` na criação do item.
 - **Coluna Localização:** removida para dar mais espaço ao produto.
 - **Nome resumido do produto:** lógica PHP extrai `base / Cor / Tamanho` do nome completo:
   - `COTURNO DE COMBATE / Cor: Preto; Tamanho: 38` → **COTURNO DE COMBATE Preto 38**
   - `CONJUNTO CAMUFLADO / Tamanho: M` → **CONJUNTO CAMUFLADO M**
   - Nome completo permanece no atributo `title` (tooltip no hover).
+- **Listagem por lote:** `/stock` passou a agrupar registros por produto, lote, série, data de entrada SISCOFIS, validade, preço unitário e status, separando corretamente lotes distintos do mesmo tamanho/modelo.
+- **Contador de lotes por tamanho/modelo:** a tabela informa quantos lotes existem para cada variação reduzida do produto, facilitando conferência visual no estoque.
+- **Status abreviado na grade:** a coluna Status agora usa siglas operacionais (`D`, `E`, `A`, `X`) com tooltip do rótulo completo para reduzir ruído visual.
+- **Linhas distintas por preço/data:** o mesmo produto aparece em linhas separadas quando houver diferença de preço unitário, data de entrada SISCOFIS ou validade, com ordenação priorizando essas variações.
 
 ### View `/durables` — Melhorias
 
@@ -1406,7 +1416,7 @@ Banner de aviso laranja adicionado em `resources/views/admin/reset-stock.blade.p
 
 ## Passo 20 — Importação SISCOFIS ⬜
 
-- [ ] Upload de planilha Excel/CSV para carga em massa do estoque
+- [ ] Upload de planilha Excel/CSV ou arquivo .pdf para carga em massa do estoque
 - [ ] Tela de mapeamento de colunas
 - [ ] Validação prévia com relatório de erros
 - [ ] Importação com transação (tudo ou nada)
@@ -1433,4 +1443,163 @@ Banner de aviso laranja adicionado em `resources/views/admin/reset-stock.blade.p
 
 ---
 
-*Última atualização: 26/03/2026 — Migrations consolidadas de 28 arquivos para 11 (patches incrementais e data-fixes absorvidos nas migrations base). Todas as colunas adicionadas posteriormente (subunit, siscofis_code, is_durable, shelf_life_months, unit_cost, borrower_cpf, borrower_phone) agora estão nas migrations de criação original. Testado com `migrate:fresh --seed` sem erros.*
+## Passo 23 — Tabela IRDU (Duração Regulamentar de Material) ✅
+
+Importação da tabela de duração regulamentar de materiais conforme IRDU (Instruções Reguladoras para Distribuição de Uniformes), com atualização automática da validade (`shelf_life_months`) dos produtos cadastrados.
+
+### Tabela `irdu_items` — Itens IRDU
+| Coluna           | Tipo                                                      |
+| ---------------- | --------------------------------------------------------- |
+| id               | bigint PK                                                 |
+| annex            | char(1) — Anexo IRDU (A, B, C, D, E)                     |
+| annex_title      | string — Título do anexo                                  |
+| item_number      | integer — Nº do item no anexo                             |
+| material_name    | string — Nome do material                                 |
+| duration_text    | string — Duração original em texto (ex: "2 Anos")        |
+| duration_months  | integer nullable — Duração em meses (null = indeterminado)|
+| dotacoes         | json — Detalhamento de todas as dotações                  |
+| timestamps       |                                                           |
+
+**Índices:** unique(annex, item_number), index(material_name), index(duration_months)
+
+### Migration
+- [x] `2026_03_31_100000_create_irdu_items_table` — tabela com índices
+
+### Model (`app/Models/IrduItem.php`)
+- [x] Fillable: annex, annex_title, item_number, material_name, duration_text, duration_months, dotacoes
+- [x] Casts: item_number→integer, duration_months→integer, dotacoes→array
+- [x] Scopes: `byAnnex($annex)`, `withDefinedDuration()`, `indeterminate()`
+- [x] Helpers: `isIndeterminate()`, `getDurationDisplay()`, `parseDurationToMonths(string)`
+
+### Seeder (`database/seeders/IrduSeeder.php`)
+- [x] Lê `IRDU.json` da raiz do projeto (5 anexos: A-E)
+- [x] Importa 136 itens IRDU com todas as dotações em JSON
+- [x] Para cada item, calcula `duration_months` como a duração máxima entre todas as dotações
+- [x] Durações "Indeterminado" → `null`
+- [x] Usa `updateOrCreate` (idempotente — pode rodar múltiplas vezes)
+- [x] Atualiza `shelf_life_months` dos produtos existentes via matching por nome
+- [x] **Matching por keyword-scoring com anchor**:
+  - Extrai nome base (antes de "/") + cor + tipo como atributos
+  - Anchor: primeira palavra do produto deve corresponder à primeira do IRDU
+  - Score = sobreposição de palavras-chave (stem 4 chars, tolera gênero preto/preta)
+  - Tiebreak: IRDU match ratio (prefere itens mais específicos)
+  - Aliases: NYLON↔NÁILON, INSÍGNA↔INSÍGNIA
+  - Threshold mínimo: 2 palavras coincidentes
+- [x] Registrado no `DatabaseSeeder` para rodar automaticamente
+
+### Dados importados
+- [x] **Anexo A**: 110 itens — Uniformes de Uso Comum (Cabos/Soldados)
+- [x] **Anexo B**: 1 item — Roupas de Cama e Banho
+- [x] **Anexo C**: 8 itens — Uniformes de OM de Guarda (GD)
+- [x] **Anexo D**: 11 itens — Uniformes de OM de Polícia do Exército (PE)
+- [x] **Anexo E**: 6 itens — Uniformes de Motociclistas Militares
+- [x] **111 itens com duração definida** (12 a 60 meses)
+- [x] **25 itens com duração indeterminada** (material permanente)
+- [x] **108 produtos existentes** atualizados com validade IRDU
+- [x] **10 produtos sem correspondência IRDU** (bússola, roupas de cama, bandeira personalizada, etc.)
+
+### Validação
+- [x] Migration executada sem erros
+- [x] Seeder importa 136 itens e atualiza 108 produtos
+- [x] Model helpers testados (getDurationDisplay, parseDurationToMonths, scopes)
+- [x] Matching correto verificado: Fivela→36m, Boina→24m, Japona→60m, Tênis→12m, etc.
+- [x] Sem falsos positivos (TOALHA DE ROSTO, COLCHA, COBERTOR corretamente sem match)
+
+---
+
+*Última atualização: 31/03/2026 — Matching IRDU aprimorado com anchor + keyword-scoring. 108 produtos atualizados (vs 20 anterior). Falsos positivos eliminados.*
+
+---
+
+## Passo 24 — Auto-cálculo de Validade nos Itens de Estoque ✅
+
+Cálculo automático de `expiration_date` nos itens de estoque (`stock_items`) com base na duração regulamentar IRDU (`shelf_life_months` do produto).
+
+### Problema
+- 122 de 124 itens de estoque exibiam "N/A" na coluna Validade
+- O campo `expiration_date` não era preenchido automaticamente na importação/entrada
+- O model tinha auto-cálculo mas exigia `siscofis_entry_date` (muitos itens sem essa data)
+
+### Correção no Model (`app/Models/StockItem.php`)
+- [x] Auto-cálculo no evento `saving` usa fallback: `siscofis_entry_date` → `created_at` → `now()`
+- [x] Só calcula se o produto tem `shelf_life_months` definido
+- [x] Dispara automaticamente em novas entradas de material
+
+### Backfill de Itens Existentes
+- [x] 110 itens atualizados com `expiration_date` calculada
+- [x] **46** via `siscofis_entry_date + shelf_life_months`
+- [x] **64** via `created_at + shelf_life_months` (sem data de entrada)
+- [x] **12** sem alteração (produtos sem durabilidade IRDU: fronha, lençol, colcha, bandeira personalizada, bússola, etc.)
+
+### Views Atualizadas
+- [x] `stock/index.blade.php` — "N/A" substituído por "Indeterminada" (itálico)
+- [x] `stock/show.blade.php` — "N/A" substituído por "Indeterminada" (itálico)
+
+### Resultado Final
+| Métrica | Antes | Depois |
+|---|---|---|
+| Itens com validade | 2 | **112** |
+| Itens "N/A" | 122 | **0** |
+| Itens "Indeterminada" | — | **12** (correto — sem IRDU) |
+
+---
+
+## Passo 25 — Cautela: Campos de Contato e Assinante ✅
+
+Adição de campos detalhados de identificação no formulário de cautela para gravar dados do cautelado e assinante diretamente na cautela, independente do cadastro no sistema.
+
+### Migrations
+- [x] `2026_03_27_120000_add_cautela_contact_fields_to_loans_table` — campos: `borrower_identity_number`, `borrower_rank`, `borrower_war_name`, `signer_name`, `signer_rank`, `signer_war_name`, `signer_identity_number`, `signer_cpf`, `signer_phone`
+- [x] `2026_03_27_123000_add_borrower_name_to_loans_table` — campo `borrower_name` (nome completo do cautelado)
+
+### Model (`app/Models/Loan.php`)
+- [x] Campos adicionados ao `$fillable`
+- [x] Accessors para exibição: `getBorrowerDisplayName()`, `getSignerDisplayName()`
+- [x] Preenchimento automático a partir do usuário selecionado (full_name, identity_number, rank, war_name)
+
+### Controller (`app/Http/Controllers/LoanController.php`)
+- [x] Validação dos novos campos no `store()`
+- [x] Auto-preenchimento a partir do `borrower_user_id` quando campos em branco
+- [x] Busca de cautelado ampliada: busca por `full_name` além de `identity_number` e `war_name`
+- [x] `searchBorrower()` retorna `full_name`, `rank`, `war_name` para preenchimento automático no frontend
+- [x] Passa `rankOptions` (postos/graduações) para a view `create`
+
+### Views
+- [x] `loans/create.blade.php` — campos de cautelado (nome, identidade, posto/grad, nome de guerra) e assinante (nome, posto/grad, nome de guerra, identidade, CPF, telefone) com preenchimento automático via busca
+- [x] `loans/show.blade.php` — exibição dos dados completos do cautelado e assinante
+- [x] `loans/pdf/cautela.blade.php` — PDF com dados do cautelado e assinante gravados na cautela
+
+### Testes
+- [x] `tests/Feature/LoanTest.php` — testes atualizados com novos campos
+
+---
+
+## Passo 26 — Estoque: Agrupamento por Lote e Custo Unitário ✅
+
+Melhorias na listagem e entrada de estoque: agrupamento inteligente por produto/lote, campo custo unitário, e edição rápida com registro de movimentação.
+
+### Controller (`app/Http/Controllers/StockController.php`)
+- [x] `index()` reescrito com JOIN + GROUP BY: agrupa itens por produto, lote, nº série, data entrada, validade, custo e status
+- [x] Exibe `SUM(quantity)` e `COUNT(*)` por grupo + `product_lot_count` (total lotes do produto)
+- [x] Ordenação: nome do produto → custo desc → data entrada desc → validade desc → lote
+- [x] Busca otimizada via JOIN (sem subquery `whereHas`)
+- [x] `storeEntry()` aceita `unit_cost` (custo unitário)
+- [x] `updateItem()` aceita `quantity` e `unit_cost`, registra `StockMovement` automático em caso de alteração de quantidade
+
+### Views
+- [x] `stock/entry.blade.php` — campo "Custo Unitário (R$)" adicionado ao formulário de entrada
+- [x] `stock/index.blade.php` — listagem agrupada com colunas atualizadas
+
+### Command
+- [x] `app/Console/Commands/BackfillStockUnitCost.php` — comando artisan para backfill de custo unitário em itens existentes
+
+---
+
+## Passo 27 — Produtos: Remoção do Campo Serializado ✅
+
+Remoção do campo "Serializado" das views de produtos, substituído por campos mais relevantes.
+
+### Views Atualizadas
+- [x] `products/show.blade.php` — removido "Serializado", adicionados "Estoque Mínimo" e "Subunidade"
+- [x] `products/edit.blade.php` — removido checkbox "Produto serializado"
+- [x] `products/create.blade.php` — removido checkbox "Produto serializado (nº série individual)"

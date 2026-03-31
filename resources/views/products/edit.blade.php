@@ -28,16 +28,6 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-input name="minimum_stock" label="Estoque Mínimo" type="number"
                          :value="$product->minimum_stock" required />
-
-                <div class="flex items-end pb-1">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="hidden" name="is_serialized" value="0">
-                        <input type="checkbox" name="is_serialized" value="1"
-                               @checked(old('is_serialized', $product->is_serialized))
-                               class="rounded border-gray-300 text-emerald-600 shadow-sm focus:ring-emerald-500">
-                        <span class="text-sm text-gray-700">Produto serializado</span>
-                    </label>
-                </div>
             </div>
 
             {{-- Campos SISCOFIS --}}
