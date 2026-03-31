@@ -21,32 +21,66 @@ class StockController extends Controller
      */
     public function index(Request $request)
     {
-        $query = StockItem::with('product.category');
+        $query = StockItem::query()
+            ->join('products', 'products.id', '=', 'stock_items.product_id')
+            ->with('product.category')
+            ->select([
+                DB::raw('MIN(stock_items.id) as id'),
+                'stock_items.product_id',
+                'stock_items.batch',
+                'stock_items.serial_number',
+                'stock_items.siscofis_entry_date',
+                'stock_items.expiration_date',
+                'stock_items.unit_cost',
+                'stock_items.status',
+                DB::raw('SUM(stock_items.quantity) as quantity'),
+                DB::raw('COUNT(*) as grouped_items_count'),
+                DB::raw('COUNT(*) OVER (PARTITION BY stock_items.product_id) as product_lot_count'),
+                DB::raw('MAX(stock_items.created_at) as latest_created_at'),
+                DB::raw('products.name as product_name'),
+            ]);
 
         // Busca por produto ou lote
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('batch', 'ilike', "%{$search}%")
-                  ->orWhere('serial_number', 'ilike', "%{$search}%")
-                  ->orWhere('location', 'ilike', "%{$search}%")
-                  ->orWhereHas('product', function ($pq) use ($search) {
-                      $pq->where('name', 'ilike', "%{$search}%");
-                  });
+                $q->where('stock_items.batch', 'ilike', "%{$search}%")
+                  ->orWhere('stock_items.serial_number', 'ilike', "%{$search}%")
+                  ->orWhere('stock_items.location', 'ilike', "%{$search}%")
+                  ->orWhere('products.name', 'ilike', "%{$search}%");
             });
         }
 
         // Filtro por status
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('stock_items.status', $request->status);
         }
 
         // Filtro por produto
         if ($request->filled('product_id')) {
-            $query->where('product_id', $request->product_id);
+            $query->where('stock_items.product_id', $request->product_id);
         }
 
-        $items    = $query->orderByDesc('created_at')->paginate(20)->appends($request->query());
+        $items = $query
+            ->groupBy(
+                'stock_items.product_id',
+                'stock_items.batch',
+                'stock_items.serial_number',
+                'stock_items.siscofis_entry_date',
+                'stock_items.expiration_date',
+                'stock_items.unit_cost',
+                'stock_items.status',
+                'products.name'
+            )
+            ->orderBy('products.name')
+            ->orderByDesc('stock_items.unit_cost')
+            ->orderByDesc('stock_items.siscofis_entry_date')
+            ->orderByDesc('stock_items.expiration_date')
+            ->orderBy('stock_items.batch')
+            ->orderByDesc('latest_created_at')
+            ->paginate(20)
+            ->appends($request->query());
+
         $products = Product::orderBy('name')->get();
         $statuses = StockItem::STATUSES;
 
@@ -83,6 +117,7 @@ class StockController extends Controller
         $validated = $request->validate([
             'product_id'         => 'required|exists:products,id',
             'quantity'           => 'required|integer|min:1',
+            'unit_cost'          => 'nullable|numeric|min:0',
             'batch'              => 'nullable|string|max:100',
             'serial_number'      => 'nullable|string|max:100',
             'expiration_date'    => 'nullable|date|after:today',
@@ -97,6 +132,7 @@ class StockController extends Controller
                 $stockItem = StockItem::create([
                     'product_id'          => $validated['product_id'],
                     'quantity'            => $validated['quantity'],
+                    'unit_cost'           => $validated['unit_cost'] ?? null,
                     'batch'               => $validated['batch'] ?? null,
                     'serial_number'       => $validated['serial_number'] ?? null,
                     'expiration_date'     => $validated['expiration_date'] ?? null,
@@ -182,20 +218,42 @@ class StockController extends Controller
     public function updateItem(Request $request, StockItem $stockItem)
     {
         $validated = $request->validate([
+            'quantity'           => 'required|integer|min:0',
             'batch'              => 'nullable|string|max:100',
             'serial_number'      => 'nullable|string|max:100|unique:stock_items,serial_number,' . $stockItem->id,
             'siscofis_entry_date' => 'nullable|date',
+            'unit_cost'          => 'nullable|numeric|min:0',
             'location'           => 'nullable|string|max:255',
             'notes'              => 'nullable|string|max:1000',
         ]);
 
-        try {
-            $stockItem->update($validated);
+        if (array_key_exists('unit_cost', $validated) && $validated['unit_cost'] === null) {
+            $validated['unit_cost'] = null;
+        }
 
-            // Recalcular expiration_date se necessário (via model event)
-            if (isset($validated['siscofis_entry_date'])) {
-                $stockItem->save(); // Trigger events
-            }
+        try {
+            DB::transaction(function () use ($validated, $stockItem) {
+                $oldQuantity = $stockItem->quantity;
+
+                $stockItem->update($validated);
+
+                // Recalcular expiration_date se necessário (via model event)
+                if (isset($validated['siscofis_entry_date'])) {
+                    $stockItem->save();
+                }
+
+                $quantityDiff = $validated['quantity'] - $oldQuantity;
+
+                if ($quantityDiff !== 0) {
+                    StockMovement::record(
+                        stockItemId: $stockItem->id,
+                        type: 'adjustment',
+                        quantity: $quantityDiff,
+                        performedBy: Auth::user()->id,
+                        notes: "Edição rápida do item (de {$oldQuantity} para {$validated['quantity']})",
+                    );
+                }
+            });
 
             return redirect()
                 ->back()

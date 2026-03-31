@@ -65,7 +65,7 @@
                                 {{ $stockItem->expiration_date->format('d/m/Y') }}
                             </x-badge>
                         @else
-                            <span class="text-gray-500">N/A</span>
+                            <span class="text-gray-400 italic text-xs">Indeterminada</span>
                         @endif
                     </p>
                 </div>

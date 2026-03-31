@@ -15,20 +15,23 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-input name="quantity" label="Quantidade" type="number" value="1" required />
+                <x-input name="unit_cost" label="Preço Unit." type="number" step="0.01" min="0" placeholder="Ex: 62,15" hint="Opcional" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-input name="batch" label="Lote" placeholder="Ex: LOTE-2026-001" hint="Opcional" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-input name="serial_number" label="Número de Série" placeholder="Se aplicável" hint="Para itens serializados" />
-                <x-input name="expiration_date" label="Data de Validade" type="date" hint="Se perecível" />
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-input name="expiration_date" label="Data de Validade" type="date" hint="Se perecível" />
                 <x-input name="siscofis_entry_date" label="Data Entrada SISCOFIS" type="date" hint="Data do registro no SISCOFIS" />
-                <x-input name="location" label="Localização" placeholder="Ex: Prateleira A3, Armário 02" />
             </div>
 
-            <x-input name="subunit" label="Subunidade" placeholder="Ex: 1ª Cia, SApInt" hint="Opcional" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-input name="location" label="Localização" placeholder="Ex: Prateleira A3, Armário 02" />
+                <x-input name="subunit" label="Subunidade" placeholder="Ex: 1ª Cia, SApInt" hint="Opcional" />
+            </div>
 
             <div>
                 <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Observações</label>

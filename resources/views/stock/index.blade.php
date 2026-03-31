@@ -25,7 +25,7 @@
                     class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900">
                 <option value="" class="text-gray-400">Todos os produtos</option>
                 @foreach($products as $p)
-                    <option value="{{ $p->id }}" @selected(request('product_id') == $p->id)>{{ $p->name }}</option>
+                    <option value="{{ $p->id }}" @selected(request('product_id') == $p->id)>{{ $p->short_display_name }}</option>
                 @endforeach
             </select>
         </div>
@@ -60,7 +60,7 @@
             <x-slot:header>
                 <tr>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Produto</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Lote / Série</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Lote / Entrada</th>
                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Qtd</th>
                     <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Preço Unit.</th>
                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Status</th>
@@ -79,23 +79,7 @@
                         default          => 'gray',
                     };
 
-                    // Resumir nome do produto: base + Cor + Tamanho
-                    $fullName  = $item->product->name;
-                    $shortName = $fullName;
-                    if (str_contains($fullName, '/') || preg_match('/Cor:|Tipo:|Tecido:|Tamanho:/i', $fullName)) {
-                        $parts   = explode('/', $fullName, 2);
-                        $base    = trim($parts[0]);
-                        $rest    = $parts[1] ?? $fullName;
-                        $cor     = '';
-                        $tamanho = '';
-                        if (preg_match('/Cor:\s*([^;]+)/i', $rest, $cm)) {
-                            $cor = trim($cm[1]);
-                        }
-                        if (preg_match('/Tamanho:\s*([^;]+)/i', $rest, $tm)) {
-                            $tamanho = trim($tm[1]);
-                        }
-                        $shortName = trim($base . ($cor ? ' ' . $cor : '') . ($tamanho ? ' ' . $tamanho : ''));
-                    }
+                    $fullName = $item->product->name;
                 @endphp
                 <tr x-data="{ editing: false }" class="hover:bg-gray-50 transition">
 
@@ -103,15 +87,44 @@
                     <td x-show="!editing" class="px-4 py-3 max-w-[180px]">
                         <a href="{{ route('products.show', $item->product) }}"
                            class="text-sm font-medium text-gray-900 hover:text-emerald-600 block"
-                           title="{{ $fullName }}">{{ $shortName }}</a>
+                           title="{{ $fullName }}">{{ $item->product->short_display_name }}</a>
                         <p class="text-xs text-gray-400">{{ $item->product->category->name ?? '' }}</p>
+                        @if(($item->product_lot_count ?? 1) > 1)
+                            <p class="text-[11px] text-emerald-700 font-medium mt-1">
+                                {{ $item->product_lot_count }} lotes para este tamanho/modelo
+                            </p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">
+                                Preco e datas diferentes aparecem em linhas separadas.
+                            </p>
+                        @endif
                     </td>
 
-                    {{-- Lote / Série --}}
+                    {{-- Lote / Entrada --}}
                     <td x-show="!editing" class="px-4 py-3">
-                        <p class="text-sm text-gray-900">{{ $item->batch ?? '—' }}</p>
+                        <p class="text-sm font-medium text-gray-900">{{ $item->getLotDisplayLabel() }}</p>
                         @if($item->serial_number)
                             <p class="text-xs text-gray-400">Nº {{ $item->serial_number }}</p>
+                        @endif
+                        <div class="mt-1 flex flex-wrap gap-1.5">
+                            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                                Preço Unit.: {{ $item->formatted_unit_cost }}
+                            </span>
+                            @if($item->siscofis_entry_date)
+                                <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-700">
+                                    Ent. {{ $item->siscofis_entry_date->format('d/m/Y') }}
+                                </span>
+                            @endif
+                            @if($item->expiration_date)
+                                <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                                    Val. {{ $item->expiration_date->format('d/m/Y') }}
+                                </span>
+                            @endif
+                        </div>
+                        @if($item->siscofis_entry_date)
+                            <p class="text-xs text-gray-500 mt-0.5">Entrada {{ $item->siscofis_entry_date->format('d/m/Y') }}</p>
+                        @endif
+                        @if(($item->grouped_items_count ?? 1) > 1)
+                            <p class="text-[11px] text-gray-400 mt-0.5">{{ $item->grouped_items_count }} registros agrupados</p>
                         @endif
                     </td>
 
@@ -122,16 +135,17 @@
 
                     {{-- Preço Unit. --}}
                     <td x-show="!editing" class="px-4 py-3 text-right whitespace-nowrap">
-                        @if($item->unit_cost)
+                        <div class="inline-flex flex-col items-end">
                             <span class="text-sm font-semibold text-emerald-700">{{ $item->formatted_unit_cost }}</span>
-                        @else
-                            <span class="text-xs text-gray-400">—</span>
-                        @endif
+                            <span class="text-[11px] text-gray-400">por lote exibido</span>
+                        </div>
                     </td>
 
                     {{-- Status --}}
                     <td x-show="!editing" class="px-4 py-3 text-center">
-                        <x-badge :color="$statusColor">{{ $item->getStatusLabel() }}</x-badge>
+                        <span title="{{ $item->getStatusLabel() }}">
+                            <x-badge :color="$statusColor">{{ $item->getStatusShortLabel() }}</x-badge>
+                        </span>
                     </td>
 
                     {{-- Validade --}}
@@ -156,7 +170,7 @@
                                 @endif
                             </div>
                         @else
-                            <span class="text-xs text-gray-400">N/A</span>
+                            <span class="text-xs text-gray-400 italic">Indeterminada</span>
                         @endif
                     </td>
 
@@ -169,16 +183,20 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
                             </a>
-                            <a href="{{ route('stock.label', $item) }}" class="p-1.5 text-gray-400 hover:text-purple-600 rounded transition" title="Etiqueta QR">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                                </svg>
-                            </a>
-                            <button @click="editing = true" class="p-1.5 text-gray-400 hover:text-emerald-600 rounded transition" title="Editar">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </button>
+                            @if(($item->grouped_items_count ?? 1) === 1)
+                                <a href="{{ route('stock.label', $item) }}" class="p-1.5 text-gray-400 hover:text-purple-600 rounded transition" title="Etiqueta QR">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                    </svg>
+                                </a>
+                                <button @click="editing = true" class="p-1.5 text-gray-400 hover:text-emerald-600 rounded transition" title="Editar">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                            @else
+                                <span class="text-[11px] text-gray-400 font-medium">Lote agrupado</span>
+                            @endif
                         </div>
                     </td>
 
@@ -194,7 +212,14 @@
                                     </div>
                                 </div>
                                 
-                                <div class="grid grid-cols-1 sm:grid-cols-6 gap-3 mb-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-8 gap-3 mb-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Quantidade</label>
+                                        <input type="number" name="quantity" min="0" step="1"
+                                               value="{{ old('quantity', $item->quantity) }}"
+                                               style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                                               class="w-full px-3 py-1.5 text-sm rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
+                                    </div>
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700 mb-1">Lote</label>
                                         <input type="text" name="batch" value="{{ $item->batch }}"
@@ -211,6 +236,14 @@
                                         <label class="block text-xs font-medium text-gray-700 mb-1">📅 Data Entrada SISCOFIS</label>
                                         <input type="date" name="siscofis_entry_date" 
                                                value="{{ $item->siscofis_entry_date?->format('Y-m-d') }}"
+                                               style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
+                                               class="w-full px-3 py-1.5 text-sm rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Preço Unit.</label>
+                                        <input type="number" name="unit_cost" step="0.01" min="0"
+                                               value="{{ old('unit_cost', $item->getResolvedUnitCost()) }}"
+                                               placeholder="0,00"
                                                style="transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);"
                                                class="w-full px-3 py-1.5 text-sm rounded-lg border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none">
                                     </div>
@@ -233,6 +266,7 @@
                                     <div class="text-xs text-gray-600">
                                         <span class="font-medium">Status:</span> <x-badge :color="$statusColor" size="sm">{{ $item->getStatusLabel() }}</x-badge>
                                         <span class="ml-3 font-medium">Qtd:</span> {{ $item->quantity }}
+                                        <span class="ml-3 font-medium">Preço Unit.:</span> {{ $item->formatted_unit_cost }}
                                         
                                         {{-- Informações de validade expandidas --}}
                                         <div class="mt-2 p-2 bg-white/50 rounded border border-emerald-100">

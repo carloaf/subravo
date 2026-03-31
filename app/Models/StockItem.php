@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Scopes\SubunitScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class StockItem extends Model
 {
     use HasFactory;
+
+    protected static array $resolvedUnitCostCache = [];
 
     protected static function booted(): void
     {
@@ -20,12 +23,13 @@ class StockItem extends Model
                 throw new \DomainException("Quantidade do item de estoque não pode ser negativa.");
             }
 
-            // Auto-calcular expiration_date se tiver siscofis_entry_date e produto com shelf_life_months
-            if ($item->siscofis_entry_date && !$item->expiration_date && $item->product_id) {
-                $product = $item->product ?? Product::find($item->product_id);
-                
+            // Auto-calcular expiration_date com base na durabilidade do produto (IRDU)
+            if (!$item->expiration_date && $item->product_id) {
+                $product = $item->relationLoaded('product') ? $item->product : Product::find($item->product_id);
+
                 if ($product && $product->shelf_life_months) {
-                    $item->expiration_date = $item->siscofis_entry_date->copy()->addMonths($product->shelf_life_months);
+                    $baseDate = $item->siscofis_entry_date ?? $item->created_at ?? now();
+                    $item->expiration_date = $baseDate->copy()->addMonths($product->shelf_life_months);
                 }
             }
         });
@@ -60,10 +64,13 @@ class StockItem extends Model
      */
     public function getFormattedUnitCostAttribute(): string
     {
-        if ($this->unit_cost === null) {
+        $resolvedUnitCost = $this->getResolvedUnitCost();
+
+        if ($resolvedUnitCost === null) {
             return '—';
         }
-        return 'R$ ' . number_format((float) $this->unit_cost, 2, ',', '.');
+
+        return 'R$ ' . number_format($resolvedUnitCost, 2, ',', '.');
     }
 
     /**
@@ -74,6 +81,13 @@ class StockItem extends Model
         'loaned'         => 'Emprestado',
         'damaged'        => 'Danificado',
         'decommissioned' => 'Descarregado',
+    ];
+
+    public const STATUS_SHORT_LABELS = [
+        'available'      => 'D',
+        'loaned'         => 'E',
+        'damaged'        => 'A',
+        'decommissioned' => 'X',
     ];
 
     // ─── Relationships ───────────────────────────────────────────
@@ -132,6 +146,71 @@ class StockItem extends Model
     public function getStatusLabel(): string
     {
         return self::STATUSES[$this->status] ?? $this->status;
+    }
+
+    public function getStatusShortLabel(): string
+    {
+        return self::STATUS_SHORT_LABELS[$this->status] ?? strtoupper(substr($this->getStatusLabel(), 0, 1));
+    }
+
+    public function getLotDisplayLabel(): string
+    {
+        if ($this->batch) {
+            return $this->batch;
+        }
+
+        if ($this->serial_number) {
+            return 'SERIE-' . $this->serial_number;
+        }
+
+        return 'SEM LOTE';
+    }
+
+    public function getResolvedUnitCost(): ?float
+    {
+        if ($this->unit_cost !== null) {
+            return (float) $this->unit_cost;
+        }
+
+        $uploadId = $this->extractInventoryUploadIdFromBatch();
+        $materialCode = $this->product?->siscofis_code;
+
+        if (!$uploadId || blank($materialCode)) {
+            return null;
+        }
+
+        $cacheKey = $uploadId . ':' . $materialCode;
+
+        if (array_key_exists($cacheKey, self::$resolvedUnitCostCache)) {
+            return self::$resolvedUnitCostCache[$cacheKey];
+        }
+
+        $resolved = DurableGoodsInventory::query()
+            ->withoutGlobalScopes()
+            ->where('inventory_upload_id', $uploadId)
+            ->where('material_code', $materialCode)
+            ->max('unit_value');
+
+        self::$resolvedUnitCostCache[$cacheKey] = $resolved !== null ? (float) $resolved : null;
+
+        return self::$resolvedUnitCostCache[$cacheKey];
+    }
+
+    protected function extractInventoryUploadIdFromBatch(): ?int
+    {
+        if (blank($this->batch) || !Str::startsWith($this->batch, 'INV-')) {
+            return null;
+        }
+
+        if (preg_match('/^INV-(\d+)(?:-\d+)?$/', $this->batch, $matches)) {
+            return (int) $matches[1];
+        }
+
+        if (preg_match('/UP(\d+)$/', $this->batch, $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
     }
 
     /**
