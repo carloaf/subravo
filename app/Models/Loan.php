@@ -20,10 +20,20 @@ class Loan extends Model
         'loan_number',
         'borrower_type',
         'borrower_user_id',
+        'borrower_name',
         'borrower_section',
         'borrower_organization_id',
         'borrower_cpf',
         'borrower_phone',
+        'borrower_identity_number',
+        'borrower_rank',
+        'borrower_war_name',
+        'signer_name',
+        'signer_rank',
+        'signer_war_name',
+        'signer_identity_number',
+        'signer_cpf',
+        'signer_phone',
         'loaned_by',
         'subunit',
         'loan_date',
@@ -146,11 +156,69 @@ class Loan extends Model
     public function getBorrowerDisplayName(): string
     {
         if ($this->isIndividual()) {
-            return $this->borrower?->getDisplayName() ?? 'N/A';
+            return $this->borrower_name ?: ($this->borrower?->full_name ?: ($this->borrower?->getDisplayName() ?? 'N/A'));
         }
 
         $org = $this->borrowerOrganization?->getDisplayName() ?? '';
         return trim("{$this->borrower_section} {$org}");
+    }
+
+    public function getBorrowerIdentityDisplay(): ?string
+    {
+        return $this->borrower_identity_number ?: $this->borrower?->identity_number;
+    }
+
+    public function getBorrowerRankDisplay(): ?string
+    {
+        return $this->borrower_rank ?: $this->borrower?->rank?->abbreviation;
+    }
+
+    public function getBorrowerWarNameDisplay(): ?string
+    {
+        return $this->borrower_war_name ?: $this->borrower?->war_name;
+    }
+
+    public function getSignerDisplayName(): string
+    {
+        return $this->signer_name ?: $this->getBorrowerDisplayName();
+    }
+
+    public function hasSignerDetails(): bool
+    {
+        return filled($this->signer_name)
+            || filled($this->signer_rank)
+            || filled($this->signer_war_name)
+            || filled($this->signer_identity_number)
+            || filled($this->signer_cpf)
+            || filled($this->signer_phone);
+    }
+
+    public function getSignerRankDisplay(): ?string
+    {
+        return $this->signer_rank ?: $this->getBorrowerRankDisplay();
+    }
+
+    public function getSignerWarNameDisplay(): ?string
+    {
+        return $this->signer_war_name ?: $this->getBorrowerWarNameDisplay();
+    }
+
+    public function getSignerIdentityDisplay(): ?string
+    {
+        return $this->signer_identity_number ?: $this->getBorrowerIdentityDisplay();
+    }
+
+    public function getSignatureDisplay(): string
+    {
+        $name = $this->hasSignerDetails()
+            ? ($this->signer_name ?: $this->getBorrowerDisplayName())
+            : $this->getBorrowerDisplayName();
+
+        $rank = $this->hasSignerDetails()
+            ? ($this->signer_rank ?: $this->getBorrowerRankDisplay())
+            : $this->getBorrowerRankDisplay();
+
+        return trim($name . ($rank ? ' - ' . $rank : ''));
     }
 
     /**

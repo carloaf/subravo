@@ -61,6 +61,7 @@ class LoanTest extends TestCase
         $loanData = [
             'borrower_type' => 'individual',
             'borrower_user_id' => $borrower->id,
+            'borrower_name' => $borrower->full_name,
             'expected_return_date' => now()->addDays(7)->format('Y-m-d'),
             'notes' => 'Empréstimo de teste',
             'items' => [
@@ -92,6 +93,60 @@ class LoanTest extends TestCase
             'stock_item_id' => $stockItem->id,
             'movement_type' => 'loan',
             'quantity' => -5,
+        ]);
+    }
+
+    /** @test */
+    public function user_can_store_cautela_contact_and_signature_fields(): void
+    {
+        $user = $this->createAdmin();
+        $borrower = $this->createUser();
+        $organization = $this->createOrganization();
+        $stockItem = $this->createStockItem(['quantity' => 10]);
+
+        $loanData = [
+            'borrower_type' => 'individual',
+            'borrower_user_id' => $borrower->id,
+            'borrower_name' => $borrower->full_name,
+            'borrower_war_name' => 'SILVA',
+            'borrower_rank' => '3º Sgt',
+            'borrower_identity_number' => '123456789',
+            'borrower_cpf' => '123.456.789-00',
+            'borrower_phone' => '(61) 99999-0000',
+            'borrower_organization_id' => $organization->id,
+            'signer_name' => '1º Sgt Responsável',
+            'signer_war_name' => 'OLIVEIRA',
+            'signer_rank' => '1º Sgt',
+            'signer_identity_number' => '987654321',
+            'signer_cpf' => '987.654.321-00',
+            'signer_phone' => '(61) 98888-0000',
+            'items' => [
+                [
+                    'stock_item_id' => $stockItem->id,
+                    'quantity' => 2,
+                    'condition_out' => 'bom',
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($user)->post('/loans', $loanData);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('loans', [
+            'borrower_user_id' => $borrower->id,
+            'borrower_name' => $borrower->full_name,
+            'borrower_war_name' => 'SILVA',
+            'borrower_rank' => '3º Sgt',
+            'borrower_identity_number' => '123456789',
+            'borrower_cpf' => '123.456.789-00',
+            'borrower_phone' => '(61) 99999-0000',
+            'borrower_organization_id' => $organization->id,
+            'signer_name' => '1º Sgt Responsável',
+            'signer_war_name' => 'OLIVEIRA',
+            'signer_rank' => '1º Sgt',
+            'signer_identity_number' => '987654321',
+            'signer_cpf' => '987.654.321-00',
+            'signer_phone' => '(61) 98888-0000',
         ]);
     }
 
@@ -163,6 +218,44 @@ class LoanTest extends TestCase
         $response = $this->actingAs($user)->post('/loans', $loanData);
 
         $response->assertSessionHasErrors();
+    }
+
+    /** @test */
+    public function user_can_create_individual_loan_without_registered_borrower(): void
+    {
+        $user = $this->createAdmin();
+        $organization = $this->createOrganization();
+        $stockItem = $this->createStockItem(['quantity' => 10]);
+
+        $loanData = [
+            'borrower_type' => 'individual',
+            'borrower_name' => 'Fulano de Tal',
+            'borrower_war_name' => 'FULANO',
+            'borrower_rank' => 'Cb',
+            'borrower_identity_number' => '99887766',
+            'borrower_cpf' => '123.123.123-12',
+            'borrower_phone' => '(61) 99999-1111',
+            'borrower_organization_id' => $organization->id,
+            'items' => [
+                [
+                    'stock_item_id' => $stockItem->id,
+                    'quantity' => 1,
+                    'condition_out' => 'bom',
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($user)->post('/loans', $loanData);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('loans', [
+            'borrower_type' => 'individual',
+            'borrower_user_id' => null,
+            'borrower_name' => 'Fulano de Tal',
+            'borrower_war_name' => 'FULANO',
+            'borrower_rank' => 'Cb',
+            'borrower_identity_number' => '99887766',
+        ]);
     }
 
     /** @test */

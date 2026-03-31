@@ -6,6 +6,7 @@ use App\Models\Loan;
 use App\Models\LoanItem;
 use App\Models\Organization;
 use App\Models\Product;
+use App\Models\Rank;
 use App\Models\StockItem;
 use App\Models\StockMovement;
 use App\Models\User;
@@ -31,14 +32,18 @@ class LoanController extends Controller
             ->where('is_active', true)
             ->where(function ($q) use ($term) {
                 $q->where('identity_number', 'ilike', "%{$term}%")
-                  ->orWhere('war_name', 'ilike', "%{$term}%");
+                                    ->orWhere('war_name', 'ilike', "%{$term}%")
+                                    ->orWhere('full_name', 'ilike', "%{$term}%");
             })
             ->limit(10)
             ->get()
             ->map(fn ($u) => [
                 'id'              => $u->id,
                 'label'           => $u->getDisplayName() . ' (' . $u->identity_number . ')',
+                'full_name'       => $u->full_name,
                 'identity_number' => $u->identity_number,
+                'rank'            => $u->rank?->abbreviation,
+                'war_name'        => $u->war_name,
             ]);
 
         return response()->json($users);
@@ -81,6 +86,10 @@ class LoanController extends Controller
     public function create()
     {
         $organizations = Organization::orderBy('abbreviation')->get();
+        $rankOptions = Rank::ordered()
+            ->get()
+            ->mapWithKeys(fn ($rank) => [$rank->abbreviation => $rank->getDisplayName()])
+            ->toArray();
         $products      = Product::with(['stockItems' => function ($q) {
             $q->available()
               ->where('quantity', '>', 0)
@@ -91,7 +100,7 @@ class LoanController extends Controller
               });
         }])->orderBy('name')->get();
 
-        return view('loans.create', compact('organizations', 'products'));
+        return view('loans.create', compact('organizations', 'products', 'rankOptions'));
     }
 
     /**
@@ -101,11 +110,21 @@ class LoanController extends Controller
     {
         $validated = $request->validate([
             'borrower_type'            => 'required|in:individual,section',
-            'borrower_user_id'         => 'required_if:borrower_type,individual|nullable|exists:users,id',
+            'borrower_user_id'         => 'nullable|exists:users,id',
+            'borrower_name'            => 'required_if:borrower_type,individual|nullable|string|max:150',
             'borrower_section'         => 'required_if:borrower_type,section|nullable|string|max:150',
             'borrower_organization_id' => 'nullable|exists:organizations,id',
             'borrower_cpf'             => 'nullable|string|max:14',
             'borrower_phone'           => 'nullable|string|max:20',
+            'borrower_identity_number' => 'nullable|string|max:30',
+            'borrower_rank'            => 'nullable|string|max:50',
+            'borrower_war_name'        => 'nullable|string|max:100',
+            'signer_name'              => 'nullable|string|max:150',
+            'signer_rank'              => 'nullable|string|max:50',
+            'signer_war_name'          => 'nullable|string|max:100',
+            'signer_identity_number'   => 'nullable|string|max:30',
+            'signer_cpf'               => 'nullable|string|max:14',
+            'signer_phone'             => 'nullable|string|max:20',
             'expected_return_date'     => 'nullable|date|after_or_equal:today',
             'notes'                    => 'nullable|string|max:1000',
             // Itens: array de {stock_item_id, quantity, condition_out}
@@ -113,19 +132,61 @@ class LoanController extends Controller
             'items.*.stock_item_id'    => 'required|exists:stock_items,id',
             'items.*.quantity'         => 'required|integer|min:1',
             'items.*.condition_out'    => 'required|in:' . implode(',', array_keys(LoanItem::CONDITIONS)),
+        ], [
+            'borrower_user_id.exists' => 'O cautelado selecionado nao foi encontrado.',
+            'borrower_name.required_if' => 'Informe o nome completo do cautelado.',
+            'borrower_section.required_if' => 'Informe para quem a cautela sera registrada.',
+        ], [
+            'borrower_user_id' => 'cautelado',
+            'borrower_name' => 'cautelado para',
+            'borrower_section' => 'cautelado para',
         ]);
 
+        $borrowerName = $validated['borrower_name'] ?? null;
+        $borrowerIdentityNumber = $validated['borrower_identity_number'] ?? null;
+        $borrowerRank = $validated['borrower_rank'] ?? null;
+        $borrowerWarName = $validated['borrower_war_name'] ?? null;
+
+        if (blank($borrowerName) && !empty($validated['borrower_user_id'])) {
+            $borrowerName = User::whereKey($validated['borrower_user_id'])->value('full_name');
+        }
+
+        if (blank($borrowerIdentityNumber) && !empty($validated['borrower_user_id'])) {
+            $borrowerIdentityNumber = User::whereKey($validated['borrower_user_id'])->value('identity_number');
+        }
+
+        if (blank($borrowerRank) && !empty($validated['borrower_user_id'])) {
+            $borrowerRank = User::query()
+                ->with('rank')
+                ->whereKey($validated['borrower_user_id'])
+                ->first()?->rank?->abbreviation;
+        }
+
+        if (blank($borrowerWarName) && !empty($validated['borrower_user_id'])) {
+            $borrowerWarName = User::whereKey($validated['borrower_user_id'])->value('war_name');
+        }
+
         try {
-            $loan = DB::transaction(function () use ($validated) {
+            $loan = DB::transaction(function () use ($validated, $borrowerName, $borrowerIdentityNumber, $borrowerRank, $borrowerWarName) {
                 // Criar a cautela
                 $loan = Loan::create([
                     'loan_number'              => Loan::generateLoanNumber(),
                     'borrower_type'            => $validated['borrower_type'],
                     'borrower_user_id'         => $validated['borrower_user_id'] ?? null,
+                    'borrower_name'            => $borrowerName,
                     'borrower_section'         => $validated['borrower_section'] ?? null,
                     'borrower_organization_id' => $validated['borrower_organization_id'] ?? null,
                     'borrower_cpf'             => $validated['borrower_cpf'] ?? null,
                     'borrower_phone'           => $validated['borrower_phone'] ?? null,
+                    'borrower_identity_number' => $borrowerIdentityNumber,
+                    'borrower_rank'            => $borrowerRank,
+                    'borrower_war_name'        => $borrowerWarName,
+                    'signer_name'              => $validated['signer_name'] ?? null,
+                    'signer_rank'              => $validated['signer_rank'] ?? null,
+                    'signer_war_name'          => $validated['signer_war_name'] ?? null,
+                    'signer_identity_number'   => $validated['signer_identity_number'] ?? null,
+                    'signer_cpf'               => $validated['signer_cpf'] ?? null,
+                    'signer_phone'             => $validated['signer_phone'] ?? null,
                     'loaned_by'                => Auth::user()->id,
                     'subunit'                  => Auth::user()->subunit,
                     'loan_date'                => now(),

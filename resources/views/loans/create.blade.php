@@ -23,8 +23,8 @@
 <form method="POST" action="{{ route('loans.store') }}" class="space-y-6" x-data="loanForm()">
     @csrf
 
-    {{-- ── Dados do Mutuário ── --}}
-    <x-card title="Dados do Mutuário" subtitle="Quem receberá o material emprestado">
+    {{-- ── Dados da Cautela ── --}}
+    <x-card title="Dados da Cautela" subtitle="Preencha os dados do cautelado e do responsável pela assinatura">
         <div class="space-y-5">
 
             {{-- Tipo --}}
@@ -49,23 +49,21 @@
                 @error('borrower_type') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
             </div>
 
-            {{-- ── Individual ── --}}
             <div x-show="borrowerType === 'individual'" x-transition x-data="borrowerSearch()" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {{-- Busca por identidade militar --}}
                     <div class="relative">
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Mutuário <span class="text-red-500">*</span>
+                            Cautelado para <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" x-model="search"
+                           <input type="text" name="borrower_name" x-model="search" :disabled="borrowerType !== 'individual'"
                                @input.debounce.300ms="fetchResults()"
                                @focus="open = results.length > 0"
                                @click.away="open = false"
-                               placeholder="Digite a identidade ou nome de guerra..."
+                                   placeholder="Nome completo"
                                style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
                                class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
                                autocomplete="off">
-                        <input type="hidden" name="borrower_user_id" :value="selectedId">
+                        <input type="hidden" name="borrower_user_id" :value="selectedId" :disabled="borrowerType !== 'individual'">
 
                         <div x-show="open && results.length > 0" x-transition
                              class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
@@ -88,19 +86,48 @@
                             </button>
                         </div>
                         <div x-show="loading" class="mt-1 text-xs text-gray-400">Buscando...</div>
+                        @error('borrower_name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         @error('borrower_user_id') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
 
-                    <x-select name="borrower_organization_id" label="OM do Mutuário"
+                    <x-select name="borrower_organization_id" label="OM"
                               :options="$organizations->pluck('abbreviation', 'id')->toArray()"
-                              :selected="old('borrower_organization_id')" />
+                              :selected="old('borrower_organization_id')"
+                              x-bind:disabled="borrowerType !== 'individual'" />
                 </div>
 
-                {{-- CPF · Idt Militar · Telefone --}}
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Nome de Guerra</label>
+                           <input type="text" name="borrower_war_name"
+                               x-model="selectedWarName"
+                               :disabled="borrowerType !== 'individual'"
+                               placeholder="Ex: SILVA"
+                               style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                               class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                               maxlength="100">
+                        @error('borrower_war_name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <x-select name="borrower_rank" label="Posto/Grad"
+                              :options="$rankOptions"
+                              :selected="old('borrower_rank')"
+                              placeholder="— Selecione —"
+                              x-model="selectedRank"
+                              x-bind:disabled="borrowerType !== 'individual'" />
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Idt</label>
+                           <input type="text" name="borrower_identity_number"
+                               x-model="selectedIdentity"
+                               :disabled="borrowerType !== 'individual'"
+                               placeholder="Preenchido ao selecionar ou informe manualmente"
+                               style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                               class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                               maxlength="30">
+                        @error('borrower_identity_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">CPF</label>
-                        <input type="text" name="borrower_cpf" value="{{ old('borrower_cpf') }}"
+                           <input type="text" name="borrower_cpf" value="{{ old('borrower_cpf') }}" :disabled="borrowerType !== 'individual'"
                                placeholder="000.000.000-00"
                                style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
                                class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
@@ -108,18 +135,9 @@
                         @error('borrower_cpf') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Identidade Militar</label>
-                        <input type="text" name="borrower_identity_display"
-                               x-model="selectedIdentity"
-                               placeholder="Preenchido ao selecionar ou informe manualmente"
-                               style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
-                               class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
-                               maxlength="20">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Telefone</label>
-                        <input type="text" name="borrower_phone" value="{{ old('borrower_phone') }}"
-                               placeholder="(61) 99999-9999"
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Contato</label>
+                           <input type="text" name="borrower_phone" value="{{ old('borrower_phone') }}" :disabled="borrowerType !== 'individual'"
+                               placeholder="(  )"
                                style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
                                class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
                                maxlength="20">
@@ -128,46 +146,120 @@
                 </div>
             </div>
 
-            {{-- ── Seção ── --}}
             <div x-show="borrowerType === 'section'" x-cloak x-transition class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <x-input name="borrower_section" label="Seção / Subunidade"
-                              placeholder="Ex: 1ª Cia, SApInt, Pel Cmdo" />
+                    <x-input name="borrower_section" label="Cautelado para"
+                              placeholder="Ex: 1ª Cia, SApInt, Pel Cmdo"
+                              x-bind:disabled="borrowerType !== 'section'" />
                     <x-select name="borrower_organization_id" label="OM"
                               :options="$organizations->pluck('abbreviation', 'id')->toArray()"
-                              :selected="old('borrower_organization_id')" />
+                              :selected="old('borrower_organization_id')"
+                              x-bind:disabled="borrowerType !== 'section'" />
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">CPF do Responsável</label>
-                        <input type="text" name="borrower_cpf" value="{{ old('borrower_cpf') }}"
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Nome de Guerra</label>
+                           <input type="text" name="borrower_war_name" value="{{ old('borrower_war_name') }}" :disabled="borrowerType !== 'section'"
+                               placeholder="Ex: SILVA"
+                               style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                               class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                               maxlength="100">
+                        @error('borrower_war_name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <x-select name="borrower_rank" label="Posto/Grad"
+                              :options="$rankOptions"
+                              :selected="old('borrower_rank')"
+                              placeholder="— Selecione —"
+                              x-bind:disabled="borrowerType !== 'section'" />
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Idt</label>
+                           <input type="text" name="borrower_identity_number" value="{{ old('borrower_identity_number') }}" :disabled="borrowerType !== 'section'"
+                               placeholder="Nº da identidade"
+                               style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                               class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                               maxlength="30">
+                        @error('borrower_identity_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">CPF</label>
+                           <input type="text" name="borrower_cpf" value="{{ old('borrower_cpf') }}" :disabled="borrowerType !== 'section'"
                                placeholder="000.000.000-00"
                                style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
                                class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
                                maxlength="14">
+                        @error('borrower_cpf') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Identidade Militar</label>
-                        <input type="text" placeholder="Nº da identidade"
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Contato</label>
+                           <input type="text" name="borrower_phone" value="{{ old('borrower_phone') }}" :disabled="borrowerType !== 'section'"
+                               placeholder="(  )"
                                style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
-                               class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900"
-                               maxlength="30">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Telefone</label>
-                        <input type="text" name="borrower_phone" value="{{ old('borrower_phone') }}"
-                               placeholder="(61) 99999-9999"
-                               style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
-                               class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900"
+                               class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
                                maxlength="20">
+                        @error('borrower_phone') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 pt-3 border-t border-gray-100">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Assina Cautela</label>
+                    <input type="text" name="signer_name" value="{{ old('signer_name') }}"
+                           placeholder="Nome do responsável"
+                           style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                           class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                           maxlength="150">
+                    @error('signer_name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Nome de Guerra</label>
+                    <input type="text" name="signer_war_name" value="{{ old('signer_war_name') }}"
+                           placeholder="Ex: OLIVEIRA"
+                           style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                           class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                           maxlength="100">
+                    @error('signer_war_name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <x-select name="signer_rank" label="Posto/Grad"
+                          :options="$rankOptions"
+                          :selected="old('signer_rank')"
+                          placeholder="— Selecione —" />
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Idt</label>
+                    <input type="text" name="signer_identity_number" value="{{ old('signer_identity_number') }}"
+                           placeholder="Nº da identidade"
+                           style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                           class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                           maxlength="30">
+                    @error('signer_identity_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">CPF</label>
+                    <input type="text" name="signer_cpf" value="{{ old('signer_cpf') }}"
+                           placeholder="000.000.000-00"
+                           style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                           class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                           maxlength="14">
+                    @error('signer_cpf') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Contato</label>
+                    <input type="text" name="signer_phone" value="{{ old('signer_phone') }}"
+                           placeholder="(  )"
+                           style="transition: all 0.3s ease; background: rgba(255,255,255,0.9);"
+                           class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none text-sm text-gray-900 placeholder-gray-400"
+                           maxlength="20">
+                    @error('signer_phone') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             {{-- Data de Devolução --}}
             <div class="pt-3 border-t border-gray-100">
-                <x-input name="expected_return_date" label="Data Prevista de Devolução" type="date"
-                         hint="Opcional — se preenchido, o sistema alertará sobre atrasos" />
+                <div class="max-w-sm">
+                    <x-input name="expected_return_date" label="Data Prevista de Devolução" type="date"
+                             hint="Opcional — se preenchido, o sistema alertará sobre atrasos" />
+                </div>
             </div>
 
         </div>
@@ -299,15 +391,27 @@ function loanForm() {
 
 function borrowerSearch() {
     return {
-        search: '',
+        search: '{{ old('borrower_name', '') }}',
         results: [],
         open: false,
         loading: false,
         selectedId: '{{ old('borrower_user_id', '') }}',
-        selectedLabel: '',
-        selectedIdentity: '',
+        selectedLabel: '{{ old('borrower_name', '') }}',
+        selectedIdentity: '{{ old('borrower_identity_number', '') }}',
+        selectedRank: '{{ old('borrower_rank', '') }}',
+        selectedWarName: '{{ old('borrower_war_name', '') }}',
+        selectedName: '{{ old('borrower_name', '') }}',
 
         async fetchResults() {
+            if (this.selectedId && this.search !== this.selectedName) {
+                this.selectedId = '';
+                this.selectedLabel = '';
+                this.selectedName = '';
+                this.selectedIdentity = '';
+                this.selectedRank = '';
+                this.selectedWarName = '';
+            }
+
             if (this.search.length < 2) {
                 this.results = [];
                 this.open = false;
@@ -326,9 +430,12 @@ function borrowerSearch() {
 
         selectUser(user) {
             this.selectedId       = user.id;
-            this.selectedLabel    = user.label;
+            this.selectedLabel    = user.full_name || user.label;
+            this.selectedName     = user.full_name || user.label;
             this.selectedIdentity = user.identity_number ?? '';
-            this.search           = '';
+            this.selectedRank     = user.rank ?? '';
+            this.selectedWarName  = user.war_name ?? '';
+            this.search           = user.full_name || user.label;
             this.results          = [];
             this.open             = false;
         },
@@ -336,7 +443,10 @@ function borrowerSearch() {
         clearSelection() {
             this.selectedId       = '';
             this.selectedLabel    = '';
+            this.selectedName     = '';
             this.selectedIdentity = '';
+            this.selectedRank     = '';
+            this.selectedWarName  = '';
             this.search           = '';
         }
     };

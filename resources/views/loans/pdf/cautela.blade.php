@@ -27,15 +27,16 @@
         .items-table tfoot td { font-weight: bold; background: #f5f5f5; border: 1px solid #aaa; }
 
         /* ── Rodapé de itens ── */
-        .receipt-line { margin-top: 12px; font-size: 11px; line-height: 2.2; }
-        .receipt-line .line { border-bottom: 1px solid #333; display: inline-block; min-width: 160px; }
+        .receipt-grid { margin-top: 12px; }
+        .receipt-line { margin-top: 6px; font-size: 11px; line-height: 1.8; }
+        .date-line { margin-top: 18px; text-align: center; font-size: 11px; }
 
         /* ── Data devolução ── */
         .return-date { font-size: 11px; margin-top: 6px; }
 
         /* ── Assinatura ── */
-        .signature-block { margin-top: 40px; text-align: center; }
-        .sig-line { border-top: 1px solid #333; margin: 0 auto; width: 60%; padding-top: 4px; }
+        .signature-block { margin-top: 34px; text-align: center; }
+        .sig-line { margin: 0 auto; width: 70%; padding-top: 4px; }
         .sig-role { font-size: 9px; color: #555; text-transform: uppercase; margin-top: 2px; }
 
         /* ── Observações ── */
@@ -47,6 +48,34 @@
 </head>
 <body>
 <div class="page">
+    @php
+        $borrowerName = $loan->isIndividual() ? $loan->getBorrowerDisplayName() : ($loan->borrower_section ?: '');
+        $borrowerIdentity = $loan->getBorrowerIdentityDisplay() ?? '';
+        $borrowerRank = $loan->getBorrowerRankDisplay() ?? '';
+        $borrowerWarName = $loan->getBorrowerWarNameDisplay() ?? '';
+        $signerName = $loan->getSignerDisplayName();
+        $signerRank = $loan->getSignerRankDisplay() ?? '';
+        $signerWarName = $loan->getSignerWarNameDisplay() ?? '';
+        $signerIdentity = $loan->getSignerIdentityDisplay() ?? '';
+        $hasSignerDetails = $loan->hasSignerDetails();
+        $signatureDisplay = $loan->getSignatureDisplay();
+        $borrowerFields = array_filter([
+            ['label' => 'Nome de Guerra', 'value' => $borrowerWarName],
+            ['label' => 'Posto/Grad', 'value' => $borrowerRank],
+            ['label' => 'Idt', 'value' => $borrowerIdentity],
+            ['label' => 'CPF', 'value' => $loan->borrower_cpf ?? ''],
+            ['label' => 'Contato', 'value' => $loan->borrower_phone ?? ''],
+            ['label' => 'OM', 'value' => $loan->borrowerOrganization?->abbreviation ?? ''],
+        ], fn ($field) => filled($field['value']));
+        $signerFields = array_filter([
+            ['label' => 'Assina Cautela', 'value' => $signerName],
+            ['label' => 'Nome de Guerra', 'value' => $signerWarName],
+            ['label' => 'Posto/Grad', 'value' => $signerRank],
+            ['label' => 'Idt', 'value' => $signerIdentity],
+            ['label' => 'CPF', 'value' => $loan->signer_cpf ?? ''],
+            ['label' => 'Contato', 'value' => $loan->signer_phone ?? ''],
+        ], fn ($field) => filled($field['value']));
+    @endphp
 
     {{-- ── Cabeçalho institucional ── --}}
     <div class="header">
@@ -110,39 +139,34 @@
     @endif
 
     {{-- ── Recebido por / Identidade ── --}}
-    <div class="receipt-line">
-        Recebido por:&nbsp;<span class="line">
-            @if($loan->borrower_type === 'individual' && $loan->borrower)
-                {{ $loan->borrower->getDisplayName() }}
-            @endif
-        </span>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-        Idt:&nbsp;<span class="line">
-            @if($loan->borrower_type === 'individual' && $loan->borrower)
-                {{ $loan->borrower->identity_number }}
-            @endif
-        </span>
+    <div class="receipt-grid">
+        <div class="receipt-line">
+            <strong>Cautelado para:</strong> {{ $borrowerName }}
+        </div>
+
+        @foreach($borrowerFields as $field)
+            <div class="receipt-line"><strong>{{ $field['label'] }}:</strong> {{ $field['value'] }}</div>
+        @endforeach
+
+        @if($hasSignerDetails)
+            @foreach($signerFields as $field)
+                <div class="receipt-line"><strong>{{ $field['label'] }}:</strong> {{ $field['value'] }}</div>
+            @endforeach
+        @endif
     </div>
 
     {{-- ── Data prevista ── --}}
-    <div class="return-date">
-        Data prevista para devolução:&nbsp;
-        @if($loan->expected_return_date)
-            {{ $loan->expected_return_date->format('d/m/Y') }}
-        @else
-            _____ / ____________ / __________
-        @endif
+    <div class="date-line">
+        ______-____, _____ de _________, de 20___
     </div>
 
     {{-- ── Assinatura ── --}}
     <div class="signature-block">
         <br><br><br>
         <div class="sig-line">
-            @if($loan->borrower_type === 'individual' && $loan->borrower)
-                <div style="font-weight:bold; font-size:11px;">
-                    {{ $loan->borrower->getDisplayName() }}
-                </div>
-            @endif
+            <div style="font-weight:bold; font-size:11px;">
+                {{ $signatureDisplay }}
+            </div>
             <div class="sig-role">Assinatura do Responsável</div>
         </div>
     </div>

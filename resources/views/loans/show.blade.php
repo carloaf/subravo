@@ -80,36 +80,63 @@
             </dl>
         </x-card>
 
-        <x-card title="Mutuário">
-            <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                <div>
-                    <dt class="text-gray-500">Tipo</dt>
-                    <dd class="text-gray-900">{{ $loan->borrower_type === 'individual' ? 'Individual' : 'Seção' }}</dd>
-                </div>
-                @if($loan->borrower_type === 'individual' && $loan->borrower)
+        <x-card title="Cautelado / Assinante">
+            @php
+                $borrowerFields = array_filter([
+                    ['label' => 'Nome de Guerra', 'value' => $loan->getBorrowerWarNameDisplay()],
+                    ['label' => 'Posto/Grad.', 'value' => $loan->getBorrowerRankDisplay()],
+                    ['label' => 'Idt', 'value' => $loan->getBorrowerIdentityDisplay()],
+                    ['label' => 'CPF', 'value' => $loan->borrower_cpf],
+                    ['label' => 'Contato', 'value' => $loan->borrower_phone],
+                    ['label' => 'OM', 'value' => $loan->borrowerOrganization?->abbreviation],
+                ], fn ($field) => filled($field['value']));
+
+                $signerFields = array_filter([
+                    ['label' => 'Nome Completo', 'value' => $loan->getSignerDisplayName()],
+                    ['label' => 'Nome de Guerra', 'value' => $loan->getSignerWarNameDisplay()],
+                    ['label' => 'Posto/Grad.', 'value' => $loan->getSignerRankDisplay()],
+                    ['label' => 'Idt', 'value' => $loan->getSignerIdentityDisplay()],
+                    ['label' => 'CPF', 'value' => $loan->signer_cpf],
+                    ['label' => 'Contato', 'value' => $loan->signer_phone],
+                ], fn ($field) => filled($field['value']));
+            @endphp
+            <div class="space-y-5 text-sm">
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
                     <div>
-                        <dt class="text-gray-500">Nome</dt>
-                        <dd class="font-semibold text-gray-900">{{ $loan->borrower->getDisplayName() }}</dd>
+                        <dt class="text-gray-500">Tipo</dt>
+                        <dd class="text-gray-900">{{ $loan->borrower_type === 'individual' ? 'Individual' : 'Seção' }}</dd>
                     </div>
                     <div>
-                        <dt class="text-gray-500">Identidade</dt>
-                        <dd class="text-gray-900">{{ $loan->borrower->identity_number }}</dd>
+                        <dt class="text-gray-500">Cautelado para</dt>
+                        <dd class="font-semibold text-gray-900">{{ $loan->isIndividual() ? $loan->getBorrowerDisplayName() : ($loan->borrower_section ?: '—') }}</dd>
                     </div>
-                    <div>
-                        <dt class="text-gray-500">Posto/Grad.</dt>
-                        <dd class="text-gray-900">{{ $loan->borrower->rank?->abbreviation ?? '—' }}</dd>
-                    </div>
-                @else
-                    <div>
-                        <dt class="text-gray-500">Seção</dt>
-                        <dd class="font-semibold text-gray-900">{{ $loan->borrower_section }}</dd>
+                    @foreach($borrowerFields as $field)
+                        <div>
+                            <dt class="text-gray-500">{{ $field['label'] }}</dt>
+                            <dd class="text-gray-900">{{ $field['value'] }}</dd>
+                        </div>
+                    @endforeach
+                </dl>
+
+                @if($loan->hasSignerDetails())
+                    <div class="border-t border-gray-100 pt-4">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-3">Assina Cautela</h3>
+                        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                            @foreach($signerFields as $field)
+                                <div>
+                                    <dt class="text-gray-500">{{ $field['label'] }}</dt>
+                                    <dd class="{{ $field['label'] === 'Nome Completo' ? 'font-semibold text-gray-900' : 'text-gray-900' }}">{{ $field['value'] }}</dd>
+                                </div>
+                            @endforeach
+                        </dl>
                     </div>
                 @endif
-                <div>
-                    <dt class="text-gray-500">OM</dt>
-                    <dd class="text-gray-900">{{ $loan->borrowerOrganization?->abbreviation ?? '—' }}</dd>
+
+                <div class="border-t border-gray-100 pt-4">
+                    <dt class="text-gray-500">Assinatura</dt>
+                    <dd class="font-semibold text-gray-900">{{ $loan->getSignatureDisplay() }}</dd>
                 </div>
-            </dl>
+            </div>
         </x-card>
     </div>
 
